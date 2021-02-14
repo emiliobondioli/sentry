@@ -1,10 +1,17 @@
 <template>
   <div
-    class="container p-4 py-8 bg-white dark:bg-gray text-gray dark:text-white flex items-center flex-col max-w-screen-lg mx-auto min-h-screen	"
+    class="container p-4 py-8 bg-white dark:bg-black text-gray dark:text-white flex items-center flex-col max-w-screen-lg mx-auto min-h-screen"
   >
-    <h1 class="mb-16 text-center">
-      <img src="@/assets/logo.svg" svg-inline />
+    <h1
+      class="mb-8 text-center text-2xl font-bold flex flex-col items-center justify-center"
+    >
+      <img
+        src="@/assets/logo.svg"
+        svg-inline
+        class="w-16 h-16 mr-2"
+      />watchtower
     </h1>
+    <h4 class="text-center font-bold">Currency</h4>
     <ul class="w-64 flex justify-between mb-8">
       <li
         v-for="(currency, name) in currencies"
@@ -31,8 +38,15 @@
         Watch
       </button>
     </div>
-    <Loader v-if="loading" class="mt-8" />
-    <Dashboard :data="data" v-else-if="data" />
+    <div class="relative w-4/5">
+      <div
+        class="w-full h-full absolute inset-0 bg-black bg-opacity-50 flex justify-center items-center"
+        v-if="loading"
+      >
+        <Loader class="mt-8" />
+      </div>
+      <Dashboard v-if="platforms" />
+    </div>
   </div>
 </template>
 
@@ -51,12 +65,14 @@ export default {
   },
   setup() {
     const store = useStore();
-    const address = ref("0x5132D6bbf7b868013e496D9D4Dc5F0Ec8aF8dcc6");
+    const address = ref("");
     const loading = ref(false);
-    const data = computed(() => store.state.platforms);
+    const platforms = computed(() => store.state.platforms);
     const { currencies, currentFiat, setFiat } = useFormats(store);
 
-    if (address.value) store.dispatch("load", address.value);
+    store.dispatch("loadPreferences", address.value);
+    address.value = store.state.preferences.address || "";
+    if (address.value) store.dispatch("loadHistory", address.value);
     function watch() {
       if (address.value) {
         loading.value = true;
@@ -68,7 +84,7 @@ export default {
 
     return {
       address,
-      data,
+      platforms,
       watch,
       loading,
       currencies,
