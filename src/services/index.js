@@ -53,14 +53,14 @@ export const fetchData = async (address, platforms) => {
   ) {
     return {
       data: {
-        pancakeData: retData.data.result["PancakeSwap"],
-        streetData: retData.data.result["StreetSwap"],
-        beefyData: retData.data.result["BeefyFinance"],
-        creamData: retData.data.result["CreamFinance"],
-        jetfuelData: retData.data.result["Jetfuel"],
-        venusData: retData.data.result["Venus"],
-        bDollarData: retData.data.result["bDollar"],
-        autofarmData: retData.data.result["Autofarm"],
+        pancake: retData.data.result["PancakeSwap"],
+        street: retData.data.result["StreetSwap"],
+        beefy: retData.data.result["BeefyFinance"],
+        cream: retData.data.result["CreamFinance"],
+        jetfuel: retData.data.result["Jetfuel"],
+        venus: retData.data.result["Venus"],
+        bDollar: retData.data.result["bDollar"],
+        autofarm: retData.data.result["Autofarm"],
         currencies: retData.data.result["currencies"]
         // walletBalance: retData.data.result['walletBalance'],
       },
