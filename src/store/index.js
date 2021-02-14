@@ -19,6 +19,7 @@ export const store = createStore({
     },
     currencies(state, data) {
       data.USD = 1;
+      delete data.WBNB
       state.currencies = data;
     },
     preferences(state, data) {

@@ -1,6 +1,6 @@
 <template>
   <div
-    class="container p-4 py-8 bg-white dark:bg-black text-gray dark:text-white flex items-center flex-col max-w-screen-lg mx-auto min-h-screen"
+    class="container p-2 md:p-4 py-8 bg-white dark:bg-black text-gray dark:text-white flex items-center flex-col lg:max-w-screen-lg md:max-w-none md:w-full mx-auto min-h-screen"
   >
     <h1
       class="mb-8 text-center text-2xl font-bold flex flex-col items-center justify-center"
@@ -11,19 +11,7 @@
         class="w-16 h-16 mr-2"
       />watchtower
     </h1>
-    <h4 class="text-center font-bold">Currency</h4>
-    <ul class="w-64 flex justify-between mb-8">
-      <li
-        v-for="(currency, name) in currencies"
-        :key="name"
-        class="cursor-pointer"
-        :class="{ 'text-green-light font-bold': name === currentFiat }"
-        @click="setFiat(name)"
-      >
-        {{ name }}
-      </li>
-    </ul>
-    <div class="address w-3/5 flex">
+    <div class="address w-full md:w-4/5 p-2 flex">
       <input
         type="text"
         class="p-2 text-lg border border-green rounded-sm flex-1 dark:bg-gray"
@@ -38,9 +26,21 @@
         Watch
       </button>
     </div>
-    <div class="relative w-4/5">
+    <h4 class="text-center font-bold mt-2">Currency</h4>
+    <ul class="p-2 w-full md:w-64 flex justify-between mb-2 md:mb-8">
+      <li
+        v-for="(currency, name) in currencies"
+        :key="name"
+        class="cursor-pointer"
+        :class="{ 'text-green-light font-bold': name === currentFiat }"
+        @click="setFiat(name)"
+      >
+        {{ name }}
+      </li>
+    </ul>
+    <div class="relative md:w-4/5 w-full p-2 inset-0">
       <div
-        class="w-full h-full absolute inset-0 bg-black bg-opacity-50 flex justify-center items-center"
+        class="w-full h-full absolute inset-0 bg-black bg-opacity-50 flex justify-center items-start pt-16 md:pt-0 md:items-center"
         v-if="loading"
       >
         <Loader class="mt-8" />
@@ -99,5 +99,10 @@ export default {
 html,
 body {
   height: 100%;
+  width: 100%;
+  overflow-x: hidden;
+}
+#app {
+  overflow: auto;
 }
 </style>
