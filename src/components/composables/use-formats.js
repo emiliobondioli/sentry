@@ -11,7 +11,7 @@ const symbols = {
 
 export default function useFormats(store) {
   const currencies = computed(() => store.state.currencies);
-  const currentFiat = computed(() => store.state.fiat);
+  const currentFiat = computed(() => store.state.preferences.fiat);
 
   const currency = (value, n = 5) => {
     if (value === 0)
@@ -42,7 +42,7 @@ export default function useFormats(store) {
   };
 
   const setFiat = (name) => {
-    store.commit("fiat", name);
+    store.dispatch("preferences", { fiat: name });
   };
 
   return {

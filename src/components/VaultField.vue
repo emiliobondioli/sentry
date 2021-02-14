@@ -1,6 +1,6 @@
 <template>
   <div
-    class="vault-field border-b border-gray-darkest pb-1 mb-1 flex w-full justify-between"
+    class="vault-field border-b border-gray border-opacity-50 pb-1 mb-1 flex w-full justify-between"
   >
     <div>
       <label class="font-bold">{{ label }}: </label>

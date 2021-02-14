@@ -1,9 +1,8 @@
 <template>
   <div
-    class="vault p-4 flex border-b border-green-light w-1/2 cursor-pointer"
+    class="vault p-4 flex cursor-pointer bg-gray bg-opacity-50"
     @click="toggle"
   >
-    <div class="vault-icon"></div>
     <div class="vault-info container">
       <div class="vault-name flex mb-2">
         <h4 class="text-lg text-gray dark:text-white font-bold flex-1">
@@ -150,6 +149,3 @@ export default {
   },
 };
 </script>
-
-<style scoped>
-</style>

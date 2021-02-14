@@ -1,6 +1,6 @@
 <template>
   <div class="autofarm-dashboard">
-    <h2 class="text-2xl font-bold text-center my-2 mt-8">Autofarm</h2>
+    <h2 class="text-3xl font-bold my-2 mt-8">Autofarm</h2>
     <div class="totals flex justify-between items-center">
       <p>
         <label class="font-bold">Initial deposit: </label
@@ -19,17 +19,17 @@
         ><span class="text-green">{{ fiat(totals.rewards, 2) }}</span>
       </p>
       <VaultLabel
-        :text="fiat(totals.rewards + totals.yield, 2, true)"
+        :text="fiat(totals.rewards + totals.yield, 2)"
         label="Total: "
         class="bg-blue-light text-white flex-row-reverse "
       />
     </div>
-    <h3 class="text-xl text-center">Single Asset</h3>
-    <div class="vaults flex">
+    <h3 class="text-xl mb-2 mt-4">Single Asset Vaults</h3>
+    <div class="vaults grid grid-flow-col grid-cols-2 gap-1">
       <Vault :vault="vault" v-for="vault in vaults" :key="vault.id" />
     </div>
-    <h3 class="text-xl text-center">Liquidity Pools</h3>
-    <div class="vaults-lp flex flex-wrap">
+    <h3 class="text-xl mb-2 mt-4">LP Vaults</h3>
+    <div class="vaults-lp grid grid-flow-col grid-cols-2 gap-1">
       <Vault :vault="vault" v-for="vault in liquidityVaults" :key="vault.id" />
     </div>
   </div>
@@ -89,20 +89,3 @@ export default {
   },
 };
 </script>
-
-<style scoped>
-h3 {
-  margin: 40px 0 0;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
-}
-</style>
