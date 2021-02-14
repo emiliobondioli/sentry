@@ -7,8 +7,10 @@ export const store = createStore({
     return {
       platforms: null,
       currencies: null,
-      fiat: "EUR",
       history: [],
+      preferences: {
+        fiat: "USD",
+      },
     };
   },
   mutations: {
@@ -19,8 +21,8 @@ export const store = createStore({
       data.USD = 1;
       state.currencies = data;
     },
-    fiat(state, data) {
-      state.fiat = data;
+    preferences(state, data) {
+      state.preferences = data;
     },
     history(state, data) {
       state.history = data;
@@ -31,29 +33,48 @@ export const store = createStore({
   },
   actions: {
     get(context, address) {
-      context.commit("platforms", null);
+      context.dispatch("preferences", { address });
       return fetchData(address, ["auto"]).then((r) => {
         context.commit("record", { time: new Date(), address, ...r.data });
-        context.dispatch("save", address);
-        context.dispatch("set", r.data);
+        context.dispatch("saveHistory", address);
+        context.dispatch("setCurrent", r.data);
       });
     },
-    save(context, address) {
+    saveHistory(context, address) {
       localStorage.setItem(
-        "yolo-" + address,
+        "wt-h-" + address,
         JSON.stringify(context.state.history)
       );
     },
-    load(context, address) {
-      let history = localStorage.getItem("yolo-" + address);
+    savePreferences(context) {
+      localStorage.setItem(
+        "watchtower-preferences",
+        JSON.stringify(context.state.preferences)
+      );
+    },
+    loadPreferences(context) {
+      const preferences = localStorage.getItem("watchtower-preferences");
+      if (preferences) context.commit("preferences", JSON.parse(preferences));
+    },
+    loadHistory(context, address) {
+      let history = localStorage.getItem("wt-h-" + address);
       if (!history) history = [];
       else history = JSON.parse(history);
       context.commit("history", history);
-      context.dispatch("set", history[history.length - 1]);
+      if (history.length) {
+        context.dispatch("setCurrent", history[history.length - 1]);
+      }
     },
-    set(context, data) {
-      context.commit("platforms", data);
-      context.commit("currencies", data.currencies);
+    preferences(context, data) {
+      context.commit("preferences", { ...context.state.preferences, ...data });
+      context.dispatch("savePreferences");
+    },
+    setCurrent(context, data) {
+      context.commit("platforms", null);
+      setTimeout(() => {
+        context.commit("platforms", data);
+        context.commit("currencies", data.currencies);
+      })
     },
     mock(context) {
       return Promise.resolve(mock).then((r) => {
