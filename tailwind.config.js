@@ -40,6 +40,7 @@ module.exports = {
     extend: {
       opacity: ["disabled"],
       cursor: ["disabled"],
+      borderWidth: ["first", "last"],
     },
   },
   plugins: [],
