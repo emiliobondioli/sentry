@@ -11,6 +11,7 @@ export const store = createStore({
       history: [],
       preferences: {
         fiat: "USD",
+        darkMode: true
       },
     };
   },

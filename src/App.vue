@@ -1,53 +1,54 @@
 <template>
-  <div
-    class="container p-2 md:p-4 py-8 bg-white dark:bg-black text-gray dark:text-white flex items-center flex-col lg:max-w-screen-lg md:max-w-none md:w-full mx-auto min-h-screen"
-  >
-    <h1
-      class="mb-8 text-center text-2xl font-bold flex flex-col items-center justify-center"
+  <main :class="{ dark, 'bg-white': !dark, 'bg-black': dark }">
+    <div
+      class="container p-2 md:p-4 py-8 bg-white dark:bg-black text-gray dark:text-white flex items-center flex-col lg:max-w-screen-lg md:max-w-none md:w-full mx-auto min-h-screen"
     >
-      <img
-        src="@/assets/logo.svg"
-        svg-inline
-        class="w-16 h-16"
-      />watchtower
-    </h1>
-    <div class="address w-full md:w-4/5 p-2 flex">
-      <input
-        type="text"
-        class="p-2 text-lg border border-green rounded-sm flex-1 dark:bg-gray"
-        v-model="address"
-        placeholder="Insert your wallett address"
-      />
-      <button
-        @click="watch"
-        :disabled="loading"
-        class="disabled:opacity-50 disabled:cursor-auto bg-green-light rounded-md p-2 mx-2 ext-xl text-gray font-bold"
-      >
-        Watch
-      </button>
-    </div>
-    <h4 class="text-center font-bold mt-2">Currency</h4>
-    <ul class="p-2 w-full md:w-64 flex justify-between mb-2 md:mb-8">
-      <li
-        v-for="(currency, name) in currencies"
-        :key="name"
-        class="cursor-pointer"
-        :class="{ 'text-green-light font-bold': name === currentFiat }"
-        @click="setFiat(name)"
-      >
-        {{ name }}
-      </li>
-    </ul>
-    <div class="relative md:w-4/5 w-full p-2 inset-0">
-      <div
-        class="w-full h-full absolute inset-0 bg-black bg-opacity-50 flex justify-center items-start pt-16 md:pt-0 md:items-center"
-        v-if="loading"
-      >
-        <Loader class="mt-8" />
+      <header class="flex justify-between w-full md:w-4/5 items-center mb-8">
+        <h1
+          class="text-center text-2xl font-bold flex items-center justify-center"
+        >
+          <img src="@/assets/logo.svg" svg-inline class="w-16 h-16 mr-2" />watchtower
+        </h1>
+        <dark-mode-switch />
+      </header>
+      <div class="address w-full md:w-4/5 p-2 flex">
+        <input
+          type="text"
+          class="p-2 text-lg border border-green rounded-sm flex-1 dark:bg-gray"
+          v-model="address"
+          placeholder="Insert your wallett address"
+        />
+        <button
+          @click="watch"
+          :disabled="loading"
+          class="disabled:opacity-50 disabled:cursor-auto bg-green-light rounded-md p-2 mx-2 ext-xl text-gray font-bold"
+        >
+          Watch
+        </button>
       </div>
-      <Dashboard v-if="platforms" />
+      <h4 class="text-center font-bold mt-2">Currency</h4>
+      <ul class="p-2 w-full md:w-64 flex justify-between mb-2 md:mb-8">
+        <li
+          v-for="(currency, name) in currencies"
+          :key="name"
+          class="cursor-pointer"
+          :class="{ 'text-green-light font-bold': name === currentFiat }"
+          @click="setFiat(name)"
+        >
+          {{ name }}
+        </li>
+      </ul>
+      <div class="relative md:w-4/5 w-full p-2 inset-0">
+        <div
+          class="w-full h-full absolute inset-0 bg-black bg-opacity-50 flex justify-center items-start pt-16 md:pt-0 md:items-center"
+          v-if="loading"
+        >
+          <Loader class="mt-8" />
+        </div>
+        <Dashboard v-if="platforms" />
+      </div>
     </div>
-  </div>
+  </main>
 </template>
 
 <script>
@@ -56,18 +57,21 @@ import { ref, computed } from "vue";
 import { useStore } from "vuex";
 import useFormats from "./components/composables/use-formats";
 import Loader from "@/components/Loader.vue";
+import DarkModeSwitch from './components/DarkModeSwitch.vue';
 
 export default {
   name: "App",
   components: {
     Dashboard,
     Loader,
+    DarkModeSwitch,
   },
   setup() {
     const store = useStore();
     const address = ref("");
     const loading = ref(false);
     const platforms = computed(() => store.state.platforms);
+    const dark = computed(() => store.state.preferences.darkMode);
     const { currencies, currentFiat, setFiat } = useFormats(store);
 
     store.dispatch("loadPreferences", address.value);
@@ -90,6 +94,7 @@ export default {
       currencies,
       currentFiat,
       setFiat,
+      dark,
     };
   },
 };
