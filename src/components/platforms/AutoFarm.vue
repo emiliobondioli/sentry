@@ -74,8 +74,8 @@ export default {
     const store = useStore();
     const { fiat, currency } = useFormats(store);
 
-    const vaults = ref(props.data.vaults.vaults);
-    const liquidityVaults = ref(props.data.LPVaults.vaults);
+    const vaults = ref(props.data.vaults.vaults.filter(v=>v.depositedTokens));
+    const liquidityVaults = ref(props.data.LPVaults.vaults.filter(v=>v.depositedTokens));
     const totals = ref({
       deposit:
         props.data.vaults.totalUSDValues.deposit +
