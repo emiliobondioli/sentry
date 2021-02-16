@@ -1,5 +1,6 @@
 import { createStore } from "vuex";
 import { fetchData } from "@/services";
+import { scan } from "@/services/autofarm.js";
 import mock from "@/assets/data/mock.js";
 
 export const store = createStore({
@@ -34,12 +35,16 @@ export const store = createStore({
   },
   actions: {
     get(context, address) {
+      context.dispatch('fetch', address)
       context.dispatch("preferences", { address });
       return fetchData(address, ["auto"]).then((r) => {
         context.commit("record", { time: new Date(), address, ...r.data });
         context.dispatch("saveHistory", address);
         context.dispatch("setCurrent", r.data);
       });
+    },
+    fetch(context, address) {
+      return scan(address)
     },
     saveHistory(context, address) {
       localStorage.setItem(
