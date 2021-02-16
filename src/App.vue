@@ -8,7 +8,7 @@
       <img
         src="@/assets/logo.svg"
         svg-inline
-        class="w-16 h-16 mr-2"
+        class="w-16 h-16"
       />watchtower
     </h1>
     <div class="address w-full md:w-4/5 p-2 flex">
