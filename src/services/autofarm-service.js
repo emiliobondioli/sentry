@@ -7,22 +7,30 @@ const config = {
   name: "Autofarm",
   url: "https://api.autofarm.network/bsc/get_farms_data",
   address: "0x0895196562c7868c5be92459fae7f877ed450452",
-  value: (r) =>
-    Object.keys(r.data.pools).map((k) => {
-      const pool = r.data.pools[k];
-      const data = r.data.table_data.find((d) => d[2] === pool.wantName);
-      if (data) pool.farmPid = data[0];
-      return pool;
-    }),
-  keys: {
-    name: "wantName",
-    contractAddress: (f) => parseAddress(f.farmContractAddress),
-    stratAddress: (f) => f.poolInfo.strat,
-    farm: "farmName",
-    lp: "wantIsLP",
-    pid: (f) => parseInt(f.farmPid),
-    earnedAddress: (f) => parseAddress(f.earnedAddress),
-    wantAddress: (f) => parseAddress(f.wantAddress),
+  parsePools: (r, farm) => {
+    return Object.keys(r.data.pools)
+      .map((k) => {
+        const pool = r.data.pools[k];
+        const data = r.data.table_data.find((d) => d[2] === pool.wantName);
+        return {
+          name: pool.wantName,
+          address: farm.address,
+          contractAddress: parseAddress(pool.farmContractAddress),
+          stratAddress: pool.poolInfo.strat,
+          farm: pool.farmName,
+          lp: pool.wantIsLP,
+          pid: data ? parseInt(data[0]) : null,
+          earnedAddress: parseAddress(pool.earnedAddress),
+          wantAddress: parseAddress(pool.wantAddress),
+          info: {
+            ...pool,
+            rewardPrice: pool.poolAUTOPerBlock
+              ? pool.poolUSDPerBlock / pool.poolAUTOPerBlock
+              : null,
+          },
+        };
+      })
+      .filter((p) => p.pid !== null);
   },
 };
 

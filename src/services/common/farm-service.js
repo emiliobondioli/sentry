@@ -62,30 +62,9 @@ export default class FarmService {
    */
   createPools() {
     return this.get(this.config.url).then((r) => {
-      const pools = this.config.value(r);
-      this.pools = pools.map(this.createPool.bind(this));
+      this.pools = this.config.parsePools(r, this.config);
       console.log(this.pools);
     });
-  }
-
-  /**
-   *
-   * @param {pool} pool
-   */
-  createPool(pool) {
-    const data = {
-      name: this.config.name,
-      address: this.config.address,
-    };
-    for (const k in this.config.keys) {
-      if (typeof this.config.keys[k] === "function") {
-        data[k] = this.config.keys[k](pool);
-      } else {
-        data[k] = pool[this.config.keys[k]];
-      }
-    }
-    data.info = pool;
-    return data;
   }
 
   /**
