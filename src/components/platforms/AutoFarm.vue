@@ -1,8 +1,7 @@
 <template>
   <div class="autofarm-dashboard border-b border-gray pb-2">
-    <h2 class="text-3xl font-bold my-2" >Autofarm</h2>
+    <h2 class="text-3xl font-bold my-2" @click="toggle">Autofarm</h2>
     <div
-      @click="toggle"
       class="totals flex justify-between flex-col items-start md:items-center md:flex-row"
     >
       <p class="mb-1">
@@ -43,7 +42,11 @@
         />
       </div>
     </template>
-    <p v-else class="text-sm text-gray-light text-center text-opacity-20 cursor-pointer" @click="toggle">
+    <p
+      v-else
+      class="text-sm text-gray-light text-center text-opacity-20 cursor-pointer"
+      @click="toggle"
+    >
       Click to expand
     </p>
   </div>
@@ -74,8 +77,12 @@ export default {
     const store = useStore();
     const { fiat, currency } = useFormats(store);
 
-    const vaults = ref(props.data.vaults.vaults.filter(v=>v.depositedTokens));
-    const liquidityVaults = ref(props.data.LPVaults.vaults.filter(v=>v.depositedTokens));
+    const vaults = ref(
+      props.data.vaults.vaults.filter((v) => v.depositedTokens)
+    );
+    const liquidityVaults = ref(
+      props.data.LPVaults.vaults.filter((v) => v.depositedTokens)
+    );
     const totals = ref({
       deposit:
         props.data.vaults.totalUSDValues.deposit +
