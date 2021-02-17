@@ -26,3 +26,12 @@ export function parseContractMethods(contract) {
     .filter((m) => m);
   console.log(methods);
 }
+
+export function convertValue(value) {
+  return Number(value) * 0.000000000000000001;
+}
+
+export function parseAddress(address) {
+  if (!address) return null;
+  return address.toLowerCase();
+}
