@@ -40,7 +40,7 @@ export default class AutofarmService extends FarmService {
     if (this.contract.methods.stakedWantTokens) {
       batch.add(
         this.contract.methods.stakedWantTokens(pool.pid, userAddress),
-        (r) => ({ stakedTokens: convertValue(r) })
+        (r) => ({ currentTokens: convertValue(r) })
       );
     }
 
@@ -52,7 +52,7 @@ export default class AutofarmService extends FarmService {
       );
     }
 
-    batch.modifier = (stats) => setPoolStats(pool, stats);
+    batch.modifier = (stats) => this.setPoolStats(pool, stats);
 
     return batch;
   }

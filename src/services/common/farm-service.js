@@ -75,7 +75,6 @@ export default class FarmService {
   createPool(pool) {
     const data = {
       name: this.config.name,
-      url: this.config.url,
       address: this.config.address,
     };
     for (const k in this.config.keys) {
@@ -85,7 +84,7 @@ export default class FarmService {
         data[k] = pool[this.config.keys[k]];
       }
     }
-    data.pool = pool;
+    data.info = pool;
     return data;
   }
 
@@ -109,10 +108,13 @@ export default class FarmService {
         if (!poolTransactions.length) return;
         const pool = {
           ...p,
-          transactions: poolTransactions.map(this.prepareTransaction),
+          transactions: poolTransactions.map(
+            this.prepareTransaction.bind(this)
+          ),
           userAddress: this.userAddress,
         };
-        userPools.push(pool);
+        pool.depositedTokens = this.computePoolDepositedTokens(pool);
+        if (pool.depositedTokens > 0) userPools.push(pool);
       });
       return this.getUserStats(userPools, this.userAddress);
     });
@@ -162,10 +164,21 @@ export default class FarmService {
    * Gets total deposited tokens in pool for userAddress
    * @param {pool} pool
    */
-  computePoolBalance(pool, userAddress) {
+  computePoolDepositedTokens(pool) {
     return pool.transactions
-      .map((t) => (t.from === this.userAddress ? t.value : t.value * -1))
+      .map((t) => (t.to === pool.address ? t.value : t.value * -1))
       .reduce((a, b) => a + b, 0);
+  }
+
+  /**
+   * Add multiple pool stats to pool object
+   * @param {pool} pool
+   * @param {array} stats
+   */
+  setPoolStats(pool, stats) {
+    let p = { ...pool };
+    stats.forEach((s) => (p = { ...p, ...s }));
+    return p;
   }
 
   /**
@@ -207,17 +220,6 @@ export default class FarmService {
   get(url, params) {
     return axios.get(url, { params });
   }
-}
-
-/**
- * Add multiple pool stats to pool object
- * @param {pool} pool
- * @param {array} stats
- */
-export function setPoolStats(pool, stats) {
-  let p = { ...pool };
-  stats.forEach((s) => (p = { ...p, ...s }));
-  return p;
 }
 
 /**
