@@ -7,7 +7,7 @@
         <h1
           class="text-center text-2xl font-bold flex items-center justify-center"
         >
-          <img src="@/assets/logo.svg" svg-inline class="w-16 h-16 mr-2" />watchtower
+          <img src="@/assets/logo.svg" svg-inline class="w-16 h-16 mr-2" />sentry.farm
         </h1>
         <dark-mode-switch />
       </header>
