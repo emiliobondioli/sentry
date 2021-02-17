@@ -1,67 +1,67 @@
 import axios from "axios";
 import Web3 from "web3";
+
+/** init web3 with BSCScan provider */
 const web3 = new Web3(
   new Web3.providers.HttpProvider("https://bsc-dataseed1.binance.org/")
 );
 
+/** BSCScan API params */
 const baseUrl = "https://api.bscscan.com/api";
 const API_TOKEN = "TF9Q3E4IQ4MVN5WPDHE2J6RXUQUAH97E88";
 
-const FARMS = [
-  {
-    name: "Autofarm",
-    url: "https://api.autofarm.network/bsc/get_farms_data",
-    value: (r) => Object.keys(r.data.pools).map((k) => r.data.pools[k]),
-    address: "0x0895196562c7868c5be92459fae7f877ed450452",
-    keys: {
-      name: "wantName",
-      contractAddress: (f) => parseAddress(f.farmContractAddress),
-      stratAddress: (f) => f.poolInfo.strat,
-      farm: "farmName",
-      lp: "wantIsLP",
-      pid: (f) => parseInt(f.farmPid),
-      earnedAddress: (f) => parseAddress(f.earnedAddress),
-      wantAddress: (f) => parseAddress(f.wantAddress),
-    },
+const config = {
+  name: "Autofarm",
+  url: "https://api.autofarm.network/bsc/get_farms_data",
+  address: "0x0895196562c7868c5be92459fae7f877ed450452",
+  value: (r) =>
+    Object.keys(r.data.pools).map((k) => {
+      const pool = r.data.pools[k];
+      const data = r.data.table_data.find((d) => d[2] === pool.wantName);
+      if (data) pool.farmPid = data[0];
+      return pool;
+    }),
+  keys: {
+    name: "wantName",
+    contractAddress: (f) => parseAddress(f.farmContractAddress),
+    stratAddress: (f) => f.poolInfo.strat,
+    farm: "farmName",
+    lp: "wantIsLP",
+    pid: (f) => parseInt(f.farmPid),
+    earnedAddress: (f) => parseAddress(f.earnedAddress),
+    wantAddress: (f) => parseAddress(f.wantAddress),
   },
-];
+};
 
 const pools = [];
 
-function parseAddress(address) {
-  if (!address) return null;
-  return address.toLowerCase();
-}
-
-export function initFarms() {
-  FARMS.forEach((farm) => {
-    get(farm.url).then((r) => {
-      const pools = farm.value(r);
-      pools.forEach((pool, id) => preparePool({ pool, id }, farm));
-      console.log(pools);
-    });
+function initPools() {
+  get(config.url).then((r) => {
+    const pools = config.value(r);
+    pools.forEach((pool, id) => preparePool({ pool, id }));
+    console.log(pools);
   });
 }
 
-function preparePool({ pool, id }, farm) {
+initPools();
+
+function preparePool({ pool, id }) {
   const data = {
-    name: farm.name,
-    url: farm.url,
-    address: farm.address,
+    name: config.name,
+    url: config.url,
+    address: config.address,
     id,
   };
-  for (const k in farm.keys) {
-    if (typeof farm.keys[k] === "function") {
-      data[k] = farm.keys[k](pool);
+  for (const k in config.keys) {
+    if (typeof config.keys[k] === "function") {
+      data[k] = config.keys[k](pool);
     } else {
-      data[k] = pool[farm.keys[k]];
+      data[k] = pool[config.keys[k]];
     }
   }
   data.pool = pool;
   pools.push(data);
 }
-
-initFarms();
 
 let account = {};
 
@@ -95,7 +95,7 @@ function prepareVault(vault) {
     return {
       date: new Date(t.timeStamp * 1000),
       timestamp: t.timeStamp,
-      value: toBNB(t.value),
+      value: convertValue(t.value),
       to: t.to,
       from: t.from,
       contractAddress: t.contractAddress,
@@ -112,7 +112,7 @@ function prepareVault(vault) {
   };
 }
 
-function toBNB(value) {
+function convertValue(value) {
   return Number(value) * 0.000000000000000001;
 }
 
@@ -139,8 +139,11 @@ function getInternalTransactions(address) {
 }
 
 function getContractInfo(vault, address) {
-  //if (vault.name != "WBNB-CAKE LP") return;
   const contractAddress = vault.address;
+  /** TODO: add batching */
+  /*   var batch = new web3.BatchRequest();
+batch.add(contract.methods.balance(address).call.request({from: '0x0000000000000000000000000000000000000000'}, callback2));
+batch.execute(); */
   return get(baseUrl, {
     address: contractAddress,
     module: "contract",
@@ -152,24 +155,15 @@ function getContractInfo(vault, address) {
 
     if (contractABI != "") {
       const contract = new web3.eth.Contract(contractABI, contractAddress);
-      console.log(vault, contract.methods);
-      contract.methods
-        .userInfo(vault.id + 1, address)
-        .call()
-        .then((r) => {
-/*           console.log(vault.name, r, {
-            0: toBNB(r[0]),
-            1: toBNB(r[1]),
-            shares: toBNB(r.shares),
-            rewardDebt: toBNB(r.rewardDebt),
-          }); */
-        });
-      contract.methods
-        .stakedWantTokens(vault.id + 1, address)
-        .call()
-        .then((r) => {
-          console.log(vault.name, toBNB(r));
-        });
+      console.log(vault, contract);
+      if (contract.methods.stakedWantTokens) {
+        contract.methods
+          .stakedWantTokens(vault.pid, address)
+          .call()
+          .then((r) => {
+            console.log(vault.name, "stakedWantTokens", convertValue(r));
+          });
+      }
       return contract;
     } else {
       console.log("Error");
@@ -179,4 +173,9 @@ function getContractInfo(vault, address) {
 
 function get(url, params) {
   return axios.get(url, { params });
+}
+
+function parseAddress(address) {
+  if (!address) return null;
+  return address.toLowerCase();
 }
