@@ -1,23 +1,30 @@
 import { createStore } from "vuex";
-import { fetchData } from "@/services/yieldwatch-service";
-import { service as autofarm } from "@/services/autofarm-service.js";
-import mock from "@/assets/data/mock.js";
+import config from "@/config/env";
+import platforms from "@/config/platforms";
+import services from "@/services";
+import { merge } from "@/utils";
 
 export const store = createStore({
   state() {
     return {
-      platforms: null,
+      platforms,
       currencies: null,
+      farms: [],
       history: [],
       preferences: {
         fiat: "USD",
         darkMode: true,
+        address: "",
+        platforms: [],
       },
     };
   },
   mutations: {
-    platforms(state, data) {
-      state.platforms = data;
+    farms(state, data) {
+      state.farms = data;
+    },
+    farm(state, data) {
+      state.farms = merge(state.farms, data);
     },
     currencies(state, data) {
       data.USD = 1;
@@ -35,36 +42,37 @@ export const store = createStore({
     },
   },
   actions: {
-    get(context, address) {
-      context.dispatch("fetch", address);
+    get(context, { address, platforms }) {
       context.dispatch("preferences", { address });
-      return fetchData(address, ["auto"]).then((r) => {
-        context.commit("record", { time: new Date(), address, ...r.data });
-        context.dispatch("saveHistory", address);
-        context.dispatch("setCurrent", r.data);
+      platforms.forEach((platformId) => {
+        const service = services[platformId];
+        service.scan(address).then((farm) => {
+          context.commit("farm", farm);
+          context.commit("record", context.state.farms);
+          context.dispatch("saveHistory");
+        });
       });
-    },
-    fetch(context, address) {
-      return autofarm.scan(address);
     },
     saveHistory(context, address) {
       localStorage.setItem(
-        "wt-h-" + address,
+        config.localStoragePrefix + "history",
         JSON.stringify(context.state.history)
       );
     },
     savePreferences(context) {
       localStorage.setItem(
-        "watchtower-preferences",
+        config.localStoragePrefix + "preferences",
         JSON.stringify(context.state.preferences)
       );
     },
     loadPreferences(context) {
-      const preferences = localStorage.getItem("watchtower-preferences");
+      const preferences = localStorage.getItem(
+        config.localStoragePrefix + "preferences"
+      );
       if (preferences) context.commit("preferences", JSON.parse(preferences));
     },
-    loadHistory(context, address) {
-      let history = localStorage.getItem("wt-h-" + address);
+    loadHistory(context) {
+      let history = localStorage.getItem(config.localStoragePrefix + "history");
       if (!history) history = [];
       else history = JSON.parse(history);
       context.commit("history", history);
@@ -77,16 +85,9 @@ export const store = createStore({
       context.dispatch("savePreferences");
     },
     setCurrent(context, data) {
-      context.commit("platforms", null);
+      context.commit("farms", null);
       setTimeout(() => {
-        context.commit("platforms", data);
-        context.commit("currencies", data.currencies);
-      });
-    },
-    mock(context) {
-      return Promise.resolve(mock).then((r) => {
-        context.commit("platforms", r.result);
-        context.commit("currencies", r.result.currencies);
+        context.commit("farms", data);
       });
     },
   },
