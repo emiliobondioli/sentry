@@ -1,4 +1,8 @@
 import axios from "axios";
+import Web3 from "web3";
+const web3 = new Web3(
+  new Web3.providers.HttpProvider("https://bsc-dataseed1.binance.org/")
+);
 
 const baseUrl = "https://api.bscscan.com/api";
 const API_TOKEN = "TF9Q3E4IQ4MVN5WPDHE2J6RXUQUAH97E88";
@@ -15,6 +19,7 @@ const FARMS = [
       stratAddress: (f) => f.poolInfo.strat,
       farm: "farmName",
       lp: "wantIsLP",
+      pid: (f) => parseInt(f.farmPid),
       earnedAddress: (f) => parseAddress(f.earnedAddress),
       wantAddress: (f) => parseAddress(f.wantAddress),
     },
@@ -32,17 +37,18 @@ export function initFarms() {
   FARMS.forEach((farm) => {
     get(farm.url).then((r) => {
       const pools = farm.value(r);
-      pools.forEach((pool) => preparePool(pool, farm));
+      pools.forEach((pool, id) => preparePool({ pool, id }, farm));
       console.log(pools);
     });
   });
 }
 
-function preparePool(pool, farm) {
+function preparePool({ pool, id }, farm) {
   const data = {
     name: farm.name,
     url: farm.url,
     address: farm.address,
+    id,
   };
   for (const k in farm.keys) {
     if (typeof farm.keys[k] === "function") {
@@ -79,14 +85,7 @@ export function scan(address) {
       .filter((v) => v.balance > 0);
     console.log(vaults);
     vaults.forEach((v) => {
-      getInternalTransactions('0xa184088a740c695E156F91f5cC086a06bb78b827').then((transactions) => {
-        console.log(
-          v,
-          transactions.filter((t) =>
-            [t.to.toLowerCase(), t.from.toLowerCase()].includes(address.toLowerCase())
-          )
-        );
-      });
+      getContractInfo(v, address);
     });
   });
 }
@@ -136,6 +135,45 @@ function getInternalTransactions(address) {
     apikey: API_TOKEN,
   }).then((r) => {
     return r.data.result;
+  });
+}
+
+function getContractInfo(vault, address) {
+  //if (vault.name != "WBNB-CAKE LP") return;
+  const contractAddress = vault.address;
+  return get(baseUrl, {
+    address: contractAddress,
+    module: "contract",
+    action: "getabi",
+    apikey: API_TOKEN,
+  }).then((r) => {
+    let contractABI = "";
+    contractABI = JSON.parse(r.data.result);
+
+    if (contractABI != "") {
+      const contract = new web3.eth.Contract(contractABI, contractAddress);
+      console.log(vault, contract.methods);
+      contract.methods
+        .userInfo(vault.id + 1, address)
+        .call()
+        .then((r) => {
+/*           console.log(vault.name, r, {
+            0: toBNB(r[0]),
+            1: toBNB(r[1]),
+            shares: toBNB(r.shares),
+            rewardDebt: toBNB(r.rewardDebt),
+          }); */
+        });
+      contract.methods
+        .stakedWantTokens(vault.id + 1, address)
+        .call()
+        .then((r) => {
+          console.log(vault.name, toBNB(r));
+        });
+      return contract;
+    } else {
+      console.log("Error");
+    }
   });
 }
 
