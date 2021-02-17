@@ -1,6 +1,6 @@
 <template>
   <div class="autofarm-dashboard border-b border-gray pb-2">
-    <h2 class="text-3xl font-bold my-2" @click="toggle">Autofarm</h2>
+    <h2 class="text-3xl font-bold my-2" >Autofarm</h2>
     <div
       @click="toggle"
       class="totals flex justify-between flex-col items-start md:items-center md:flex-row"
@@ -43,7 +43,7 @@
         />
       </div>
     </template>
-    <p v-else class="text-sm text-gray-light text-center text-opacity-20">
+    <p v-else class="text-sm text-gray-light text-center text-opacity-20 cursor-pointer" @click="toggle">
       Click to expand
     </p>
   </div>
