@@ -1,13 +1,11 @@
-import FarmService from "./common/farm-service";
-import { BatchRequest, setPoolStats } from "./common/farm-service";
+import { autofarm } from "@/config/platforms";
 import web3 from "./common/web3";
+import { FarmService } from "./common/farm-service";
+import { BatchRequest } from "./common/utils";
 import { parseAddress, convertValue } from "@/utils";
 
-const config = {
-  name: "Autofarm",
-  url: "https://api.autofarm.network/bsc/get_farms_data",
-  address: "0x0895196562c7868c5be92459fae7f877ed450452",
-  parsePools: (r, farm) => {
+export default class AutofarmService extends FarmService {
+  parsePools(r, farm) {
     return Object.keys(r.data.pools)
       .map((k) => {
         const pool = r.data.pools[k];
@@ -15,11 +13,11 @@ const config = {
         return {
           name: pool.wantName,
           address: farm.address,
-          contractAddress: parseAddress(pool.farmContractAddress),
-          stratAddress: pool.poolInfo.strat,
-          farm: pool.farmName,
-          lp: pool.wantIsLP,
           pid: data ? parseInt(data[0]) : null,
+          lp: pool.wantIsLP,
+          farm: pool.farmName,
+          stratAddress: parseAddress(pool.poolInfo.strat),
+          contractAddress: parseAddress(pool.farmContractAddress),
           earnedAddress: parseAddress(pool.earnedAddress),
           wantAddress: parseAddress(pool.wantAddress),
           info: {
@@ -31,12 +29,6 @@ const config = {
         };
       })
       .filter((p) => p.pid !== null);
-  },
-};
-
-export default class AutofarmService extends FarmService {
-  constructor() {
-    super(config, web3);
   }
 
   getUserStatsForPool(pool, userAddress) {
@@ -66,5 +58,4 @@ export default class AutofarmService extends FarmService {
   }
 }
 
-export const service = new AutofarmService(config, web3);
-service.init();
+export const service = new AutofarmService(autofarm, web3);

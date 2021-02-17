@@ -1,10 +1,11 @@
 import axios from "axios";
 import { parseAddress, convertValue } from "@/utils";
+import { LPService } from "./lp-service";
 
 const API_BASE = "https://api.bscscan.com/api";
 const API_TOKEN = "TF9Q3E4IQ4MVN5WPDHE2J6RXUQUAH97E88";
 
-export default class FarmService {
+export class FarmService {
   /**
    *
    * @param {object} config
@@ -15,6 +16,8 @@ export default class FarmService {
     this.pools = [];
     this.userAddress = "";
     this.web3 = web3;
+    this.initialized = false;
+    this.id = config.id;
   }
 
   /**
@@ -28,75 +31,80 @@ export default class FarmService {
   /**
    *  Init farm pools and contract
    */
-  init() {
-    return Promise.all([this.createPools(), this.initContract()]);
+  async init() {
+    await Promise.all([this.createPools(), this.initContract()]);
+    return (this.initialized = true);
   }
 
   /**
    * Get contract abi and return a web3 Contract instance
    */
-  initContract() {
+  async initContract() {
     const contractAddress = this.config.address;
-    return this.get(API_BASE, {
+    const r = await this.get(API_BASE, {
       address: contractAddress,
       module: "contract",
       action: "getabi",
       apikey: API_TOKEN,
-    }).then((r) => {
-      let abi;
-      try {
-        abi = JSON.parse(r.data.result);
-      } catch {
-        throw new Error("Contract ABI not readable");
-      }
-      if (abi) {
-        this.contract = new this.web3.eth.Contract(abi, contractAddress);
-        console.log(this.contract.methods);
-        return this.contract;
-      }
     });
+    let abi;
+    try {
+      abi = JSON.parse(r.data.result);
+    } catch {
+      throw new Error("Contract ABI not readable");
+    }
+    if (abi) {
+      this.contract = new this.web3.eth.Contract(abi, contractAddress);
+      return this.contract;
+    }
+  }
+
+  /**
+   * Abstract function to parse the API response and create the pools array for the current farm
+   * @abstract
+   */
+  parsePools(_r) {
+    throw new Error("parsePools should be implemented for each farm service");
   }
 
   /**
    * Initialize pools for the current farm
    */
-  createPools() {
-    return this.get(this.config.url).then((r) => {
-      this.pools = this.config.parsePools(r, this.config);
-      console.log(this.pools);
-    });
+  async createPools() {
+    const r = await this.get(this.config.url);
+    this.pools = this.parsePools(r, this.config);
   }
 
   /**
    *
    * @param {address} userAddress
    */
-  scan(userAddress) {
+  async scan(userAddress) {
     if (!userAddress && !this.userAddress)
       throw new Error("userAddress is required");
+    if (!this.initialized) await this.init();
     this.userAddress = userAddress;
-    return this.getTransactions(this.userAddress).then((transactions) => {
-      console.log(
-        `${transactions.length} transactions found for address ${this.userAddress}`
+    const transactions = await this.getTransactions(this.userAddress);
+    const userPools = [];
+    this.pools.forEach((p) => {
+      const poolTransactions = transactions.filter((t) =>
+        this.isPoolTransaction(t, p)
       );
-      const userPools = [];
-      this.pools.forEach((p) => {
-        const poolTransactions = transactions.filter((t) =>
-          this.isPoolTransaction(t, p)
-        );
-        if (!poolTransactions.length) return;
-        const pool = {
-          ...p,
-          transactions: poolTransactions.map(
-            this.prepareTransaction.bind(this)
-          ),
-          userAddress: this.userAddress,
-        };
-        pool.depositedTokens = this.computePoolDepositedTokens(pool);
-        if (pool.depositedTokens > 0) userPools.push(pool);
-      });
-      return this.getUserStats(userPools, this.userAddress);
+      if (!poolTransactions.length) return;
+      const pool = {
+        ...p,
+        transactions: poolTransactions.map(this.prepareTransaction.bind(this)),
+        userAddress: this.userAddress,
+      };
+      pool.depositedTokens = this.computePoolDepositedTokens(pool);
+
+      if (pool.depositedTokens > 0) {
+        userPools.push(pool);
+        if (pool.lp) this.getLPInfo(pool);
+      }
     });
+    const pools = await this.getUserStats(userPools, this.userAddress);
+    return { ...this.config, pools };
   }
 
   /**
@@ -112,12 +120,11 @@ export default class FarmService {
   }
 
   /**
-   *
+   * Abstract function call the farm's contract methods and get the current user stats
    * @param {pool} pool
    * @param {address} userAddress
    */
-  // eslint-disable-next-line no-unused-vars
-  getUserStatsForPool(pool, userAddress) {
+  getUserStatsForPool() {
     throw new Error(
       "getUserStatsForPool should be implemented for each farm service"
     );
@@ -136,7 +143,7 @@ export default class FarmService {
       promises.push(batch.addToRequest(request));
     });
     request.execute();
-    return Promise.all(promises).then(console.log);
+    return Promise.all(promises);
   }
 
   /**
@@ -165,7 +172,7 @@ export default class FarmService {
    * @param {address} address
    * @param {address} contractAddress
    */
-  getTransactions(address, contractAddress = null) {
+  async getTransactions(address, contractAddress = null) {
     const params = {
       address,
       module: "account",
@@ -173,9 +180,13 @@ export default class FarmService {
       apikey: API_TOKEN,
     };
     if (contractAddress) params.contractaddress = parseAddress(contractAddress);
-    return this.get(API_BASE, params).then((r) => {
-      return r.data.result;
-    });
+    const r = await this.get(API_BASE, params);
+    return r.data.result;
+  }
+
+  async getLPInfo(pool) {
+    const service = new LPService(pool.wantAddress, this.web3);
+    service.getTokenStats();
   }
 
   /**
@@ -198,56 +209,5 @@ export default class FarmService {
    */
   get(url, params) {
     return axios.get(url, { params });
-  }
-}
-
-/**
- * Allows the use of multiple sets of promises for each pool,
- */
-export class BatchRequest {
-  constructor() {
-    this.promises = [];
-    this.calls = [];
-    this.modifier = null;
-  }
-
-  /**
-   * Adds a contract method and modifier to the batch
-   * @param {function} method contract method to be called
-   * @param {function} modifier function to modify the returned value before resolving
-   */
-  add(method, modifier = (r) => r) {
-    this.promises.push(
-      new Promise((resolve, reject) => {
-        this.calls.push({
-          method,
-          result: (e, r) => {
-            if (e) reject(e);
-            else resolve(modifier(r));
-          },
-        });
-      })
-    );
-  }
-
-  /**
-   * Adds all batch calls to the provided request
-   * @param {w3.BatchRequest} request
-   */
-  addToRequest(request) {
-    this.calls.forEach((c) => {
-      request.add(c.method.call.request(c.result));
-    });
-    return this.all();
-  }
-
-  /**
-   * Returns a Promise resolved once all calls are done
-   */
-  all() {
-    return Promise.all(this.promises).then((r) => {
-      if (this.modifier) return this.modifier(r);
-      return r;
-    });
   }
 }
