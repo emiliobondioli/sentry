@@ -3,33 +3,12 @@ import axios from "axios";
 let apiBaseUrl = "https://yieldwatch.net/api";
 
 export const fetchData = async (address, platforms) => {
-  console.log("Fetching data");
-  let startTime = Date.now();
-
   const reqPlatforms = platforms;
-
-  /*     if (platforms[i++]) reqPlatforms.push("beefy");
-    if (platforms[i++]) reqPlatforms.push("pancake");
-    if (platforms[i++]) reqPlatforms.push("streetswap");
-    if (platforms[i++]) reqPlatforms.push("bdollar");
-    if (platforms[i++]) reqPlatforms.push("jetfuel");
-    if (platforms[i++]) reqPlatforms.push("auto");
-    if (platforms[i++]) reqPlatforms.push("venus");
-    if (platforms[i++]) reqPlatforms.push("cream"); */
-
-  // remove whitespaces
   const sendAddress = address.replace(/\s+/g, "");
 
-  // const retData = await axios.get(`${apiBaseUrl}/all/${sendAddress}?platforms=${reqPlatforms.join().concat(',auto')}`)
   const retData = await axios.get(
     `${apiBaseUrl}/all/${sendAddress}?platforms=${reqPlatforms.join()}`
   );
-
-  // console.log('RETVAL', retData.data)
-
-  let timeDiff = Date.now() - startTime;
-  console.log(timeDiff);
-
   if (
     retData.data.status === "1" &&
     retData.data.result["PancakeSwap"] &&
@@ -61,8 +40,7 @@ export const fetchData = async (address, platforms) => {
         venus: retData.data.result["Venus"],
         bDollar: retData.data.result["bDollar"],
         autofarm: retData.data.result["Autofarm"],
-        currencies: retData.data.result["currencies"]
-        // walletBalance: retData.data.result['walletBalance'],
+        currencies: retData.data.result["currencies"],
       },
     };
   }
@@ -72,6 +50,5 @@ export const fetchQuotes = async () => {
   const newPrices = await axios.get(
     "https://my-bsc-prices.herokuapp.com/api/prices"
   );
-  // console.log(newPrices)
   return newPrices.data;
 };
