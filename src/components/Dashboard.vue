@@ -1,23 +1,23 @@
 <template>
   <div class="dashboard">
-    <AutoFarm :data="platforms.autofarm" v-if="platforms.autofarm" />
+    <Farm v-for="(farm, index) in farms" :key="index" :farm="farm" />
   </div>
 </template>
 
 <script>
-import AutoFarm from "./platforms/AutoFarm.vue";
+import Farm from "./platforms/Farm.vue";
 import { useStore } from "vuex";
 import { computed } from "vue";
 
 export default {
   name: "Dashboard",
   components: {
-    AutoFarm,
+    Farm,
   },
   setup() {
     const store = useStore();
-    const platforms = computed(() => store.state.platforms);
-    return { platforms };
+    const farms = computed(() => store.state.farms);
+    return { farms };
   },
 };
 </script>

@@ -8,31 +8,34 @@
         <h4 class="text-lg text-gray dark:text-white font-bold flex-1">
           {{ vault.name }}
         </h4>
-        <VaultLabel :text="currency(vault.apy * 100, 0) + '%'" label="APY" />
+        <VaultLabel
+          :text="currency(vault.info.APY * 100, 0) + '%'"
+          label="APY"
+        />
       </div>
       <template v-if="expanded">
         <VaultField
           label="Deposited"
-          :info="isLPVault ? lpTokensDeposited : null"
+          :info="vault.lp ? lpTokensDeposited : null"
           :value="vault.depositedTokens"
           :format="currency"
-          :currency="!isLPVault ? vault.depositToken : 'LP'"
+          :currency="!vault.lp ? vault.info.wantName : 'LP'"
           :conversion="(v) => fiat(convert(v))"
         />
         <VaultField
           label="Yield"
-          :info="isLPVault ? lpTokensYield : null"
+          :info="vault.lp ? lpTokensYield : null"
           :value="tokenYield"
           :format="currency"
-          :currency="!isLPVault ? vault.depositToken : 'LP'"
+          :currency="!vault.lp ? vault.info.wantName : 'LP'"
           :conversion="(v) => fiat(convert(v))"
         />
         <VaultField
           label="Current"
-          :info="isLPVault ? lpTokensCurrent : null"
+          :info="vault.lp ? lpTokensCurrent : null"
           :value="vault.currentTokens"
           :format="currency"
-          :currency="!isLPVault ? vault.depositToken : 'LP'"
+          :currency="!vault.lp ? vault.info.wantName : 'LP'"
           :conversion="(v) => fiat(convert(v))"
         />
         <VaultField
@@ -56,7 +59,7 @@
         <VaultFieldLite
           :info="lpTokensCurrent"
           :value="vault.currentTokens"
-          :currency="!isLPVault ? vault.depositToken : 'LP'"
+          :currency="!vault.lp ? vault.info.wantName : 'LP'"
           :change="vault.currentTokens - vault.depositedTokens"
           :format="currency"
           :conversion="(v) => fiat(convert(v))"
@@ -64,7 +67,7 @@
       </template>
       <div class="flex justify-end">
         <VaultLabel
-          v-if="isLPVault"
+          v-if="vault.lp"
           :text="fiat(impermanentLoss)"
           label="IL"
           class="mr-2 bg-red-light"
@@ -110,30 +113,19 @@ export default {
     const {
       convert,
       convertReward,
-      isLPVault,
       tokenYield,
       totalRewards,
       impermanentLoss,
       totalGain,
-      getLPDepositedAmounts,
-      getLPCurrentAmounts,
-      getLPYieldAmounts,
     } = useVault(props.vault);
 
-    const lpTokensDeposited = computed(() =>
-      isLPVault.value ? lpPair(getLPDepositedAmounts()) : ""
-    );
-    const lpTokensCurrent = computed(() =>
-      isLPVault.value ? lpPair(getLPCurrentAmounts()) : ""
-    );
-    const lpTokensYield = computed(() =>
-      isLPVault.value ? lpPair(getLPYieldAmounts()) : ""
-    );
+    const lpTokensDeposited = computed(() => "0");
+    const lpTokensCurrent = computed(() => "0");
+    const lpTokensYield = computed(() => "0");
 
     return {
       currency,
       fiat,
-      isLPVault,
       tokenYield,
       totalRewards,
       lpTokensDeposited,

@@ -12,8 +12,8 @@ export default function useVault(vault) {
     () => vault.harvestedRewards + vault.pendingRewards
   );
 
-  const convert = (v) => v * vault.priceInUSDDepositToken;
-  const convertReward = (v) => v * vault.priceInUSDRewardToken;
+  const convert = (v) => v * vault.info.wantPrice;
+  const convertReward = (v) => v * vault.info.rewardPrice;
 
   const symbols = {
     token: vault.depositToken,
@@ -22,33 +22,6 @@ export default function useVault(vault) {
   if (LPInfo.value) {
     (symbols.symbolToken0 = LPInfo.value.symbolToken0),
       (symbols.symbolToken1 = LPInfo.value.symbolToken1);
-  }
-
-  function getLPDepositedAmounts() {
-    if (!LPInfo.value) return {};
-    return {
-      token0: LPInfo.value.depositToken0,
-      token1: LPInfo.value.depositToken1,
-      ...symbols,
-    };
-  }
-
-  function getLPCurrentAmounts() {
-    if (!LPInfo.value) return {};
-    return {
-      token0: LPInfo.value.currentToken0,
-      token1: LPInfo.value.currentToken1,
-      ...symbols,
-    };
-  }
-
-  function getLPYieldAmounts() {
-    if (!LPInfo.value) return {};
-    return {
-      token0: LPInfo.value.currentToken0 - LPInfo.value.depositToken0,
-      token1: LPInfo.value.currentToken1 - LPInfo.value.depositToken1,
-      ...symbols,
-    };
   }
 
   const impermanentLoss = computed(() => {
@@ -82,9 +55,6 @@ export default function useVault(vault) {
     isLPVault,
     tokenYield,
     totalRewards,
-    getLPDepositedAmounts,
-    getLPCurrentAmounts,
-    getLPYieldAmounts,
     impermanentLoss,
     feesGain,
     tokenGain,

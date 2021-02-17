@@ -11,7 +11,7 @@ const symbols = {
 
 export default function useFormats(store) {
   const currencies = computed(() => store.state.currencies);
-  const currentFiat = computed(() => store.state.preferences.fiat);
+  const currentFiat = computed(() => 'USD');
 
   const currency = (value, n = 5) => {
     if (value === 0)
