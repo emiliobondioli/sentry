@@ -35,3 +35,10 @@ export function parseAddress(address) {
   if (!address) return null;
   return address.toLowerCase();
 }
+
+export function merge(array, data) {
+  const idx = array.findIndex((e) => e.id === data.id);
+  if (idx < 0) return [...array, data];
+  array[idx] = data;
+  return array;
+}
