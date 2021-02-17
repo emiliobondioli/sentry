@@ -1,6 +1,6 @@
 import { createStore } from "vuex";
-import { fetchData } from "@/services";
-import { scan } from "@/services/autofarm.js";
+import { fetchData } from "@/services/yieldwatch-service";
+import { service as autofarm } from "@/services/autofarm-service.js";
 import mock from "@/assets/data/mock.js";
 
 export const store = createStore({
@@ -11,7 +11,7 @@ export const store = createStore({
       history: [],
       preferences: {
         fiat: "USD",
-        darkMode: true
+        darkMode: true,
       },
     };
   },
@@ -21,7 +21,7 @@ export const store = createStore({
     },
     currencies(state, data) {
       data.USD = 1;
-      delete data.WBNB
+      delete data.WBNB;
       state.currencies = data;
     },
     preferences(state, data) {
@@ -36,7 +36,7 @@ export const store = createStore({
   },
   actions: {
     get(context, address) {
-      context.dispatch('fetch', address)
+      context.dispatch("fetch", address);
       context.dispatch("preferences", { address });
       return fetchData(address, ["auto"]).then((r) => {
         context.commit("record", { time: new Date(), address, ...r.data });
@@ -45,7 +45,7 @@ export const store = createStore({
       });
     },
     fetch(context, address) {
-      return scan(address)
+      return autofarm.scan(address);
     },
     saveHistory(context, address) {
       localStorage.setItem(
@@ -81,7 +81,7 @@ export const store = createStore({
       setTimeout(() => {
         context.commit("platforms", data);
         context.commit("currencies", data.currencies);
-      })
+      });
     },
     mock(context) {
       return Promise.resolve(mock).then((r) => {
