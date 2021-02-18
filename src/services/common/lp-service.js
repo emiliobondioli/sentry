@@ -72,25 +72,11 @@ export class LPService {
       }));
     }
 
-    /** Token 0 price */
-    if (this.contract.methods.price0CumulativeLast) {
-      batch.add(this.contract.methods.price0CumulativeLast(), (r) => ({
-        currentTokens: convertValue(r),
-      }));
-    }
-
-    /** Token 1 price */
-    if (this.contract.methods.price1CumulativeLast) {
-      batch.add(this.contract.methods.price1CumulativeLast(), (r) => ({
-        currentTokens: convertValue(r),
-      }));
-    }
-
     batch.addToRequest(request);
 
     request.execute();
     return batch.all().then((r) => {
-      console.log(this.address, r);
+      return r.reduce((acc, value) => ({ ...acc, ...value }))
     });
   }
 
