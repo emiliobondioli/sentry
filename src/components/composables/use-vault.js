@@ -9,7 +9,7 @@ export default function useVault(vault) {
   );
 
   const totalRewards = computed(
-    () => vault.harvestedRewards + vault.pendingRewards
+    () => vault.pendingRewards
   );
 
   const convert = (v) => v * vault.info.wantPrice;
