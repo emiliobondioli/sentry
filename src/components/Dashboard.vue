@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import Farm from "./platforms/Farm.vue";
+import Farm from "./Farm.vue";
 import { useStore } from "vuex";
 import { computed } from "vue";
 
