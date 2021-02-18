@@ -99,7 +99,7 @@ export default {
       ...store.state.preferences.platforms,
     ]);
     const platforms = computed(() => store.state.platforms);
-    const farms = computed(() => store.state.farms);
+    const farms = computed(() => store.state.farms || []);
     const dark = computed(() => store.state.preferences.darkMode);
     const { currencies, currentFiat, setFiat } = useFormats(store);
 
