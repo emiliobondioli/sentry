@@ -44,14 +44,18 @@ export const store = createStore({
   actions: {
     get(context, { address, platforms }) {
       context.dispatch("preferences", { address });
+      const promises = [];
       platforms.forEach((platformId) => {
         const service = services[platformId];
-        service.scan(address).then((farm) => {
-          context.commit("farm", farm);
-          context.commit("record", context.state.farms);
-          context.dispatch("saveHistory");
-        });
+        promises.push(
+          service.scan(address).then((farm) => {
+            context.commit("farm", farm);
+            context.commit("record", context.state.farms);
+            context.dispatch("saveHistory");
+          })
+        );
       });
+      return Promise.all(promises)
     },
     saveHistory(context, address) {
       localStorage.setItem(
