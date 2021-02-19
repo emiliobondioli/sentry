@@ -11,25 +11,12 @@ const symbols = {
 
 export default function useFormats(store) {
   const currencies = computed(() => store.state.currencies);
-  const currentFiat = computed(() => 'USD');
-
-  const currency = (value, n = 5) => {
-    if (value === 0)
-      return value.toLocaleString(undefined, {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      });
-    return value.toLocaleString(undefined, {
-      minimumFractionDigits: n,
-      maximumFractionDigits: n,
-    });
-  };
+  const currentFiat = computed(() => "USD");
 
   const lpPair = (pair) => {
-    return `${currency(pair.token0Amount, 3)} ${pair.token0.symbol} / ${currency(
-      pair.token1Amount,
-      3
-    )} ${pair.token1.symbol} `;
+    return `${currency(pair.token0Amount, 3)} ${
+      pair.token0.symbol
+    } / ${currency(pair.token1Amount, 3)} ${pair.token1.symbol} `;
   };
 
   const fiat = (value, n = 3, sign = false) => {
@@ -53,4 +40,16 @@ export default function useFormats(store) {
     lpPair,
     setFiat,
   };
+}
+
+export function currency(value, n = 5) {
+  if (value === 0)
+    return value.toLocaleString(undefined, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+  return value.toLocaleString(undefined, {
+    minimumFractionDigits: n,
+    maximumFractionDigits: n,
+  });
 }

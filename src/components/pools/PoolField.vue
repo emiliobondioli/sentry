@@ -1,6 +1,6 @@
 <template>
   <div
-    class="vault-field border-b border-gray border-opacity-50 pb-1 mb-1 flex w-full justify-between"
+    class="pool-field border-b border-gray border-opacity-50 pb-1 mb-1 flex w-full justify-between"
   >
     <div>
       <label class="font-bold">{{ label }}: </label>
@@ -19,10 +19,10 @@
 </template>
 
 <script>
-import { props } from "@/components/composables/use-vault-field";
+import { props } from "@/components/composables/use-pool-field";
 
 export default {
-  name: "VaultField",
+  name: "PoolField",
   props,
 };
 </script>

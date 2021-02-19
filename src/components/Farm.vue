@@ -20,7 +20,7 @@
         <label class="font-bold">Rewards: </label
         ><span class="text-green">{{ fiat(totals.rewards, 2) }}</span>
       </p>
-      <VaultLabel
+      <PoolLabel
         :text="fiat(totals.rewards + totals.yield, 2)"
         label="Total: "
         class="bg-blue-light text-white flex-row-reverse"
@@ -28,15 +28,15 @@
     </div>
     <template v-if="expanded">
       <h3 class="text-xl mb-2 mt-4">Single Asset Pools</h3>
-      <div class="vault grid grid-flow-row grid-cols-1 gap-1 md:grid-cols-2">
-        <Vault :vault="vault" v-for="vault in vaults" :key="vault.pid" />
+      <div class="pool grid grid-flow-row grid-cols-1 gap-1 md:grid-cols-2">
+        <Pool :pool="pool" v-for="pool in pools" :key="pool.pid" />
       </div>
       <h3 class="text-xl mb-2 mt-4">LP Pools</h3>
-      <div class="vault-lp grid grid-flow-row grid-cols-1 gap-1 md:grid-cols-2">
-        <Vault
-          :vault="vault"
-          v-for="vault in liquidityVaults"
-          :key="vault.pid"
+      <div class="pool-lp grid grid-flow-row grid-cols-1 gap-1 md:grid-cols-2">
+        <LiquidityPool
+          :pool="pool"
+          v-for="pool in liquidityPools"
+          :key="pool.pid"
         />
       </div>
     </template>
@@ -51,8 +51,9 @@
 </template>
 
 <script>
-import Vault from "@/components/Vault.vue";
-import VaultLabel from "@/components/VaultLabel.vue";
+import Pool from "@/components/pools/single/Pool.vue";
+import LiquidityPool from "@/components/pools/lp/LiquidityPool.vue";
+import PoolLabel from "@/components/pools/PoolLabel.vue";
 import { ref, computed } from "vue";
 import { useStore } from "vuex";
 import useFormats from "@/components/composables/use-formats.js";
@@ -61,8 +62,9 @@ import useExpand from "@/components/composables/use-expand.js";
 export default {
   name: "Farm",
   components: {
-    Vault,
-    VaultLabel,
+    Pool,
+    LiquidityPool,
+    PoolLabel,
   },
   props: {
     farm: {
@@ -73,9 +75,9 @@ export default {
   setup(props) {
     const store = useStore();
     const { fiat, currency } = useFormats(store);
-    console.log(props.farm.pools)
-    const vaults = computed(() => props.farm.pools.filter((p) => !p.lp));
-    const liquidityVaults = computed(() => props.farm.pools.filter((p) => p.lp));
+    console.log(props.farm.pools);
+    const pools = computed(() => props.farm.pools.filter((p) => !p.lp));
+    const liquidityPools = computed(() => props.farm.pools.filter((p) => p.lp));
 
     const totals = ref({
       deposit: 0,
@@ -88,8 +90,8 @@ export default {
     expanded.value = true;
 
     return {
-      vaults,
-      liquidityVaults,
+      pools,
+      liquidityPools,
       fiat,
       currency,
       totals,

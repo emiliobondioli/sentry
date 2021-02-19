@@ -1,6 +1,6 @@
 <template>
   <div
-    class="vault-label border-b border-gray-darkest pb-1 bg-green-light rounded-md px-2 py-1 ext-xl text-gray flex"
+    class="pool-label border-b border-gray-darkest pb-1 bg-green-light rounded-md px-2 py-1 ext-xl text-gray flex"
   >
     <span class="mr-0.5">{{ text }}</span>
     <label class="font-bold ml-0.5">{{ label }}</label>
@@ -9,7 +9,7 @@
 
 <script>
 export default {
-  name: "VaultLabel",
+  name: "PoolLabel",
   props: {
     label: {
       type: String,
