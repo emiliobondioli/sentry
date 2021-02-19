@@ -16,7 +16,7 @@
       <template v-if="expanded">
         <VaultField
           label="Deposited"
-          :info="vault.lp ? lpTokensDeposited : null"
+          :info="lpTokensDeposited"
           :value="vault.depositedTokens"
           :format="currency"
           :currency="!vault.lp ? vault.info.wantName : 'LP'"
@@ -24,7 +24,7 @@
         />
         <VaultField
           label="Yield"
-          :info="vault.lp ? lpTokensYield : null"
+          :info="lpTokensYield"
           :value="tokenYield"
           :format="currency"
           :currency="!vault.lp ? vault.info.wantName : 'LP'"
@@ -32,7 +32,7 @@
         />
         <VaultField
           label="Current"
-          :info="vault.lp ? lpTokensCurrent : null"
+          :info="lpTokensCurrent"
           :value="vault.currentTokens"
           :format="currency"
           :currency="!vault.lp ? vault.info.wantName : 'LP'"
@@ -110,6 +110,10 @@ export default {
     const { fiat, currency, lpPair } = useFormats(store);
     const { expanded, toggle } = useExpand();
 
+    const pair = computed(() =>
+      props.vault.lp ? store.getters.pair(props.vault.wantAddress) : null
+    );
+
     const {
       convert,
       convertReward,
@@ -119,9 +123,21 @@ export default {
       totalGain,
     } = useVault(props.vault);
 
-    const lpTokensDeposited = computed(() => "0");
-    const lpTokensCurrent = computed(() => "0");
-    const lpTokensYield = computed(() => "0");
+    const lpTokensDeposited = computed(() =>
+      !props.vault.lp || !pair.value
+        ? null
+        : lpPair({ ...pair.value, ...props.vault.depositedSingleTokens })
+    );
+    const lpTokensCurrent = computed(() =>
+      !props.vault.lp || !pair.value
+        ? null
+        : lpPair({ ...pair.value, ...props.vault.currentSingleTokens })
+    );
+    const lpTokensYield = computed(() =>
+      !props.vault.lp || !pair.value
+        ? null
+        : lpPair({ ...pair.value, ...props.vault.yieldSingleTokens })
+    );
 
     return {
       currency,
@@ -137,6 +153,7 @@ export default {
       convertReward,
       expanded,
       toggle,
+      pair
     };
   },
 };

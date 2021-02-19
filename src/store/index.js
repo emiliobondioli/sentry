@@ -3,6 +3,7 @@ import config from "@/config/env";
 import platforms from "@/config/platforms";
 import services from "@/services";
 import { merge } from "@/utils";
+import tokenService from "@/services/common/token-service";
 
 export const store = createStore({
   state() {
@@ -11,6 +12,10 @@ export const store = createStore({
       currencies: null,
       farms: [],
       history: [],
+      tokens: {
+        pairs: [],
+        tokens: [],
+      },
       preferences: {
         fiat: "USD",
         darkMode: true,
@@ -40,6 +45,9 @@ export const store = createStore({
     record(state, data) {
       state.history = [...state.history, data];
     },
+    tokens(state, data) {
+      state.tokens = data;
+    },
   },
   actions: {
     get(context, { address, platforms }) {
@@ -52,10 +60,35 @@ export const store = createStore({
             context.commit("farm", farm);
             context.commit("record", context.state.farms);
             context.dispatch("saveHistory");
+            return farm;
           })
         );
       });
-      return Promise.all(promises)
+      return Promise.all(promises).then(() => {
+        context.dispatch("tokensInfo");
+      });
+    },
+    tokensInfo(context) {
+      const tokens = context.state.farms
+        .map((f) => f.pools)
+        .flat()
+        .map((p) => {
+          if (p.lp) return { pair: p.wantAddress };
+          else return { token: p.wantAddress };
+        })
+        .reduce(
+          (acc, curr) => {
+            if (curr.pair) return { ...acc, pairs: [...acc.pairs, curr.pair] };
+            else if (curr.token)
+              return { ...acc, tokens: [...acc.tokens, curr.token] };
+            return acc;
+          },
+          { pairs: [], tokens: [] }
+        );
+      return tokenService.getInfo(tokens).then((r) => {
+        console.log(r);
+        context.commit("tokens", r.data.data);
+      });
     },
     saveHistory(context, address) {
       localStorage.setItem(
@@ -92,8 +125,18 @@ export const store = createStore({
       context.commit("farms", null);
       setTimeout(() => {
         context.commit("farms", data);
+        context.dispatch("tokensInfo");
       });
     },
   },
-  getters: {},
+  getters: {
+    token: (state) => (id) => {
+      console.log(id, state.tokens.tokens);
+      return state.tokens.tokens.find((token) => token.id === id);
+    },
+    pair: (state) => (id) => {
+      console.log(id, state.tokens.pairs);
+      return state.tokens.pairs.find((pair) => pair.id === id);
+    },
+  },
 });

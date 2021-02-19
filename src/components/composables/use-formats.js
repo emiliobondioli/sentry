@@ -26,10 +26,10 @@ export default function useFormats(store) {
   };
 
   const lpPair = (pair) => {
-    return `${currency(pair.token0, 3)} ${pair.symbolToken0} / ${currency(
-      pair.token1,
+    return `${currency(pair.token0Amount, 3)} ${pair.token0.symbol} / ${currency(
+      pair.token1Amount,
       3
-    )} ${pair.symbolToken1} `;
+    )} ${pair.token1.symbol} `;
   };
 
   const fiat = (value, n = 3, sign = false) => {
