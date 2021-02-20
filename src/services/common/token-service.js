@@ -65,4 +65,21 @@ class TokenService {
   }
 }
 
+function getUSDPrice(token, ethPrice) {
+  return {
+    ...token,
+    priceUSD: parseFloat(token.derivedETH) * parseFloat(ethPrice),
+  };
+}
+
+function prepareToken(token, ethPrice) {
+  token = getUSDPrice(token, ethPrice);
+  token.image = getTokenImage(token);
+  return token;
+}
+
+function getTokenImage(token) {
+  return IMG_BASE + parseAddress(token.id) + "/logo.png";
+}
+
 export default new TokenService();
