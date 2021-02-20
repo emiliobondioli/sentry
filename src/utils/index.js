@@ -5,12 +5,17 @@ export function intersection(arr1, arr2) {
 }
 
 export function convertValue(value) {
-  return web3.utils.fromWei(value);
+  return parseFloat(web3.utils.fromWei(value));
 }
 
 export function parseAddress(address) {
   if (!address) return null;
   return web3.utils.toChecksumAddress(address);
+}
+
+export function isSameAddress(address0, address1) {
+  if (!address0 || !address1) return false;
+  return address0.toLowerCase() === address1.toLowerCase();
 }
 
 export function merge(array, data) {
@@ -30,8 +35,8 @@ export function percentageChange(n, p) {
  */
 export function computePoolHistoryTokens(pool, pair) {
   const depositHistory = pair.history.map((h) => ({
-    token0Price: parseFloat(h.token0Price),
-    token1Price: parseFloat(h.token1Price),
+    token0Price: h.token0Price,
+    token1Price: h.token1Price,
     token0Amount: (h.value / h.totalSupply) * h.reserve0,
     token1Amount: (h.value / h.totalSupply) * h.reserve1,
   }));

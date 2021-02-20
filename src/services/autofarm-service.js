@@ -12,7 +12,7 @@ export default class AutofarmService extends FarmService {
         const data = r.data.table_data.find((d) => d[2] === pool.wantName);
         return {
           name: pool.wantName,
-          address: farm.address,
+          address: parseAddress(farm.address),
           pid: data ? parseInt(data[0]) : null,
           lp: pool.wantIsLP,
           farm: pool.farmName,
