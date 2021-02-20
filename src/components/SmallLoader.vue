@@ -10,7 +10,8 @@
   height: 80%;
   border-radius: 100%;
   animation: lds-dual-ring 1.2s linear infinite;
-  @apply border-2 border-green-light;
+  @apply border-2;
+  @apply border-green-light;
   border-right-color: transparent;
   border-left-color: transparent;
 }
