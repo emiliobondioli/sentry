@@ -5,7 +5,7 @@ export const props = {
   },
   info: {
     type: String,
-    default: null,
+    default: undefined,
   },
   value: {
     type: Number,
@@ -23,4 +23,8 @@ export const props = {
     type: String,
     required: true,
   },
+  loading: {
+    type: Boolean,
+    default: false
+  }
 };
