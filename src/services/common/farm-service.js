@@ -179,12 +179,6 @@ export class FarmService {
    * @param {pool} pool
    */
   computePoolCurrentLPTokens(pool) {
-    const depositedToken0 =
-      (pool.depositedTokens / convertValue(pool.info.farmWantLockedTotal)) *
-      convertValue(pool.info.reserve0);
-    const depositedToken1 =
-      (pool.depositedTokens / convertValue(pool.info.farmWantLockedTotal)) *
-      convertValue(pool.info.reserve1);
     const currentToken0 =
       (pool.currentTokens / convertValue(pool.info.farmWantLockedTotal)) *
       convertValue(pool.info.reserve0);
@@ -196,14 +190,6 @@ export class FarmService {
       currentSingleTokens: {
         token0Amount: currentToken0,
         token1Amount: currentToken1,
-      },
-      depositedSingleTokens: {
-        token0Amount: depositedToken0,
-        token1Amount: depositedToken1,
-      },
-      yieldSingleTokens: {
-        token0Amount: currentToken0 - depositedToken0,
-        token1Amount: currentToken1 - depositedToken1,
       },
     };
   }
@@ -242,7 +228,17 @@ export class FarmService {
    */
   async getLPInfo(pool) {
     const service = new LPService(pool.wantAddress, this.web3);
-    const stats = await service.getTokenStats();
+    const deposits = pool.transactions.filter(
+      (t) => t.to === this.config.address
+    );
+    const stats = await service.getTokenStats(deposits);
+    pool.transactions = pool.transactions.map((t) => {
+      if (stats[t.hash]) {
+        t.reservesAtBlock = stats[t.hash];
+        delete stats[t.hash];
+      }
+      return t;
+    });
     pool.info = { ...pool.info, ...stats };
     return pool;
   }

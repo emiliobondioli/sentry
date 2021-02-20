@@ -2,7 +2,7 @@ import { createStore } from "vuex";
 import config from "@/config/env";
 import platforms from "@/config/platforms";
 import services from "@/services";
-import { merge } from "@/utils";
+import { merge, parseAddress, computePoolHistoryTokens } from "@/utils";
 import tokenService from "@/services/common/token-service";
 
 export const store = createStore({
@@ -62,8 +62,6 @@ export const store = createStore({
         promises.push(
           service.scan(address).then((farm) => {
             context.commit("farm", farm);
-            context.commit("record", context.state.farms);
-            context.dispatch("saveHistory");
             return farm;
           })
         );
@@ -73,21 +71,36 @@ export const store = createStore({
       });
     },
     tokensInfo(context) {
-      const tokens = context.state.farms
-        .map((f) => f.pools)
-        .flat()
+      const pools = context.state.farms.map((f) => f.pools).flat();
+
+      const deposits = pools
+        .filter((p) => p.lp)
+        .map((p) =>
+          p.transactions.filter(
+            (t) =>
+              parseAddress(t.from) ===
+              parseAddress(context.state.preferences.address)
+          )
+        )
+        .flat();
+
+      const tokens = pools
         .map((p) => {
-          if (p.lp) return { pair: p.wantAddress };
-          else return { token: p.wantAddress };
+          let t;
+          if (p.lp) t = { pair: p.wantAddress };
+          else t = { token: p.wantAddress };
+          if (p.rewardAddress) t.reward = p.rewardAddress;
+          return t;
         })
         .reduce(
           (acc, curr) => {
-            if (curr.pair) return { ...acc, pairs: [...acc.pairs, curr.pair] };
-            else if (curr.token)
-              return { ...acc, tokens: [...acc.tokens, curr.token] };
-            return acc;
+            const t = { ...acc };
+            if (curr.pair) t.pairs = [...t.pairs, curr.pair];
+            if (curr.token) t.tokens = [...t.tokens, curr.token];
+            if (curr.reward) t.tokens = [...t.tokens, curr.reward];
+            return t;
           },
-          { pairs: [], tokens: [] }
+          { pairs: [], tokens: [], deposits }
         );
 
       context.commit("loadingTokens", true);
@@ -97,7 +110,21 @@ export const store = createStore({
         context.dispatch("computePoolsHistory");
       });
     },
-    saveHistory(context, address) {
+    computePoolsHistory(context) {
+      const farms = context.state.farms.map((f) => {
+        f.pools = f.pools.map((p) => {
+          if (!p.lp) return p;
+          const pair = context.getters.pair(p.wantAddress);
+          if (pair) return computePoolHistoryTokens(p, pair);
+          return p;
+        });
+        return f;
+      });
+      context.commit("farms", farms);
+      context.commit("record", context.state.farms);
+      context.dispatch("saveHistory");
+    },
+    saveHistory(context) {
       localStorage.setItem(
         config.localStoragePrefix + "history",
         JSON.stringify(context.state.history)
@@ -137,13 +164,23 @@ export const store = createStore({
     },
   },
   getters: {
-    token: (state) => (id) => {
-      console.log(id, state.tokens.tokens);
-      return state.tokens.tokens.find((token) => token.id === id);
+    tokens: (state) => {
+      return state.tokens.tokens.concat(
+        state.tokens.pairs.map((p) => [p.token0, p.token1]).flat()
+      );
+    },
+    token: (state, getters) => (id) => {
+      const tokens = getters.tokens;
+      if (!tokens) return null;
+      return tokens.find((token) => token.id === id);
     },
     pair: (state) => (id) => {
-      console.log(id, state.tokens.pairs);
       return state.tokens.pairs.find((pair) => pair.id === id);
+    },
+    symbol: (state, getters) => (id) => {
+      const tokens = getters.tokens;
+      const t = tokens.find((token) => token.id === id);
+      return t ? t.symbol : "";
     },
   },
 });

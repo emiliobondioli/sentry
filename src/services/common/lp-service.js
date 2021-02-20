@@ -59,7 +59,7 @@ export class LPService {
   /**
    * Gets current stats for contract tokens
    */
-  async getTokenStats() {
+  async getTokenStats(deposits) {
     if (!this.initialized) await this.init();
     const request = new this.web3.BatchRequest();
     const batch = new BatchRequest();
@@ -70,13 +70,32 @@ export class LPService {
         reserve0: convertValue(r[0]),
         reserve1: convertValue(r[1]),
       }));
+
+      /** 
+       * 
+       * Disabled because of missing trie node error
+       * 
+      deposits.forEach((d) => {
+        batch.add(
+          this.contract.methods.getReserves(),
+          (r) => {
+            const o = {};
+            o[d.hash] = {
+              reserve0: convertValue(r[0]),
+              reserve1: convertValue(r[1]),
+            };
+            return o;
+          }
+        );
+      });
+       */
     }
 
     batch.addToRequest(request);
 
     request.execute();
     return batch.all().then((r) => {
-      return r.reduce((acc, value) => ({ ...acc, ...value }))
+      return r.reduce((acc, value) => ({ ...acc, ...value }));
     });
   }
 
