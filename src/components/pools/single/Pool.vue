@@ -1,8 +1,5 @@
 <template>
-  <div
-    class="pool p-4 flex cursor-pointer bg-gray bg-opacity-50"
-    @click="toggle"
-  >
+  <div class="pool p-4 flex bg-gray bg-opacity-50">
     <div class="pool-info container">
       <PoolHeader :pool="pool" />
       <PoolFields :pool="pool" />
@@ -40,26 +37,12 @@ export default {
   },
   setup(props) {
     const store = useStore();
-    const { fiat, currency } = useFormats(store);
-
-    const {
-      convert,
-      convertReward,
-      tokenYield,
-      totalRewards,
-      impermanentLoss,
-      totalGain,
-    } = usePool(props.pool);
+    const { fiat } = useFormats(store);
+    const { totalGain } = usePool(props.pool);
 
     return {
-      currency,
       fiat,
-      tokenYield,
-      totalRewards,
-      impermanentLoss,
-      totalGain,
-      convert,
-      convertReward,
+      totalGain
     };
   },
 };

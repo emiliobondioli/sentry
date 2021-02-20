@@ -1,54 +1,54 @@
 <template>
   <template v-if="expanded">
-    <PoolField
-      label="Deposited"
-      :info="depositedSingleTokens"
-      :value="pool.depositedTokens"
-      :format="currency"
-      currency="LP"
-      :conversion="(v) => fiat(convert(v))"
-    />
-    <PoolField
-      label="Yield"
-      :info="yieldSingleTokens"
-      :value="tokenYield"
-      :format="currency"
-      currency="LP"
-      :conversion="(v) => fiat(convert(v))"
-    />
-    <PoolField
-      label="Current"
-      :info="currentSingleTokens"
-      :value="pool.currentTokens"
-      :format="currency"
-      currency="LP"
-      :conversion="(v) => fiat(convert(v))"
-    />
-    <PoolField
-      v-if="totalRewards"
-      label="Pending harvest"
-      :value="pool.pendingRewards"
-      :format="currency"
-      :currency="pool.rewardToken"
-      :conversion="(v) => fiat(convertReward(v))"
-    />
-    <PoolField
-      v-if="totalRewards"
-      label="Total rewards"
-      :value="pool.harvestedRewards + pool.pendingRewards"
-      :format="currency"
-      :currency="pool.rewardToken"
-      :conversion="(v) => fiat(convertReward(v))"
-    />
+    <div @click="toggle" class="cursor-pointer">
+      <PoolField
+        label="Deposited"
+        :info="pairDeposited"
+        :loading="loading"
+        :value="pool.depositedTokens"
+        :format="currency"
+        currency="LP"
+        :conversion="(v) => fiat(convert(v))"
+      />
+      <PoolField
+        label="Yield"
+        :info="pairYield"
+        :loading="loading"
+        :value="tokenYield"
+        :format="currency"
+        currency="LP"
+        :conversion="(v) => fiat(convert(v))"
+      />
+      <PoolField
+        label="Current"
+        :info="pairCurrent"
+        :loading="loading"
+        :value="pool.currentTokens"
+        :format="currency"
+        currency="LP"
+        :conversion="(v) => fiat(convert(v))"
+      />
+      <PoolField
+        v-if="totalRewards"
+        label="Pending harvest"
+        :value="pool.pendingRewards"
+        :format="currency"
+        :currency="pool.rewardSymbol"
+        :conversion="(v) => fiat(convertReward(v))"
+      />
+    </div>
   </template>
   <template v-else>
     <PoolPreviewField
+      class="cursor-pointer"
       :value="pool.currentTokens"
-      :info="currentSingleTokens"
+      :info="pairCurrent"
+      :loading="loading"
       currency="LP"
       :change="pool.currentTokens - pool.depositedTokens"
       :format="currency"
       :conversion="(v) => fiat(convert(v))"
+      @click="toggle"
     />
   </template>
 </template>
@@ -64,7 +64,7 @@ import PoolField from "@/components/pools/PoolField";
 import PoolPreviewField from "@/components/pools/PoolPreviewField";
 
 export default {
-  name: "Pool",
+  name: "LiquidityPoolFields",
   components: {
     PoolField,
     PoolPreviewField,
@@ -80,6 +80,7 @@ export default {
     const { fiat, currency, lpPair } = useFormats(store);
     const { expanded, toggle } = useExpand();
     const { pair } = useLiquidityPool(props.pool, store);
+    const loading = computed(() => store.state.loadingTokens);
 
     const {
       convert,
@@ -89,20 +90,22 @@ export default {
       totalGain,
     } = usePool(props.pool);
 
-    const lpTokensDeposited = computed(() =>
+    const pairDeposited = computed(() =>
       !pair.value
         ? null
         : lpPair({ ...pair.value, ...props.pool.depositedSingleTokens })
     );
-    const lpTokensCurrent = computed(() =>
-      !pair.value
-        ? null
-        : lpPair({ ...pair.value, ...props.pool.currentSingleTokens })
-    );
-    const lpTokensYield = computed(() =>
+
+    const pairYield = computed(() =>
       !pair.value
         ? null
         : lpPair({ ...pair.value, ...props.pool.yieldSingleTokens })
+    );
+
+    const pairCurrent = computed(() =>
+      !pair.value
+        ? null
+        : lpPair({ ...pair.value, ...props.pool.currentSingleTokens })
     );
 
     return {
@@ -115,10 +118,11 @@ export default {
       convertReward,
       expanded,
       toggle,
-      lpTokensDeposited,
-      lpTokensYield,
-      lpTokensCurrent,
+      pairDeposited,
+      pairYield,
+      pairCurrent,
       pair,
+      loading,
     };
   },
 };

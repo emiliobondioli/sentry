@@ -1,20 +1,17 @@
 <template>
-  <div
-    class="pool p-4 flex cursor-pointer bg-gray bg-opacity-50"
-    @click="toggle"
-  >
+  <div class="pool p-4 flex bg-gray bg-opacity-50" @click="toggle">
     <div class="pool-info container">
       <PoolHeader :pool="pool" />
       <LiquidityPoolFields :pool="pool" />
       <div class="flex justify-end">
         <PoolLabel
           v-if="pool.lp"
-          :text="fiat(impermanentLoss)"
+          :text="fiat(impermanentLossValue)"
           label="IL"
           class="mr-2 bg-red-light"
         />
         <PoolLabel
-          :text="fiat(totalGain, 3, true)"
+          :text="fiat(total, 3, true)"
           label="Total"
           class="bg-blue-light text-white"
         />
@@ -24,17 +21,17 @@
 </template>
 
 <script>
+import { computed } from "vue";
 import { useStore } from "vuex";
 import useFormats from "@/components/composables/use-formats.js";
 import usePool from "@/components/composables/use-pool.js";
 import useLiquidityPool from "@/components/composables/use-liquidity-pool.js";
-import useExpand from "@/components/composables/use-expand.js";
 import PoolLabel from "@/components/pools/PoolLabel";
 import PoolHeader from "@/components/pools/PoolHeader";
 import LiquidityPoolFields from "@/components/pools/lp/LiquidityPoolFields";
 
 export default {
-  name: "Pool",
+  name: "LiquidityPool",
   components: {
     PoolLabel,
     PoolHeader,
@@ -49,29 +46,24 @@ export default {
   setup(props) {
     const store = useStore();
     const { fiat, currency } = useFormats(store);
-    const { expanded, toggle } = useExpand();
+    const { totalGain } = usePool(props.pool);
+    const { impermanentLoss, impermanentLossValue, pair } = useLiquidityPool(
+      props.pool,
+      store
+    );
 
-    const {
-      convert,
-      convertReward,
-      tokenYield,
-      totalRewards,
-      totalGain,
-    } = usePool(props.pool);
-
-    const { impermanentLoss } = useLiquidityPool(props.pool, store);
+    const total = computed(() => {
+      if (!totalGain.value) return 0;
+      return totalGain.value - impermanentLossValue.value;
+    });
 
     return {
-      currency,
       fiat,
-      tokenYield,
-      totalRewards,
-      totalGain,
-      convert,
-      convertReward,
-      expanded,
-      toggle,
+      total,
       impermanentLoss,
+      impermanentLossValue,
+      pair,
+      currency,
     };
   },
 };
