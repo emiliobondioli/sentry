@@ -1,10 +1,10 @@
 <template>
   <div class="loader lds-bars">
-    <div class="bg-green-light" />
-    <div class="bg-green-light" />
-    <div class="bg-green-light" />
-    <div class="bg-green-light" />
-    <div class="bg-green-light" />
+    <div class="bg-gray-light" />
+    <div class="bg-gray-light" />
+    <div class="bg-gray-light" />
+    <div class="bg-gray-light" />
+    <div class="bg-gray-light" />
   </div>
 </template>
 

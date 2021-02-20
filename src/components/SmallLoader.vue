@@ -11,7 +11,7 @@
   border-radius: 100%;
   animation: lds-dual-ring 1.2s linear infinite;
   @apply border-2;
-  @apply border-green-light;
+  @apply border-gray-light;
   border-right-color: transparent;
   border-left-color: transparent;
 }

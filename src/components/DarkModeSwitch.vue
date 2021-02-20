@@ -1,6 +1,6 @@
 <template>
   <div
-    class="dark-mode-toggle p-2  w-8 h-8 flex justify-center items-center rounded-full cursor-pointer bg-gray text-green-light dark:bg-green-light dark:text-black"
+    class="dark-mode-toggle p-2  w-8 h-8 flex justify-center items-center rounded-full cursor-pointer bg-gray-dark text-gray-light dark:bg-gray-light dark:text-black"
     @click="toggle"
   >
     <img src="@/assets/icons/moon.svg" class="fill-current" svg-inline />

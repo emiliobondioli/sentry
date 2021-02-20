@@ -5,26 +5,25 @@
       class="totals flex justify-between flex-col items-start md:items-center md:flex-row"
     >
       <p class="mb-1">
-        <label class="font-bold">Initial deposit: </label
-        ><span class="text-green">{{ fiat(totals.deposit, 2) }}</span>
+        <label class="dark:text-gray-light">Initial deposit: </label
+        ><span class="font-bold">{{ fiat(totals.deposit, 2) }}</span>
       </p>
       <p class="mb-1">
-        <label class="font-bold">Current: </label
-        ><span class="text-green">{{ fiat(totals.total, 2) }}</span>
+        <label class="dark:text-gray-light">Current: </label
+        ><span class="font-bold">{{ fiat(totals.total, 2) }}</span>
       </p>
       <p class="mb-1">
-        <label class="font-bold">Yield: </label
-        ><span class="text-green">{{ fiat(totals.yield, 2) }}</span>
+        <label class="dark:text-gray-light">Yield: </label
+        ><span class="font-bold">{{ fiat(totals.yield, 2) }}</span>
       </p>
       <p class="mb-1">
-        <label class="font-bold">Rewards: </label
-        ><span class="text-green">{{ fiat(totals.rewards, 2) }}</span>
+        <label class="dark:text-gray-light">Rewards: </label
+        ><span class="font-bold">{{ fiat(totals.rewards, 2) }}</span>
       </p>
       <Label
-        :text="fiat(totals.rewards + totals.yield, 2)"
+        :text="fiat(totals.rewards + totals.yield, 2, true)"
         label="Total:"
         :reverse="true"
-        class="bg-blue-light text-white"
       />
     </div>
     <template v-if="expanded">
@@ -43,7 +42,7 @@
     </template>
     <p
       v-else
-      class="text-sm text-gray-light text-center text-opacity-20 cursor-pointer"
+      class="text-sm text-black-light text-center text-opacity-20 cursor-pointer"
       @click="toggle"
     >
       Click to expand
