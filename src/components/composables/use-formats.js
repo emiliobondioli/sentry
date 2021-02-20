@@ -56,3 +56,9 @@ export function currency(value, n = 5) {
     maximumFractionDigits: n,
   });
 }
+
+export function toK(value) {
+  return Math.abs(value) > 999
+    ? Math.sign(value) * (Math.abs(value) / 1000).toFixed(1) + "K"
+    : Math.sign(value) * Math.abs(value).toFixed(1);
+}

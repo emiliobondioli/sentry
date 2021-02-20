@@ -5,16 +5,17 @@
       <SmallLoader v-else class="w-4 h-4" />
       {{ pool.name }}
     </h4>
-    <PoolLabel
-      :text="currency(pool.info.APY_total * 100, 1) + '%'"
+    <Label
+      :text="toK(pool.info.APY_total * 100, 1) + '%'"
       label="APY"
+      :reverse="true"
     />
   </header>
 </template>
 
 <script>
-import { currency } from "@/components/composables/use-formats";
-import PoolLabel from "@/components/pools/PoolLabel.vue";
+import { toK } from "@/components/composables/use-formats";
+import Label from "@/components/Label.vue";
 import TokenImage from "@/components/TokenImage.vue";
 import SmallLoader from "@/components/SmallLoader.vue";
 import { useStore } from "vuex";
@@ -23,7 +24,7 @@ import { computed } from "vue";
 export default {
   name: "PoolHeader",
   components: {
-    PoolLabel,
+    Label,
     TokenImage,
     SmallLoader,
   },
@@ -42,7 +43,7 @@ export default {
 
     const loading = computed(() => store.state.loadingTokens);
     return {
-      currency,
+      toK,
       token,
       loading,
     };

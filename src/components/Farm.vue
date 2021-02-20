@@ -20,10 +20,11 @@
         <label class="font-bold">Rewards: </label
         ><span class="text-green">{{ fiat(totals.rewards, 2) }}</span>
       </p>
-      <PoolLabel
+      <Label
         :text="fiat(totals.rewards + totals.yield, 2)"
-        label="Total: "
-        class="bg-blue-light text-white flex-row-reverse"
+        label="Total:"
+        :reverse="true"
+        class="bg-blue-light text-white"
       />
     </div>
     <template v-if="expanded">
@@ -53,7 +54,7 @@
 <script>
 import Pool from "@/components/pools/single/Pool.vue";
 import LiquidityPool from "@/components/pools/lp/LiquidityPool.vue";
-import PoolLabel from "@/components/pools/PoolLabel.vue";
+import Label from "@/components/Label.vue";
 import { ref, computed } from "vue";
 import { useStore } from "vuex";
 import useFormats from "@/components/composables/use-formats.js";
@@ -64,7 +65,7 @@ export default {
   components: {
     Pool,
     LiquidityPool,
-    PoolLabel,
+    Label,
   },
   props: {
     farm: {
@@ -75,7 +76,6 @@ export default {
   setup(props) {
     const store = useStore();
     const { fiat, currency } = useFormats(store);
-    console.log(props.farm.pools);
     const pools = computed(() => props.farm.pools.filter((p) => !p.lp));
     const liquidityPools = computed(() => props.farm.pools.filter((p) => p.lp));
 

@@ -4,13 +4,13 @@
       <PoolHeader :pool="pool" />
       <LiquidityPoolFields :pool="pool" />
       <div class="flex justify-end">
-        <PoolLabel
+        <Label
           v-if="pool.lp"
           :text="fiat(impermanentLossValue)"
           label="IL"
           class="mr-2 bg-red-light"
         />
-        <PoolLabel
+        <Label
           :text="fiat(total, 3, true)"
           label="Total"
           class="bg-blue-light text-white"
@@ -26,14 +26,14 @@ import { useStore } from "vuex";
 import useFormats from "@/components/composables/use-formats.js";
 import usePool from "@/components/composables/use-pool.js";
 import useLiquidityPool from "@/components/composables/use-liquidity-pool.js";
-import PoolLabel from "@/components/pools/PoolLabel";
+import Label from "@/components/Label";
 import PoolHeader from "@/components/pools/PoolHeader";
 import LiquidityPoolFields from "@/components/pools/lp/LiquidityPoolFields";
 
 export default {
   name: "LiquidityPool",
   components: {
-    PoolLabel,
+    Label,
     PoolHeader,
     LiquidityPoolFields,
   },

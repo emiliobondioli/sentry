@@ -4,7 +4,7 @@
       <PoolHeader :pool="pool" />
       <PoolFields :pool="pool" />
       <div class="flex justify-end">
-        <PoolLabel
+        <Label
           :text="fiat(totalGain, 3, true)"
           label="Total"
           class="bg-blue-light text-white"
@@ -19,14 +19,14 @@ import { useStore } from "vuex";
 import useFormats from "@/components/composables/use-formats.js";
 import usePool from "@/components/composables/use-pool.js";
 import PoolFields from "@/components/pools/single/PoolFields";
-import PoolLabel from "@/components/pools/PoolLabel";
+import Label from "@/components/Label";
 import PoolHeader from "@/components/pools/PoolHeader";
 
 export default {
   name: "Pool",
   components: {
     PoolFields,
-    PoolLabel,
+    Label,
     PoolHeader,
   },
   props: {
