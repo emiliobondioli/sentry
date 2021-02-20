@@ -54,10 +54,17 @@ export default class AutofarmService extends FarmService {
 
     /** User info */
     if (this.contract.methods.userInfo) {
-      batch.add(
-        this.contract.methods.userInfo(pool.pid, userAddress),
-        (r) => ({ userInfo: r })
-      );
+      batch.add(this.contract.methods.userInfo(pool.pid, userAddress), (r) => ({
+        userInfo: r,
+      }));
+    }
+
+    /** User info */
+    if (this.contract.methods.AUTOv2) {
+      batch.add(this.contract.methods.AUTOv2(), (r) => ({
+        rewardSymbol: "AUTO",
+        rewardAddress: r,
+      }));
     }
 
     batch.modifier = (stats) => this.setPoolStats(pool, stats);
