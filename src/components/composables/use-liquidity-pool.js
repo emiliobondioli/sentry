@@ -5,7 +5,7 @@ export default function useLiquidityPool(pool, store) {
   const pair = computed(() => store.getters.pair(pool.wantAddress));
 
   const change = computed(() => {
-    if (!pair.value) return 0;
+    if (!pair.value || !pool.lpComputed) return 0;
     return {
       token0Change:
         ((pool.depositedSingleTokens.token0Price - pair.value.token0Price) /
@@ -19,7 +19,7 @@ export default function useLiquidityPool(pool, store) {
   });
 
   const currentValue = computed(() => {
-    if (!pair.value) return 0;
+    if (!pair.value || !pool.lpComputed) return 0;
     const token0Value = percentageChange(
       pair.value.token0.priceUSD * pool.currentSingleTokens.token0Amount,
       change.value.token0Change
@@ -32,7 +32,7 @@ export default function useLiquidityPool(pool, store) {
   });
 
   const depositedCurrentValue = computed(() => {
-    if (!pair.value) return 0;
+    if (!pair.value || !pool.lpComputed) return 0;
     const token0Value =
       pair.value.token0.priceUSD * pool.depositedSingleTokens.token0Amount;
     const token1Value =
@@ -41,6 +41,7 @@ export default function useLiquidityPool(pool, store) {
   });
 
   const impermanentLoss = computed(() => {
+    if (!change.value) return 0;
     return (
       (2 * Math.sqrt(Math.abs(change.value.token0Change))) /
         (0 + Math.abs(change.value.token1Change)) -
