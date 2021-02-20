@@ -4,8 +4,11 @@
   >
     <div>
       <label class="font-bold">{{ label }}: </label>
-      <p class="text-green text-xs" v-if="info">
-        {{ info }}
+      <p class="text-green text-xs" v-if="info !== undefined">
+        <template v-if="!loading">
+          {{ info }}
+        </template>
+        <SmallLoader v-else class="w-4 h-4"/>
       </p>
     </div>
     <div class="text-right">
@@ -19,10 +22,14 @@
 </template>
 
 <script>
+import SmallLoader from "@/components/SmallLoader.vue";
 import { props } from "@/components/composables/use-pool-field";
 
 export default {
   name: "PoolField",
+  components: {
+    SmallLoader,
+  },
   props,
 };
 </script>

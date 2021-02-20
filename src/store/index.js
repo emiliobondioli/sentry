@@ -22,6 +22,7 @@ export const store = createStore({
         address: "",
         platforms: [],
       },
+      loadingTokens: false,
     };
   },
   mutations: {
@@ -35,6 +36,9 @@ export const store = createStore({
       data.USD = 1;
       delete data.WBNB;
       state.currencies = data;
+    },
+    loadingTokens(state, data) {
+      state.loadingTokens = data;
     },
     preferences(state, data) {
       state.preferences = data;
@@ -85,9 +89,12 @@ export const store = createStore({
           },
           { pairs: [], tokens: [] }
         );
-      return tokenService.getInfo(tokens).then((r) => {
-        console.log(r);
-        context.commit("tokens", r.data.data);
+
+      context.commit("loadingTokens", true);
+      return tokenService.getInfo(tokens).then((tokens) => {
+        context.commit("loadingTokens", false);
+        context.commit("tokens", tokens);
+        context.dispatch("computePoolsHistory");
       });
     },
     saveHistory(context, address) {
