@@ -8,11 +8,42 @@ const IMG_BASE =
   "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/smartchain/assets/";
 
 class TokenService {
-  getInfo({ tokens, pairs, deposits }) {
+  constructor() {
+    this.latestBlock = 0;
+  }
+
+  /**
+   * Get the number of the last indexed block
+   */
+  async getLatestBlock() {
+    const query = `{
+      _meta {
+        block {
+          number
+        }
+      }
+    }`;
+    const r = await this.query({ query });
+    const meta = r.data.data._meta;
+    this.latestBlock = meta.block.number;
+  }
+
+  /**
+   *
+   * @param {tokens} tokens
+   */
+  async getInfo({ tokens, pairs, deposits }) {
+    if (!this.latestBlock) await this.getLatestBlock();
     let historyQuery = "";
     if (deposits) {
       deposits.forEach((d) => {
-        historyQuery += `h${d.hash}: pair(id: "${d.contractAddress.toLowerCase()}", block: {number: ${d.blockNumber}}) {
+        if(d.blockNumber > this.latestBlock) return
+        historyQuery += `h${
+          d.hash
+        }: pair(id: "${d.contractAddress.toLowerCase()}", block: {number: ${Math.min(
+          this.latestBlock,
+          d.blockNumber
+        )}}) {
           totalSupply
           token0Price
           token1Price
@@ -39,6 +70,7 @@ class TokenService {
           reserve1
           token0Price
           token1Price
+          totalSupply
           token0 {
             id
             symbol
@@ -52,37 +84,39 @@ class TokenService {
             derivedETH
           }
         }
-        ${historyQuery}
       }
       `;
 
     const variables = {
-      tokens: [...new Set(tokens.map(t => t.toLowerCase()))],
-      pairs: [...new Set(pairs.map(t => t.toLowerCase()))],
+      tokens: [...new Set(tokens.map((t) => t.toLowerCase()))],
+      pairs: [...new Set(pairs.map((t) => t.toLowerCase()))],
     };
 
-    return this.post(API_BASE, { query, variables }).then((r) => {
-      const tokens = r.data.data;
-      const ethPrice = tokens.bundle.ethPrice;
-      tokens.tokens = tokens.tokens.map((t) => prepareToken(t, ethPrice));
-      tokens.pairs = tokens.pairs.map((p) => {
-        p.history = [];
-        const tokenTxs = deposits.filter((d) =>
-        isSameAddress(d.contractAddress, p.id)
-        );
-        tokenTxs.forEach((t) => {
-          if (tokens["h" + t.hash]) {
-            p.history.push({ ...tokens["h" + t.hash], value: t.value });
-            delete tokens["h" + t.hash];
-          }
-        });
-        p.lp = true;
-        p.token0 = prepareToken(p.token0, ethPrice);
-        p.token1 = prepareToken(p.token1, ethPrice);
-        return p;
+    const r = await this.query({ query, variables });
+    const tokens_1 = r.data.data;
+    const ethPrice = tokens_1.bundle.ethPrice;
+    tokens_1.tokens = tokens_1.tokens.map((t_2) => prepareToken(t_2, ethPrice));
+    tokens_1.pairs = tokens_1.pairs.map((p) => {
+      p.history = [];
+      const tokenTxs = deposits.filter((d_1) =>
+        isSameAddress(d_1.contractAddress, p.id)
+      );
+      tokenTxs.forEach((t_3) => {
+        if (tokens_1["h" + t_3.hash]) {
+          p.history.push({ ...tokens_1["h" + t_3.hash], value: t_3.value });
+          delete tokens_1["h" + t_3.hash];
+        }
       });
-      return tokens;
+      p.lp = true;
+      p.token0 = prepareToken(p.token0, ethPrice);
+      p.token1 = prepareToken(p.token1, ethPrice);
+      return p;
     });
+    return tokens_1;
+  }
+
+  query(data) {
+    return this.post(API_BASE, data);
   }
 
   /**

@@ -33,7 +33,12 @@ export function percentageChange(n, p) {
  * Gets single token amounts for LP pools for past blocks
  * @param {pool} pool
  */
-export function computePoolHistoryTokens(pool, pair) {
+export function computeLPPoolTokens(pool, pair) {
+  const currentSingleTokens = {
+    token0Amount: (pool.currentTokens / pair.totalSupply) * pair.reserve0,
+    token1Amount: (pool.currentTokens / pair.totalSupply) * pair.reserve1,
+  };
+
   const depositHistory = pair.history.map((h) => ({
     token0Price: h.token0Price,
     token1Price: h.token1Price,
@@ -57,12 +62,14 @@ export function computePoolHistoryTokens(pool, pair) {
 
   return {
     ...pool,
+    lpComputed: true,
     depositedSingleTokens: totalDeposit,
+    currentSingleTokens,
     yieldSingleTokens: {
       token0Amount:
-        pool.currentSingleTokens.token0Amount - totalDeposit.token0Amount,
+        currentSingleTokens.token0Amount - totalDeposit.token0Amount,
       token1Amount:
-        pool.currentSingleTokens.token1Amount - totalDeposit.token1Amount,
+        currentSingleTokens.token1Amount - totalDeposit.token1Amount,
     },
   };
 }

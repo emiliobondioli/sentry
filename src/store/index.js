@@ -2,7 +2,7 @@ import { createStore } from "vuex";
 import config from "@/config/env";
 import platforms from "@/config/platforms";
 import services from "@/services";
-import { merge, isSameAddress, computePoolHistoryTokens } from "@/utils";
+import { merge, isSameAddress, computeLPPoolTokens } from "@/utils";
 import tokenService from "@/services/common/token-service";
 
 export const store = createStore({
@@ -113,7 +113,7 @@ export const store = createStore({
         f.pools = f.pools.map((p) => {
           if (!p.lp) return p;
           const pair = context.getters.pair(p.wantAddress);
-          if (pair) return computePoolHistoryTokens(p, pair);
+          if (pair) return computeLPPoolTokens(p, pair);
           return p;
         });
         return f;
@@ -155,6 +155,10 @@ export const store = createStore({
     },
     setCurrent(context, data) {
       context.commit("farms", null);
+      context.commit("tokens", {
+        pairs: [],
+        tokens: [],
+      });
       setTimeout(() => {
         context.commit("farms", data);
         context.dispatch("tokensInfo");

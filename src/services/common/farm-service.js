@@ -3,7 +3,7 @@ import { parseAddress, convertValue, isSameAddress } from "@/utils";
 import { LPService } from "./lp-service";
 
 const API_BASE = "https://api.bscscan.com/api";
-const API_TOKEN = "TF9Q3E4IQ4MVN5WPDHE2J6RXUQUAH97E88";
+const API_TOKEN = "";
 
 export class FarmService {
   /**
@@ -108,15 +108,15 @@ export class FarmService {
         userPools.push(pool);
       }
     });
-    let pools = await Promise.all(
+    /*     let pools = await Promise.all(
       userPools.map(async (pool) => {
         if (pool.lp) {
           return await this.getLPInfo(pool);
         }
         return pool;
       })
-    );
-    pools = await this.getUserStats(pools, this.userAddress);
+    ); */
+    const pools = await this.getUserStats(userPools, this.userAddress);
     return { ...this.config, pools };
   }
 
@@ -156,12 +156,7 @@ export class FarmService {
       promises.push(batch.addToRequest(request));
     });
     request.execute();
-    return Promise.all(promises).then((pools) => {
-      return pools.map((pool) => {
-        if (pool.lp) return this.computePoolCurrentLPTokens(pool);
-        return pool;
-      });
-    });
+    return Promise.all(promises);
   }
 
   /**
@@ -172,26 +167,6 @@ export class FarmService {
     return pool.transactions
       .map((t) => (isSameAddress(t.to, pool.address) ? t.value : t.value * -1))
       .reduce((a, b) => a + b, 0);
-  }
-
-  /**
-   * Gets single token amounts for LP pools
-   * @param {pool} pool
-   */
-  computePoolCurrentLPTokens(pool) {
-    const currentToken0 =
-      (pool.currentTokens / pool.info.farmWantLockedTotal) *
-      pool.info.reserve0;
-    const currentToken1 =
-      (pool.currentTokens / pool.info.farmWantLockedTotal) *
-      pool.info.reserve1;
-    return {
-      ...pool,
-      currentSingleTokens: {
-        token0Amount: currentToken0,
-        token1Amount: currentToken1,
-      },
-    };
   }
 
   /**
