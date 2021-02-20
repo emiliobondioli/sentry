@@ -50,6 +50,12 @@
       :conversion="(v) => fiat(convert(v))"
       @click="toggle"
     />
+    <p
+      class="text-sm text-gray cursor-pointer text-center border-b border-gray dark:border-gray-lightest dark:border-opacity-10 border-opacity-10 mb-1"
+      @click="toggle"
+    >
+      details
+    </p>
   </template>
 </template>
 

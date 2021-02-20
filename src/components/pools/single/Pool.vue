@@ -1,14 +1,10 @@
 <template>
-  <div class="pool p-4 flex bg-gray bg-opacity-50">
+  <div class="pool p-4 flex bg-gray-lightest dark:bg-gray-darkest">
     <div class="pool-info container">
       <PoolHeader :pool="pool" />
       <PoolFields :pool="pool" />
-      <div class="flex justify-end">
-        <Label
-          :text="fiat(totalGain, 3, true)"
-          label="Total"
-          class="bg-blue-light text-white"
-        />
+      <div class="flex justify-end mt-2">
+        <Label :text="fiat(totalGain, 2, true)" label="Total" />
       </div>
     </div>
   </div>
@@ -42,7 +38,7 @@ export default {
 
     return {
       fiat,
-      totalGain
+      totalGain,
     };
   },
 };

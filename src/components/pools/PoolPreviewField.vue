@@ -1,14 +1,12 @@
 <template>
-  <div
-    class="pool-field border-b border-gray-darkest pb-1 mb-1 flex w-full justify-between"
-  >
+  <div class="pool-field flex w-full justify-between">
     <div class="text-left">
       {{ format(value) }}
-      <span class="text-green">{{ currency }}</span>
-      <span class="text-xs text-gray-light" v-if="conversion"
+      <span class="text-gray">{{ currency }}</span>
+      <span class="text-xs text-black-light" v-if="conversion"
         >≈{{ conversion(value) }}</span
       >
-      <p class="text-green text-xs" v-if="info !== undefined">
+      <p class="text-gray-lightest text-xs" v-if="info !== undefined">
         <template v-if="!loading">
           {{ info }}
         </template>
@@ -17,8 +15,8 @@
     </div>
     <div class="text-right">
       <template v-if="change > 0">+</template>{{ format(change) }}
-      <span class="text-green">{{ currency }}</span>
-      <span class="text-xs text-gray-light" v-if="conversion"
+      <span class="text-gray">{{ currency }}</span>
+      <span class="text-xs text-black-light" v-if="conversion"
         >≈{{ conversion(change) }}</span
       >
     </div>

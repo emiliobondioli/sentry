@@ -1,6 +1,6 @@
 <template>
   <header class="mb-2 flex items-start">
-    <h4 class="text-lg text-gray dark:text-white font-bold flex-1">
+    <h4 class="text-lg text-black dark:text-white font-bold flex-1">
       <TokenImage :token="token" v-if="token && !loading" />
       <SmallLoader v-else-if="loading" class="w-4 h-4" />
       {{ pool.name }}

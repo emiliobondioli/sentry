@@ -1,20 +1,17 @@
 <template>
-  <div class="pool p-4 flex bg-gray bg-opacity-50" @click="toggle">
+  <div class="pool p-4 flex bg-gray-lightest dark:bg-gray-darkest" @click="toggle">
     <div class="pool-info container">
       <PoolHeader :pool="pool" />
       <LiquidityPoolFields :pool="pool" />
-      <div class="flex justify-end">
+      <div class="flex justify-end mt-2">
         <Label
           v-if="pool.lp"
           :text="fiat(impermanentLossValue)"
           label="IL"
-          class="mr-2 bg-red-light"
+          class="mr-2"
+          background="bg-red-light"
         />
-        <Label
-          :text="fiat(total, 3, true)"
-          label="Total"
-          class="bg-blue-light text-white"
-        />
+        <Label :text="fiat(total, 2, true)" label="Total" />
       </div>
     </div>
   </div>
