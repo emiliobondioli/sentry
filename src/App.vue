@@ -1,7 +1,7 @@
 <template>
   <main :class="{ dark, 'bg-white': !dark, 'bg-black': dark }">
     <div
-      class="container p-2 md:p-4 py-8 bg-white dark:bg-black text-gray dark:text-white flex items-center flex-col lg:max-w-screen-lg md:max-w-none md:w-full mx-auto min-h-screen"
+      class="container p-2 md:p-4 py-8 bg-white dark:bg-black text-gray-darkest dark:text-white flex items-center flex-col lg:max-w-screen-lg md:max-w-none md:w-full mx-auto min-h-screen"
     >
       <header class="flex justify-between w-full md:w-4/5 items-center mb-8">
         <h1
@@ -18,14 +18,14 @@
       <div class="address w-full md:w-4/5 p-2 flex">
         <input
           type="text"
-          class="p-2 text-lg border border-green rounded-sm flex-1 dark:bg-gray"
+          class="p-2 text-lg border bg-gray-light border-gray rounded-sm flex-1 dark:bg-gray-darkest dark:border-gray-darkest"
           v-model="address"
           placeholder="Insert your wallett address"
         />
         <button
           @click="scan"
           :disabled="loading"
-          class="disabled:opacity-50 disabled:cursor-auto bg-green-light rounded-md p-2 mx-2 ext-xl text-gray font-bold"
+          class="disabled:opacity-50 disabled:cursor-auto bg-gray-light rounded-md p-2 mx-2 ext-xl text-black font-bold"
         >
           Watch
         </button>
@@ -38,7 +38,7 @@
             :key="platform.id"
             class="font-bold rounded-md px-2 py-2 ext-xl cursor-pointer"
             :class="{
-              'text-black bg-green-light': selectedPlatforms.includes(
+              'text-black bg-gray-light': selectedPlatforms.includes(
                 platform.id
               ),
               'text-white bg-gray': !selectedPlatforms.includes(platform.id),
@@ -56,7 +56,7 @@
             v-for="(currency, name) in currencies"
             :key="name"
             class="cursor-pointer"
-            :class="{ 'text-green-light font-bold': name === currentFiat }"
+            :class="{ 'text-gray-light font-bold': name === currentFiat }"
             @click="setFiat(name)"
           >
             {{ name }}
