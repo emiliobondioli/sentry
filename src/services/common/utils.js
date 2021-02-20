@@ -13,11 +13,12 @@ export class BatchRequest {
    * @param {function} method contract method to be called
    * @param {function} modifier function to modify the returned value before resolving
    */
-  add(method, modifier = (r) => r) {
+  add(method, modifier = (r) => r, defaultBlock = "latest") {
     this.promises.push(
       new Promise((resolve, reject) => {
         this.calls.push({
           method,
+          defaultBlock,
           result: (e, r) => {
             if (e) reject(e);
             else resolve(modifier(r));
@@ -33,7 +34,7 @@ export class BatchRequest {
    */
   addToRequest(request) {
     this.calls.forEach((c) => {
-      request.add(c.method.call.request(c.result));
+      request.add(c.method.call.request({}, c.defaultBlock, c.result));
     });
     return this.all();
   }
