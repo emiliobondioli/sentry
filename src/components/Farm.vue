@@ -79,11 +79,43 @@ export default {
     const pools = computed(() => props.farm.pools.filter((p) => !p.lp));
     const liquidityPools = computed(() => props.farm.pools.filter((p) => p.lp));
 
+    const totalDeposit = computed(() => {
+      return props.farm.pools
+        .map((p) => {
+          return p.depositedTokens * p.info.wantPrice;
+        })
+        .reduce((a, b) => a + b, 0);
+    });
+
+    const totalYield = computed(() => {
+      return props.farm.pools
+        .map((p) => {
+          return (p.currentTokens - p.depositedTokens) * p.info.wantPrice;
+        })
+        .reduce((a, b) => a + b, 0);
+    });
+
+    const totalCurrent = computed(() => {
+      return props.farm.pools
+        .map((p) => {
+          return p.currentTokens * p.info.wantPrice;
+        })
+        .reduce((a, b) => a + b, 0);
+    });
+
+    const totalRewards = computed(() => {
+      return props.farm.pools
+        .map((p) => {
+          return p.pendingRewards * p.info.rewardPrice;
+        })
+        .reduce((a, b) => a + b, 0);
+    });
+
     const totals = ref({
-      deposit: 0,
-      yield: 0,
-      total: 0,
-      rewards: 0,
+      deposit: totalDeposit,
+      yield: totalYield,
+      total: totalCurrent,
+      rewards: totalRewards,
     });
 
     const { expanded, toggle } = useExpand();
