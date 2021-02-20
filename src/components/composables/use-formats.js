@@ -19,7 +19,7 @@ export default function useFormats(store) {
     } / ${currency(pair.token1Amount, 3)} ${pair.token1.symbol} `;
   };
 
-  const fiat = (value, n = 3, sign = false) => {
+  const fiat = (value, n = 2, sign = false) => {
     let e = 1;
     let prefix = "";
     if (sign && value >= 0) prefix = "+";
@@ -32,6 +32,8 @@ export default function useFormats(store) {
     store.dispatch("preferences", { fiat: name });
   };
 
+  const symbol = (address) => store.getters.symbol(address);
+
   return {
     currencies,
     currentFiat,
@@ -39,6 +41,7 @@ export default function useFormats(store) {
     fiat,
     lpPair,
     setFiat,
+    symbol,
   };
 }
 
