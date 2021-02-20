@@ -1,5 +1,5 @@
 import axios from "axios";
-import { parseAddress } from "@/utils";
+import { parseAddress, isSameAddress } from "@/utils";
 
 const API_BASE =
   "https://api.bscgraph.org/subgraphs/id/QmUDNRjYZ7XbgTvfVnXHj6LcTNacDD9GPXHWLjdTKi6om6";
@@ -12,7 +12,7 @@ class TokenService {
     let historyQuery = "";
     if (deposits) {
       deposits.forEach((d) => {
-        historyQuery += `h${d.hash}: pair(id: "${d.contractAddress}", block: {number: ${d.blockNumber}}) {
+        historyQuery += `h${d.hash}: pair(id: "${d.contractAddress.toLowerCase()}", block: {number: ${d.blockNumber}}) {
           totalSupply
           token0Price
           token1Price
@@ -57,8 +57,8 @@ class TokenService {
       `;
 
     const variables = {
-      tokens: [...new Set(tokens)],
-      pairs: [...new Set(pairs)],
+      tokens: [...new Set(tokens.map(t => t.toLowerCase()))],
+      pairs: [...new Set(pairs.map(t => t.toLowerCase()))],
     };
 
     return this.post(API_BASE, { query, variables }).then((r) => {
@@ -67,8 +67,8 @@ class TokenService {
       tokens.tokens = tokens.tokens.map((t) => prepareToken(t, ethPrice));
       tokens.pairs = tokens.pairs.map((p) => {
         p.history = [];
-        const tokenTxs = deposits.filter(
-          (d) => parseAddress(d.contractAddress) === parseAddress(p.id)
+        const tokenTxs = deposits.filter((d) =>
+        isSameAddress(d.contractAddress, p.id)
         );
         tokenTxs.forEach((t) => {
           if (tokens["h" + t.hash]) {
@@ -76,7 +76,7 @@ class TokenService {
             delete tokens["h" + t.hash];
           }
         });
-        p.lp = true
+        p.lp = true;
         p.token0 = prepareToken(p.token0, ethPrice);
         p.token1 = prepareToken(p.token1, ethPrice);
         return p;

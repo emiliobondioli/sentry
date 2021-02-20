@@ -2,7 +2,7 @@ import { createStore } from "vuex";
 import config from "@/config/env";
 import platforms from "@/config/platforms";
 import services from "@/services";
-import { merge, parseAddress, computePoolHistoryTokens } from "@/utils";
+import { merge, isSameAddress, computePoolHistoryTokens } from "@/utils";
 import tokenService from "@/services/common/token-service";
 
 export const store = createStore({
@@ -76,10 +76,8 @@ export const store = createStore({
       const deposits = pools
         .filter((p) => p.lp)
         .map((p) =>
-          p.transactions.filter(
-            (t) =>
-              parseAddress(t.from) ===
-              parseAddress(context.state.preferences.address)
+          p.transactions.filter((t) =>
+            isSameAddress(t.from, context.state.preferences.address)
           )
         )
         .flat();
@@ -172,14 +170,14 @@ export const store = createStore({
     token: (state, getters) => (id) => {
       const tokens = getters.tokens;
       if (!tokens) return null;
-      return tokens.find((token) => token.id === id);
+      return tokens.find((token) => isSameAddress(token.id, id));
     },
     pair: (state) => (id) => {
-      return state.tokens.pairs.find((pair) => pair.id === id);
+      return state.tokens.pairs.find((pair) => isSameAddress(pair.id, id));
     },
     symbol: (state, getters) => (id) => {
       const tokens = getters.tokens;
-      const t = tokens.find((token) => token.id === id);
+      const t = tokens.find((token) => isSameAddress(token.id, id));
       return t ? t.symbol : "";
     },
   },

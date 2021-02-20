@@ -1,5 +1,5 @@
 import axios from "axios";
-import { parseAddress, convertValue } from "@/utils";
+import { parseAddress, convertValue, isSameAddress } from "@/utils";
 import { LPService } from "./lp-service";
 
 const API_BASE = "https://api.bscscan.com/api";
@@ -40,7 +40,7 @@ export class FarmService {
    * Get contract abi and return a web3 Contract instance
    */
   async initContract() {
-    const contractAddress = this.config.address;
+    const contractAddress = parseAddress(this.config.address);
     const r = await this.get(API_BASE, {
       address: contractAddress,
       module: "contract",
@@ -83,11 +83,11 @@ export class FarmService {
     if (!userAddress && !this.userAddress)
       throw new Error("userAddress is required");
     if (!this.initialized) await this.init();
-    this.userAddress = userAddress;
+    this.userAddress = parseAddress(userAddress);
     const transactions = await this.getTransactions(this.userAddress);
     console.log(transactions);
     const rewardTransactions = transactions.filter((t) => {
-      t.contractAddress === this.config.address;
+      return isSameAddress(t.contractAddress, this.config.address);
     });
     console.log(rewardTransactions);
 
@@ -170,7 +170,7 @@ export class FarmService {
    */
   computePoolDepositedTokens(pool) {
     return pool.transactions
-      .map((t) => (t.to === pool.address ? t.value : t.value * -1))
+      .map((t) => (isSameAddress(t.to, pool.address) ? t.value : t.value * -1))
       .reduce((a, b) => a + b, 0);
   }
 
@@ -180,11 +180,11 @@ export class FarmService {
    */
   computePoolCurrentLPTokens(pool) {
     const currentToken0 =
-      (pool.currentTokens / convertValue(pool.info.farmWantLockedTotal)) *
-      convertValue(pool.info.reserve0);
+      (pool.currentTokens / pool.info.farmWantLockedTotal) *
+      pool.info.reserve0;
     const currentToken1 =
-      (pool.currentTokens / convertValue(pool.info.farmWantLockedTotal)) *
-      convertValue(pool.info.reserve1);
+      (pool.currentTokens / pool.info.farmWantLockedTotal) *
+      pool.info.reserve1;
     return {
       ...pool,
       currentSingleTokens: {
@@ -249,10 +249,14 @@ export class FarmService {
    * @param {pool} pool
    */
   isPoolTransaction(transaction, pool) {
-    const isPoolAddress = [transaction.to, transaction.from].includes(
-      this.config.address
+    const isPoolAddress = [
+      parseAddress(transaction.to),
+      parseAddress(transaction.from),
+    ].includes(parseAddress(pool.address));
+    const isPoolToken = isSameAddress(
+      transaction.contractAddress,
+      pool.wantAddress
     );
-    const isPoolToken = transaction.contractAddress === pool.wantAddress;
     return isPoolAddress && isPoolToken;
   }
 
