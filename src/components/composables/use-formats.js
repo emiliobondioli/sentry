@@ -46,8 +46,8 @@ export default function useFormats(store) {
 }
 
 export function currency(value, n = 5) {
-  if (value === 0)
-    return value.toLocaleString(undefined, {
+  if (!value)
+    return "0".toLocaleString(undefined, {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     });
