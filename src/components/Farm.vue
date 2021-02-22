@@ -27,18 +27,24 @@
       />
     </div>
     <template v-if="expanded">
-      <h3 class="text-xl mb-2 mt-4">Single Asset Pools</h3>
-      <div class="pool grid grid-flow-row grid-cols-1 gap-1 md:grid-cols-2">
-        <Pool :pool="pool" v-for="pool in pools" :key="pool.pid" />
-      </div>
-      <h3 class="text-xl mb-2 mt-4">LP Pools</h3>
-      <div class="pool-lp grid grid-flow-row grid-cols-1 gap-1 md:grid-cols-2">
-        <LiquidityPool
-          :pool="pool"
-          v-for="pool in liquidityPools"
-          :key="pool.pid"
-        />
-      </div>
+      <template v-if="pools.length">
+        <h3 class="text-xl mb-2 mt-4">Single Asset Pools</h3>
+        <div class="pool grid grid-flow-row grid-cols-1 gap-1 md:grid-cols-2">
+          <Pool :pool="pool" v-for="pool in pools" :key="pool.pid" />
+        </div>
+      </template>
+      <template v-if="liquidityPools.length">
+        <h3 class="text-xl mb-2 mt-4">LP Pools</h3>
+        <div
+          class="pool-lp grid grid-flow-row grid-cols-1 gap-1 md:grid-cols-2"
+        >
+          <LiquidityPool
+            :pool="pool"
+            v-for="pool in liquidityPools"
+            :key="pool.pid"
+          />
+        </div>
+      </template>
     </template>
     <p
       v-else
