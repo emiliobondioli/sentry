@@ -1,5 +1,5 @@
 <template>
-  <div class="pool p-4 flex bg-gray-lightest dark:bg-gray-darkest" @click="toggle">
+  <div class="pool p-4 flex bg-gray-light dark:bg-gray-darkest" @click="toggle">
     <div class="pool-info container">
       <PoolHeader :pool="pool" />
       <LiquidityPoolFields :pool="pool" />
@@ -44,10 +44,11 @@ export default {
     const store = useStore();
     const { fiat, currency } = useFormats(store);
     const { totalGain } = usePool(props.pool);
-    const { impermanentLoss, impermanentLossValue, pair } = useLiquidityPool(
-      props.pool,
-      store
-    );
+    const {
+      impermanentLoss,
+      impermanentLossValue,
+      pair,
+    } = useLiquidityPool(props.pool, store);
 
     const total = computed(() => {
       if (!totalGain.value) return 0;

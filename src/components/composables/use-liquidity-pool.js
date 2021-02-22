@@ -18,6 +18,46 @@ export default function useLiquidityPool(pool, store) {
     };
   });
 
+  const depositedCurrentValue = computed(() => {
+    if (!pair.value || !pool.lpComputed) return 0;
+    const token0Value =
+      pair.value.token0.priceUSD * pool.depositedSingleTokens.token0Amount;
+    const token1Value =
+      pair.value.token1.priceUSD * pool.depositedSingleTokens.token1Amount;
+      console.log(token0Value, token1Value)
+    return token0Value + token1Value;
+  });
+
+  const impermanentLoss = computed(() => {
+    console.log(pair.value);
+    if (!pair.value || !pool.lpComputed) return null;
+    const token0Amount =
+      (pool.depositedTokens / pair.value.totalSupply) * pair.value.reserve0;
+    const token1Amount =
+      (pool.depositedTokens / pair.value.totalSupply) * pair.value.reserve1;
+    const token0Change = pool.depositedSingleTokens.token0Amount - token0Amount;
+    const token1Change = pool.depositedSingleTokens.token1Amount - token1Amount;
+
+    return {
+      token0Amount,
+      token1Amount,
+      token0Change,
+      token1Change,
+    };
+  });
+
+  const impermanentLossValue = computed(() => {
+    if (!impermanentLoss.value) return 0;
+    const token0LiquidityValue =
+      impermanentLoss.value.token0Amount * pair.value.token0.priceUSD;
+    const token1LiquidityValue =
+      impermanentLoss.value.token1Amount * pair.value.token1.priceUSD;
+    console.log(token1LiquidityValue, token1LiquidityValue, depositedCurrentValue.value);
+    return (
+      token0LiquidityValue + token1LiquidityValue - depositedCurrentValue.value
+    );
+  });
+
   const currentValue = computed(() => {
     if (!pair.value || !pool.lpComputed) return 0;
     const token0Value = percentageChange(
@@ -29,29 +69,6 @@ export default function useLiquidityPool(pool, store) {
       change.value.token1Change
     );
     return token0Value + token1Value;
-  });
-
-  const depositedCurrentValue = computed(() => {
-    if (!pair.value || !pool.lpComputed) return 0;
-    const token0Value =
-      pair.value.token0.priceUSD * pool.depositedSingleTokens.token0Amount;
-    const token1Value =
-      pair.value.token1.priceUSD * pool.depositedSingleTokens.token1Amount;
-    return token0Value + token1Value;
-  });
-
-  const impermanentLoss = computed(() => {
-    if (!change.value) return 0;
-    return (
-      (2 * Math.sqrt(Math.abs(change.value.token0Change))) /
-        (0 + Math.abs(change.value.token1Change)) -
-      1
-    );
-  });
-
-  const impermanentLossValue = computed(() => {
-    if (!currentValue.value) return 0;
-    return (impermanentLoss.value * 100) / currentValue.value;
   });
 
   const feesGain = computed(() => {
