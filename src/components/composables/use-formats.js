@@ -14,9 +14,9 @@ export default function useFormats(store) {
   const currentFiat = computed(() => "USD");
 
   const lpPair = (pair) => {
-    return `${currency(pair.token0Amount, 3)} ${
+    return `${currency(pair.token0Amount, 5)} ${
       pair.token0.symbol
-    } / ${currency(pair.token1Amount, 3)} ${pair.token1.symbol} `;
+    } / ${currency(pair.token1Amount, 5)} ${pair.token1.symbol} `;
   };
 
   const fiat = (value, n = 2, sign = false) => {
