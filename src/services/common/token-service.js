@@ -34,57 +34,38 @@ class TokenService {
    */
   async getInfo({ tokens, pairs, deposits }) {
     if (!this.latestBlock) await this.getLatestBlock();
-    let historyQuery = "";
-    if (deposits) {
-      deposits.forEach((d) => {
-        if(d.blockNumber > this.latestBlock) return
-        historyQuery += `h${
-          d.hash
-        }: pair(id: "${d.contractAddress.toLowerCase()}", block: {number: ${Math.min(
-          this.latestBlock,
-          d.blockNumber
-        )}}) {
-          totalSupply
-          token0Price
-          token1Price
-          reserve0
-          reserve1
-        }
-        `;
-      });
-    }
     const query = `
-      query ($tokens: [String!], $pairs: [String!]){
-        bundle(id: 1) {
-          ethPrice
-        }
-        tokens(where: {id_in: $tokens }) {
+    {
+      bundle(id: 1) {
+        ethPrice
+      }
+      tokens(first: 1000, orderBy: tradeVolume, orderDirection: desc) {
+        id
+        symbol
+        name
+        derivedETH
+      }
+      pairs(first: 1000, orderBy: volumeToken0, orderDirection: desc) {
+        id
+        reserve0
+        reserve1
+        token0Price
+        token1Price
+        totalSupply
+        token0 {
           id
           symbol
           name
           derivedETH
         }
-        pairs(where: {id_in: $pairs }) {
+        token1 {
           id
-          reserve0
-          reserve1
-          token0Price
-          token1Price
-          totalSupply
-          token0 {
-            id
-            symbol
-            name
-            derivedETH
-          }
-          token1 {
-            id
-            symbol
-            name
-            derivedETH
-          }
+          symbol
+          name
+          derivedETH
         }
       }
+    }    
       `;
 
     const variables = {
@@ -93,26 +74,58 @@ class TokenService {
     };
 
     const r = await this.query({ query, variables });
-    const tokens_1 = r.data.data;
-    const ethPrice = tokens_1.bundle.ethPrice;
-    tokens_1.tokens = tokens_1.tokens.map((t_2) => prepareToken(t_2, ethPrice));
-    tokens_1.pairs = tokens_1.pairs.map((p) => {
-      p.history = [];
-      const tokenTxs = deposits.filter((d_1) =>
-        isSameAddress(d_1.contractAddress, p.id)
+    const tokenList = r.data.data;
+    const ethPrice = tokenList.bundle.ethPrice;
+    tokenList.tokens = tokenList.tokens.map((t) => prepareToken(t, ethPrice));
+    tokenList.pairs = await Promise.all(
+      tokenList.pairs.map(async (p) => {
+        p.history = [];
+        p.lp = true;
+        p.token0 = prepareToken(p.token0, ethPrice);
+        p.token1 = prepareToken(p.token1, ethPrice);
+        return this.getLPHistory(p, this.getDepositsForPair(p, deposits));
+      })
+    );
+    return tokenList;
+  }
+
+  getDepositsForPair(pair, deposits) {
+    return deposits.filter(d => isSameAddress(d.contractAddress, pair.id))
+  }
+
+  async getLPHistory(pair, deposits) {
+    deposits = deposits.filter((d) => d.blockNumber < this.latestBlock);
+    if (!deposits.length) return pair;
+    let query = "query {";
+    deposits.forEach((d) => {
+      query += `h${
+        d.hash
+      }: pair(id: "${d.contractAddress.toLowerCase()}", block: {number: ${Math.min(
+        this.latestBlock,
+        d.blockNumber
+      )}}) {
+            totalSupply
+            token0Price
+            token1Price
+            reserve0
+            reserve1
+          }
+          `;
+    });
+    query += "}";
+    return this.query({ query }).then((r) => {
+      const data = r.data.data;
+      const tokenTxs = deposits.filter((d) =>
+        isSameAddress(d.contractAddress, pair.id)
       );
-      tokenTxs.forEach((t_3) => {
-        if (tokens_1["h" + t_3.hash]) {
-          p.history.push({ ...tokens_1["h" + t_3.hash], value: t_3.value });
-          delete tokens_1["h" + t_3.hash];
+      tokenTxs.forEach((t) => {
+        if (data["h" + t.hash]) {
+          pair.history.push({ ...data["h" + t.hash], value: t.value });
+          delete data["h" + t.hash];
         }
       });
-      p.lp = true;
-      p.token0 = prepareToken(p.token0, ethPrice);
-      p.token1 = prepareToken(p.token1, ethPrice);
-      return p;
+      return pair;
     });
-    return tokens_1;
   }
 
   query(data) {
@@ -138,11 +151,11 @@ function getUSDPrice(token, ethPrice) {
 
 function prepareToken(token, ethPrice) {
   token = getUSDPrice(token, ethPrice);
-  token.image = getTokenImage(token);
+  token.image = getTokenImageUrl(token);
   return token;
 }
 
-function getTokenImage(token) {
+function getTokenImageUrl(token) {
   return IMG_BASE + parseAddress(token.id) + "/logo.png";
 }
 
