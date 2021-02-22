@@ -5,11 +5,17 @@
       <SmallLoader v-else-if="loading" class="w-4 h-4" />
       {{ pool.name }}
     </h4>
-    <Label
-      :text="toK(pool.info.APY_total * 100, 1) + '%'"
-      label="APY"
-      :reverse="true"
-    />
+    <div>
+      <p class="text-xs text-gray mb-1 text-right">
+        From {{ firstDepositDate }}
+      </p>
+
+      <Label
+        :text="toK(pool.info.APY_total * 100, 1) + '%'"
+        label="APY"
+        :reverse="true"
+      />
+    </div>
   </header>
 </template>
 
@@ -41,11 +47,16 @@ export default {
       else return store.getters.token(props.pool.wantAddress);
     });
 
+    const firstDepositDate = new Date(
+      props.pool.transactions[0].date
+    ).toLocaleDateString();
+
     const loading = computed(() => store.state.loadingTokens);
     return {
       toK,
       token,
       loading,
+      firstDepositDate,
     };
   },
 };
