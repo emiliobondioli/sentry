@@ -58,7 +58,14 @@ export function currency(value, n = 5) {
 }
 
 export function toK(value) {
-  return Math.abs(value) > 999
-    ? Math.sign(value) * (Math.abs(value) / 1000).toFixed(1) + "K"
-    : Math.sign(value) * Math.abs(value).toFixed(1);
+  const abs = Math.abs(value);
+  if (abs > 999 && abs < 1000000) {
+    return (value / 1000).toFixed(1) + "K";
+  } else if (abs > 1000000) {
+    return (value / 1000000).toFixed(1) + "M";
+  } else if (abs > 1000000000) {
+    return (value / 1000000000).toFixed(1) + "T";
+  } else if (abs < 900) {
+    return value.toFixed(1);
+  }
 }
