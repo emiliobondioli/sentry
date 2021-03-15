@@ -4,22 +4,29 @@
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
-    "dev": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "dev": "vue-cli-service serve"
   },
   "dependencies": {
+    "@ethersproject/contracts": "^5.0.12",
+    "@ethersproject/providers": "^5.0.24",
+    "@ethersproject/solidity": "^5.0.10",
+    "@pancakeswap-libs/sdk": "^1.0.1",
     "axios": "^0.21.1",
     "core-js": "^3.6.5",
     "moment": "^2.29.1",
     "vue": "^3.0.0",
+    "vue-router": "^4.0.0-0",
     "vuex": "^4.0.0",
-    "web3": "^1.3.4"
+    "web3": "^1.3.4",
+    "web3modal": "^1.9.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss7-compat": "^2.0.3",
     "@vue/cli-plugin-babel": "~4.5.0",
     "@vue/cli-plugin-eslint": "~4.5.0",
+    "@vue/cli-plugin-router": "^4.5.11",
     "@vue/cli-service": "~4.5.0",
     "@vue/compiler-sfc": "^3.0.0",
     "autoprefixer": "^9.8.6",
