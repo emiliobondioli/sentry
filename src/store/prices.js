@@ -69,7 +69,7 @@ export default {
         context.commit("list", prices);
         context.dispatch(
           "balances/get",
-          { address:  web3.givenProvider.selectedAddress, tokens: prices },
+          { address:  web3.givenProvider.selectedAddress || context.rootState.preferences.address, tokens: prices },
           { root: true }
         );
       });
