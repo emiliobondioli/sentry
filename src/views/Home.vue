@@ -1,27 +1,6 @@
 <template>
-  <div class="address w-full md:w-4/5 p-2 flex">
-    <div class="relative flex-1">
-      <input
-        type="text"
-        class="p-2 text-lg border bg-gray-light border-gray rounded-sm w-full dark:bg-gray-darkest dark:border-gray-darkest"
-        v-model="address"
-        placeholder="Insert your wallett address"
-      />
-      <button
-        v-if="address !== connectedAddress"
-        @click="useConnectedAddress"
-        class="text-sm disabled:opacity-50 disabled:cursor-auto bg-gray-light rounded-md p-1 mr-2 ext-xl text-black font-bold absolute right-0 top-2"
-      >
-        {{ truncate(connectedAddress) }}
-      </button>
-    </div>
-    <button
-      @click="scan"
-      :disabled="loading"
-      class="disabled:opacity-50 disabled:cursor-auto bg-gray-light rounded-md p-2 mx-2 ext-xl text-black font-bold"
-    >
-      Watch
-    </button>
+  <div class="address w-full md:w-4/5 p-2">
+    <UserAddressInput @update="scan" :disabled="loading" />
   </div>
   <template v-if="!farms.length">
     <h4 class="text-center font-bold mt-2">Platforms</h4>
@@ -32,7 +11,7 @@
         class="font-bold rounded-md px-2 py-2 ext-xl cursor-pointer"
         :class="{
           'text-black bg-gray-light': selectedPlatforms.includes(platform.id),
-          'text-white bg-gray': !selectedPlatforms.includes(platform.id),
+          'text-gray bg-gray-dark': !selectedPlatforms.includes(platform.id),
         }"
         @click="togglePlatform(platform.id)"
       >
@@ -73,19 +52,20 @@ import useFormats from "@/components/composables/use-formats";
 import Loader from "@/components/Loader.vue";
 import useWallet from "@/components/composables/use-wallet";
 import { truncate } from "@/utils";
+import UserAddressInput from '@/components/UserAddressInput'
 
 export default {
   name: "Home",
   components: {
     Dashboard,
     Loader,
+    UserAddressInput
   },
   setup() {
     const store = useStore();
     const wallet = useWallet();
     const connectedAddress = wallet.address;
-
-    const address = ref(wallet.address.value);
+    const address = computed(() => store.state.preferences.address);
 
     const loading = ref(false);
     const selectedPlatforms = computed(() => [
@@ -95,19 +75,12 @@ export default {
     const farms = computed(() => store.state.farms || []);
     const { currencies, currentFiat, setFiat } = useFormats(store);
 
-    address.value = store.state.preferences.address || "";
-
     function togglePlatform(platformId) {
       const platforms = [...selectedPlatforms.value];
       const idx = platforms.indexOf(platformId);
       if (idx >= 0) platforms.splice(idx, 1);
       else platforms.push(platformId);
       store.dispatch("preferences/set", { platforms });
-    }
-
-    function useConnectedAddress() {
-      address.value = connectedAddress.value;
-      scan();
     }
 
     function scan() {
@@ -136,7 +109,6 @@ export default {
       selectedPlatforms,
       togglePlatform,
       connectedAddress,
-      useConnectedAddress,
       truncate,
     };
   },
