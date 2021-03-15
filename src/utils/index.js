@@ -1,4 +1,6 @@
 import web3 from "@/services/common/web3";
+import Web3 from "web3";
+import Web3Modal from "web3modal";
 
 export function intersection(arr1, arr2) {
   return arr1.filter((el) => arr2.includes(el));
@@ -27,6 +29,28 @@ export function merge(array, data) {
 
 export function percentageChange(n, p) {
   return n + n * (p / 100);
+}
+
+export function map(n, in_min, in_max, out_min, out_max) {
+  return ((n - in_min) * (out_max - out_min)) / (in_max - in_min) + out_min;
+}
+
+export function notify(text) {
+  if (!("Notification" in window)) {
+    return;
+  } else if (Notification.permission === "granted") {
+    new Notification(text);
+  } else if (Notification.permission !== "denied") {
+    Notification.requestPermission().then(function(permission) {
+      if (permission === "granted") {
+        new Notification(text);
+      }
+    });
+  }
+}
+
+export function truncate(string, length = 8) {
+  return string.substr(0, length) + "..."
 }
 
 /**
