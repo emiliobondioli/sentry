@@ -4,8 +4,12 @@ import platforms from "@/config/platforms";
 import services from "@/services";
 import { merge, isSameAddress, computeLPPoolTokens } from "@/utils";
 import tokenService from "@/services/common/token-service";
+import prices from "./prices";
+import balances from "./balances";
+import preferences from "./preferences";
 
 export const store = createStore({
+  modules: { prices, balances, preferences },
   state() {
     return {
       platforms,
@@ -15,12 +19,6 @@ export const store = createStore({
       tokens: {
         pairs: [],
         tokens: [],
-      },
-      preferences: {
-        fiat: "USD",
-        darkMode: true,
-        address: "",
-        platforms: [],
       },
       loadingTokens: false,
     };
@@ -40,9 +38,6 @@ export const store = createStore({
     loadingTokens(state, data) {
       state.loadingTokens = data;
     },
-    preferences(state, data) {
-      state.preferences = data;
-    },
     history(state, data) {
       state.history = data;
     },
@@ -55,7 +50,7 @@ export const store = createStore({
   },
   actions: {
     get(context, { address, platforms }) {
-      context.dispatch("preferences", { address });
+      context.dispatch("preferences/set", { address });
       const promises = [];
       platforms.forEach((platformId) => {
         const service = services[platformId];
@@ -128,18 +123,6 @@ export const store = createStore({
         JSON.stringify(context.state.history)
       );
     },
-    savePreferences(context) {
-      localStorage.setItem(
-        config.localStoragePrefix + "preferences",
-        JSON.stringify(context.state.preferences)
-      );
-    },
-    loadPreferences(context) {
-      const preferences = localStorage.getItem(
-        config.localStoragePrefix + "preferences"
-      );
-      if (preferences) context.commit("preferences", JSON.parse(preferences));
-    },
     loadHistory(context) {
       let history = localStorage.getItem(config.localStoragePrefix + "history");
       if (!history) history = [];
@@ -148,10 +131,6 @@ export const store = createStore({
       if (history.length) {
         context.dispatch("setCurrent", history[history.length - 1]);
       }
-    },
-    preferences(context, data) {
-      context.commit("preferences", { ...context.state.preferences, ...data });
-      context.dispatch("savePreferences");
     },
     setCurrent(context, data) {
       context.commit("farms", null);
