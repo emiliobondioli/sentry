@@ -50,7 +50,8 @@ export function notify(text) {
 }
 
 export function truncate(string, length = 8) {
-  return string.substr(0, length) + "..."
+  if (!string) return "";
+  return string.substr(0, length) + "...";
 }
 
 /**
