@@ -13,147 +13,60 @@
             class="w-12 h-12 mr-2"
           />sentry.farm
         </h1>
+        <nav>
+          <router-link to="/">Home</router-link> |
+          <router-link to="/prices">Prices</router-link>
+        </nav>
+        <div>
+          <button
+            @click="connect"
+            class="disabled:opacity-50 disabled:cursor-auto bg-gray-light rounded-md p-2 mx-2 ext-xl text-black font-bold"
+            v-if="!address"
+          >
+            Connect
+          </button>
+          <span class="text-sm" v-else>{{ address }}</span>
+        </div>
         <dark-mode-switch />
       </header>
-      <div class="address w-full md:w-4/5 p-2 flex">
-        <input
-          type="text"
-          class="p-2 text-lg border bg-gray-light border-gray rounded-sm flex-1 dark:bg-gray-darkest dark:border-gray-darkest"
-          v-model="address"
-          placeholder="Insert your wallett address"
-        />
-        <button
-          @click="scan"
-          :disabled="loading"
-          class="disabled:opacity-50 disabled:cursor-auto bg-gray-light rounded-md p-2 mx-2 ext-xl text-black font-bold"
-        >
-          Watch
-        </button>
-      </div>
-      <template v-if="!farms.length">
-        <h4 class="text-center font-bold mt-2">Platforms</h4>
-        <ul class="p-2 w-full flex justify-center mb-2 md:mb-8">
-          <li
-            v-for="platform in platforms"
-            :key="platform.id"
-            class="font-bold rounded-md px-2 py-2 ext-xl cursor-pointer"
-            :class="{
-              'text-black bg-gray-light': selectedPlatforms.includes(
-                platform.id
-              ),
-              'text-white bg-gray': !selectedPlatforms.includes(platform.id),
-            }"
-            @click="togglePlatform(platform.id)"
-          >
-            {{ platform.name }}
-          </li>
-        </ul>
-      </template>
-      <template v-else>
-        <h4 class="text-center font-bold mt-2">Currency</h4>
-        <ul class="p-2 w-full md:w-64 flex justify-between mb-2 md:mb-8">
-          <li
-            v-for="(currency, name) in currencies"
-            :key="name"
-            class="cursor-pointer"
-            :class="{ 'text-gray-light font-bold': name === currentFiat }"
-            @click="setFiat(name)"
-          >
-            {{ name }}
-          </li>
-        </ul>
-      </template>
-      <div class="relative md:w-4/5 w-full p-2 inset-0">
-        <div
-          class="w-full h-full absolute inset-0 bg-black bg-opacity-50 flex justify-center items-start pt-16 md:pt-0 md:items-center"
-          v-if="loading"
-        >
-          <Loader class="mt-8" />
-        </div>
-        <Dashboard v-if="farms.length" />
-      </div>
+      <router-view />
     </div>
   </main>
 </template>
 
 <script>
-import Dashboard from "./components/Dashboard.vue";
-import { ref, computed } from "vue";
+import { defineComponent } from "vue";
 import { useStore } from "vuex";
-import useFormats from "./components/composables/use-formats";
-import Loader from "@/components/Loader.vue";
-import DarkModeSwitch from "./components/DarkModeSwitch.vue";
+import useWallet from "@/components/composables/use-wallet";
+import { computed } from "vue";
+import { setProvider } from "@/services/common/web3";
+import Web3Modal from "web3modal";
+import { truncate } from "@/utils";
 
-export default {
-  name: "App",
-  components: {
-    Dashboard,
-    Loader,
-    DarkModeSwitch,
-  },
+import DarkModeSwitch from "@/components/DarkModeSwitch.vue";
+
+export default defineComponent({
+  components: { DarkModeSwitch },
   setup() {
     const store = useStore();
-    const address = ref("");
-    const loading = ref(false);
-    const selectedPlatforms = computed(() => [
-      ...store.state.preferences.platforms,
-    ]);
-    const platforms = computed(() => store.state.platforms);
-    const farms = computed(() => store.state.farms || []);
+    const { address } = useWallet();
+
     const dark = computed(() => store.state.preferences.darkMode);
-    const { currencies, currentFiat, setFiat } = useFormats(store);
-
-    store.dispatch("loadPreferences", address.value);
-    address.value = store.state.preferences.address || "";
-    if (address.value) store.dispatch("loadHistory", address.value);
-
-    function togglePlatform(platformId) {
-      const platforms = [...selectedPlatforms.value];
-      const idx = platforms.indexOf(platformId);
-      if (idx >= 0) platforms.splice(idx, 1);
-      else platforms.push(platformId);
-      store.dispatch("preferences", { platforms });
-    }
-
-    function scan() {
-      if (address.value) {
-        loading.value = true;
-        store
-          .dispatch("get", {
-            address: address.value,
-            platforms: selectedPlatforms.value,
-          })
-          .then(() => {
-            loading.value = false;
-          });
-      }
+    store.dispatch("preferences/load");
+    async function connect() {
+      const web3Modal = new Web3Modal({
+        cacheProvider: true,
+      });
+      const provider = await web3Modal.connect();
+      setProvider(provider);
+      store.dispatch("preferences/set", { address: address.value });
     }
 
     return {
-      address,
-      platforms,
-      farms,
-      scan,
-      loading,
-      currencies,
-      currentFiat,
-      setFiat,
       dark,
-      selectedPlatforms,
-      togglePlatform,
+      connect,
+      address: truncate(address.value),
     };
   },
-};
+});
 </script>
-
-<style>
-html,
-body {
-  height: 100%;
-  width: 100%;
-  overflow-x: hidden;
-}
-#app {
-  overflow: auto;
-}
-</style>
