@@ -49,17 +49,18 @@ export default defineComponent({
   components: { DarkModeSwitch },
   setup() {
     const store = useStore();
-    const { address } = useWallet();
-
+    const address = computed(() => store.state.preferences.address);
+    const { walletAddress } = useWallet();
     const dark = computed(() => store.state.preferences.darkMode);
     store.dispatch("preferences/load");
+
     async function connect() {
       const web3Modal = new Web3Modal({
         cacheProvider: true,
       });
       const provider = await web3Modal.connect();
       setProvider(provider);
-      store.dispatch("preferences/set", { address: address.value });
+      store.dispatch("preferences/set", { address: walletAddress.value });
     }
 
     return {
