@@ -40,7 +40,7 @@
           </div>
         </div>
         <div class="w-32 text-lg p-1 text-right flex flex-col justify-end">
-          <p>{{ conversion.bnb }} BNB</p>
+          <div><span>{{ conversion.bnb }}</span> <img src="@/assets/tokens/bnb-logo.png" class="w-4 h-4 inline ml-0.5 align-baseline" /></div>
           <p class="text-sm">{{ currency(conversion.eur, 2) }}€</p>
         </div>
       </div>
