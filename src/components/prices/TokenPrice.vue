@@ -40,22 +40,17 @@
           </div>
         </div>
         <div class="w-32 text-lg p-1 text-right flex flex-col justify-end">
-          <div><span>{{ conversion.bnb }}</span> <img src="@/assets/tokens/bnb-logo.png" class="w-4 h-4 inline ml-0.5 align-baseline" /></div>
+          <div>
+            <span>{{ conversion.bnb }}</span>
+            <img
+              src="@/assets/tokens/bnb-logo.png"
+              class="w-4 h-4 inline ml-0.5 align-baseline"
+            />
+          </div>
           <p class="text-sm">{{ currency(conversion.eur, 2) }}€</p>
         </div>
       </div>
-      <div class="flex h-16 py-1 items-end justify-end w-full">
-        <div
-          v-for="block in range"
-          :key="block.time"
-          class="history-block bg-gray w-2"
-          :style="blockStyle(block)"
-        ></div>
-        <div
-          class="history-block bg-gray-light w-2"
-          :style="currentBlockStyle"
-        ></div>
-      </div>
+      <PriceChart :data="history" v-if="history.length > 2" />
     </div>
   </div>
 </template>
@@ -64,9 +59,12 @@
 import { useStore } from "vuex";
 import { computed, ref, watch } from "vue";
 import useFormats from "@/components/composables/use-formats";
-import { map, notify } from "@/utils";
+import usePriceNotifications from "@/components/composables/use-price-notifications";
+import PriceChart from "./PriceChart.vue";
+import { DateTime } from "luxon"; 
 
 export default {
+  components: { PriceChart },
   name: "TokenPrice",
   props: {
     token: {
@@ -77,42 +75,38 @@ export default {
   setup(props) {
     const store = useStore();
     const { currency } = useFormats(store);
-    const price = computed(() => {
-      const symbol = store.getters["prices/address"](props.token.address);
-      return symbol ? symbol.price : 0;
-    });
+    let init = false;
+
+    const candle = ref(null);
+    const history = ref([]);
+    const sample = ref(128);
+    const range = computed(() => history.value.slice(-sample.value));
+    const dirty = ref(false);
+
     const balance = computed(() => {
       const price = store.getters["balances/address"](props.token.address);
       return parseFloat(price) || 0;
     });
+
+    const price = computed(() => {
+      const symbol = store.getters["prices/address"](props.token.address);
+      return symbol ? symbol.price : 0;
+    });
+
     const amount = ref(balance.value);
     const conversion = computed(() => {
       if (!amount.value) return 0;
       return store.getters["prices/convert"](amount.value, props.token.address);
     });
-    const history = ref([]);
-    const sample = ref(128);
-    const priceNotifications = computed(() =>
-      store.getters["preferences/priceNotifications"](props.token.address)
-    );
-    const range = computed(() => history.value.slice(-sample.value));
-    const watchRange = [];
 
-    const dirty = ref(false);
-    const max = computed(() => {
-      const values = [
-        ...range.value,
-        { value: parseFloat(conversion.value.price) },
-      ].map((h) => h.value);
-      return Math.max(...values);
-    });
-
-    const min = computed(() => {
-      const values = [
-        ...range.value,
-        { value: parseFloat(conversion.value.price) },
-      ].map((h) => h.value);
-      return Math.min(...values);
+    const {
+      checkNotify,
+      priceNotifications,
+      toggleNotifications,
+    } = usePriceNotifications({
+      props,
+      store,
+      conversion,
     });
 
     function setMaxBalance() {
@@ -120,62 +114,38 @@ export default {
       amount.value = balance.value;
     }
 
-    function height(v) {
-      return map(v, min.value / 1.1, max.value * 1.1, 0, 100);
-    }
-
-    function blockStyle(block) {
-      const h = height(block.value);
-      return { height: h + "%" };
-    }
-
-    const currentBlockStyle = computed(() => {
-      const price = conversion.value ? conversion.value.price : 0;
-      const h = height(price);
-      return { height: h + "%" };
-    });
-
     function addHistoryBlock() {
-      const currentValue = parseFloat(conversion.value.price);
+      updateCandle();
       history.value.push({
-        time: new Date(),
-        value: currentValue,
+        ...candle.value,
       });
       checkNotify(parseFloat(conversion.value.eur));
       store.commit("prices/history", { address: props.token.address, history });
+      console.log(history.value)
     }
 
-    function checkNotify(value) {
-      if (!watchRange.length) return;
-      if (value < watchRange[0]) {
-        if (priceNotifications.value)
-          notify(`${props.token.symbol} DOWN - ${conversion.value.eur}€`);
-        setWatchRange(value);
-      }
-      if (value > watchRange[1]) {
-        if (priceNotifications.value)
-          notify(`${props.token.symbol} UP - ${conversion.value.eur}€`);
-        setWatchRange(value);
-      }
+    function updateCandle() {
+      if (!init) candle.value = initCandle();
+      const v = conversion.value.price;
+      if (v > candle.value.high) candle.value.high = v;
+      if (v < candle.value.low) candle.value.low = v;
+      candle.value.close = v;
     }
 
-    setInterval(addHistoryBlock, 10000);
-
-    function setWatchRange(value) {
-      watchRange[0] = value - value * 0.1;
-      watchRange[1] = value + value * 0.1;
+    function initCandle() {
+      const v = conversion.value.eur;
+      init = true;
+      return {
+        t: DateTime.now().valueOf(),
+        o: v,
+        h: v,
+        l: v,
+        c: v,
+      };
     }
 
-    function toggleNotifications() {
-      store.dispatch("preferences/priceNotifications", {
-        address: props.token.address,
-        value: !priceNotifications.value,
-      });
-    }
-
-    watch(conversion, () => {
-      if (!watchRange.length) setWatchRange(parseFloat(conversion.value.eur));
-    });
+    setInterval(updateCandle, 1000);
+    setInterval(addHistoryBlock, 3000);
 
     watch(balance, () => {
       if (!dirty.value || amount.value === 0) amount.value = balance.value;
@@ -185,8 +155,6 @@ export default {
       conversion,
       currency,
       price,
-      blockStyle,
-      currentBlockStyle,
       history,
       dirty,
       setMaxBalance,
