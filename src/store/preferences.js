@@ -1,5 +1,18 @@
 import config from "@/config/env";
 
+const tokens = [
+  {
+    name: "SafeMoon",
+    symbol: "SAFEMOON",
+    address: "0x8076c74c5e3f5852037f31ff0093eeb8c8add8d3",
+  },
+  {
+    name: "Tedesis",
+    symbol: "TDI",
+    address: "0x57FB0eA298De58b2a2a442B66aFFebF9565695Eb",
+  },
+];
+
 export default {
   namespaced: true,
   state: () => ({
@@ -8,6 +21,7 @@ export default {
     address: "",
     platforms: [],
     priceNotifications: {},
+    watchedTokens: []
   }),
   mutations: {
     preferences(state, data) {
@@ -42,6 +56,10 @@ export default {
   getters: {
     priceNotifications: (state) => (address) => {
       return state.priceNotifications[address] || false;
+    },
+    watchedTokens: (state)  => {
+      console.log(state)
+      return state.watchedTokens;
     },
   },
 };

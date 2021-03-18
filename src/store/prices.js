@@ -9,22 +9,8 @@ import {
   Fetcher,
 } from "@pancakeswap-libs/sdk";
 import axios from "axios";
-import web3 from '@/services/common/web3'
-
+import web3 from "@/services/common/web3";
 const provider = getDefaultProvider("https://bsc-dataseed1.binance.org/");
-
-const tokens = [
-  {
-    name: "SafeMoon",
-    symbol: "SAFEMOON",
-    address: "0x8076c74c5e3f5852037f31ff0093eeb8c8add8d3",
-  },
-  {
-    name: "Tedesis",
-    symbol: "TDI",
-    address: "0x57FB0eA298De58b2a2a442B66aFFebF9565695Eb",
-  },
-];
 
 export default {
   namespaced: true,
@@ -32,7 +18,7 @@ export default {
     list: [],
     pairs: [],
     bnb: 220,
-    history: {}
+    history: {},
   }),
   mutations: {
     list(state, data) {
@@ -51,6 +37,8 @@ export default {
   actions: {
     async get(context) {
       await context.dispatch("bnbPrice");
+      const tokens = context.rootGetters["preferences/watchedTokens"];
+      console.log(tokens);
       const prices = tokens.map(async (t) => {
         const token = await Fetcher.fetchTokenData(
           ChainId.MAINNET,
@@ -69,7 +57,12 @@ export default {
         context.commit("list", prices);
         context.dispatch(
           "balances/get",
-          { address:  web3.givenProvider.selectedAddress || context.rootState.preferences.address, tokens: prices },
+          {
+            address:
+              web3.givenProvider.selectedAddress ||
+              context.rootState.preferences.address,
+            tokens: prices,
+          },
           { root: true }
         );
       });
@@ -81,6 +74,39 @@ export default {
           commit("bnb", parseFloat(r.data.price));
         });
     },
+    add(context, address) {
+      const tokens = [
+        ...context.rootGetters["preferences/watchedTokens"],
+        {
+          address,
+        },
+      ];
+      context.dispatch(
+        "preferences/set",
+        { watchedTokens: tokens },
+        { root: true }
+      );
+      context.dispatch("get");
+    },
+    update(context, token) {
+      const tokens = context.rootGetters["preferences/watchedTokens"];
+      const i = tokens.findIndex((t) => t.address === token.address);
+      tokens[i] = token;
+      context.dispatch('updateWatchedTokens', tokens)
+    },
+    remove(context, token) {
+      const tokens = context.rootGetters["preferences/watchedTokens"];
+      const i = tokens.findIndex((t) => t.address === token.address);
+      tokens.splice(i, 1);
+      context.dispatch('updateWatchedTokens', tokens)
+    },
+    updateWatchedTokens(context, tokens) {
+      return context.dispatch(
+        "preferences/set",
+        { tokens },
+        { root: true }
+      );
+    }
   },
   getters: {
     address: (state) => (address) => {
@@ -105,7 +131,7 @@ export default {
       return {
         bnb: trade.outputAmount.toSignificant(5),
         eur: trade.outputAmount.multiply(parseInt(state.bnb)).toSignificant(5),
-        price: trade.executionPrice.toSignificant(5)
+        price: trade.executionPrice.toSignificant(5),
       };
     },
   },

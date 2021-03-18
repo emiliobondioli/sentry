@@ -149,9 +149,8 @@ export default {
       history.value.push({
         ...candle.value,
       });
-      checkNotify(parseFloat(conversion.value.eur));
+      checkNotify(parseFloat(conversion.value.price));
       store.commit("prices/history", { address: props.token.address, history });
-      console.log(history.value)
     }
 
     function updateCandle() {
@@ -174,6 +173,15 @@ export default {
       };
     }
 
+    function update() {
+      store.dispatch("prices/update", edit.value);
+      editing.value = false;
+    }
+
+    function remove() {
+      store.dispatch("prices/remove", props.token);
+    }
+
     setInterval(updateCandle, 1000);
     setInterval(addHistoryBlock, 3000);
 
@@ -183,6 +191,10 @@ export default {
 
     return {
       conversion,
+      edit,
+      editing,
+      update,
+      remove,
       currency,
       price,
       history,
