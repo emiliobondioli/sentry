@@ -44,8 +44,8 @@ export default {
     const tokens = computed(() => store.state.prices.list);
     const bnb = computed(() => store.state.prices.bnb);
 
-    function add(address) {
-      store.dispatch("prices/add", address);
+    function add() {
+      store.dispatch("prices/add", query.value);
     }
 
     function convert(token) {
