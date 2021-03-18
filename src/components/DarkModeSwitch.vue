@@ -17,7 +17,7 @@ export default {
     const store = useStore();
     const dark = computed(() => store.state.preferences.darkMode);
     function toggle() {
-      store.dispatch("preferences", { darkMode: !dark.value });
+      store.dispatch("preferences/set", { darkMode: !dark.value });
     }
     return { toggle };
   },

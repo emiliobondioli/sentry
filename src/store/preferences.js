@@ -18,14 +18,30 @@ export default {
   state: () => ({
     fiat: "USD",
     darkMode: true,
-    address: "",
+    address: null,
     platforms: [],
     priceNotifications: {},
-    watchedTokens: []
+    watchedTokens: [],
+    tokens: []
   }),
   mutations: {
-    preferences(state, data) {
-      Object.keys(data).forEach((k) => (state[k] = data[k]));
+    address(state, data) {
+      state.address = data;
+    },
+    watchedTokens(state, data) {
+      state.watchedTokens = data;
+    },
+    tokens(state, data) {
+      state.tokens = data;
+    },
+    fiat(state, data) {
+      state.fiat = data;
+    },
+    platforms(state, data) {
+      state.platforms = data;
+    },
+    darkMode(state, data) {
+      state.darkMode = data;
     },
     priceNotifications(state, data) {
       state.priceNotifications[data.address] = data.value;
@@ -42,10 +58,10 @@ export default {
       const preferences = localStorage.getItem(
         config.localStoragePrefix + "preferences"
       );
-      if (preferences) context.commit("preferences", JSON.parse(preferences));
+      if (preferences) context.dispatch("set", JSON.parse(preferences));
     },
     set(context, data) {
-      context.commit("preferences", { ...context.states, ...data });
+      Object.keys(data).forEach((k) => context.commit(k, data[k]));
       context.dispatch("save");
     },
     priceNotifications(context, data) {
@@ -57,8 +73,9 @@ export default {
     priceNotifications: (state) => (address) => {
       return state.priceNotifications[address] || false;
     },
-    watchedTokens: (state)  => {
+    watchedTokens: (state) => {
       return state.watchedTokens;
     },
+    address: (state) => state.address,
   },
 };

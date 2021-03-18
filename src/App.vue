@@ -25,7 +25,22 @@
           >
             Connect
           </button>
-          <span class="text-sm" v-else>{{ address }}</span>
+          <span class="text-sm" v-else>
+            {{ shortAddress }}
+            <img
+              src="@/assets/icons/remove.svg"
+              svg-inline
+              class="fill-current inline w-4 cursor-pointer mx-1 align-bottom"
+              @click="remove"
+            />
+            <a :href="bscScanLink" target="_blank">
+              <img
+                src="@/assets/icons/external.svg"
+                svg-inline
+                class="fill-current inline w-4 cursor-pointer mx-1 align-bottom"
+              />
+            </a>
+          </span>
         </div>
         <dark-mode-switch />
       </header>
@@ -48,21 +63,33 @@ export default defineComponent({
   setup() {
     const store = useStore();
     const address = computed(() => store.state.preferences.address);
+    const shortAddress = computed(() => truncate(address.value));
     const dark = computed(() => store.state.preferences.darkMode);
     store.dispatch("preferences/load");
 
     async function connect() {
       const web3Modal = new Web3Modal({
-        cacheProvider: true,
+        cacheProvider: false,
       });
       const provider = await web3Modal.connect();
       store.dispatch("preferences/set", { address: provider.selectedAddress });
     }
 
+    function remove() {
+      store.dispatch("preferences/set", { address: '' });
+    }
+
+    const bscScanLink = computed(
+      () => `https://bscscan.com/address/${address.value}`
+    );
+
     return {
       dark,
       connect,
-      address: truncate(address.value),
+      remove,
+      bscScanLink,
+      address,
+      shortAddress
     };
   },
 });
