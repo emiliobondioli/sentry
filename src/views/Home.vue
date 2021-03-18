@@ -46,7 +46,7 @@
 
 <script>
 import Dashboard from "@/components/Dashboard.vue";
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 import { useStore } from "vuex";
 import useFormats from "@/components/composables/use-formats";
 import Loader from "@/components/Loader.vue";
@@ -80,6 +80,8 @@ export default {
       store.dispatch("preferences/set", { platforms });
     }
 
+    if(address.value) scan()
+    
     function scan() {
       if (address.value) {
         loading.value = true;
