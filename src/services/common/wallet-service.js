@@ -4,25 +4,18 @@ import web3 from "./web3";
 
 export class WalletService {
   /**
-   *
-   * @param {web3} web3
-   */
-  constructor(provider) {
-    this.web3 = provider;
-  }
-
-  /**
    * Gets current stats for contract tokens
    */
   async getTokenBalances(address, tokens) {
-    const request = new this.web3.BatchRequest();
+    await web3.init()
+    const request = new web3.provider.BatchRequest();
     const batch = new BatchRequest();
     tokens.forEach((t) => {
-      const contract = new this.web3.eth.Contract(ERC20_ABI, t.address);
+      const contract = new web3.provider.eth.Contract(ERC20_ABI, t.address);
       if (contract.methods.balanceOf) {
         batch.add(contract.methods.balanceOf(address), (r) => {
           const b = {};
-          b[t.address] = web3.utils.fromWei(r, "gwei");
+          b[t.address] = web3.provider.utils.fromWei(r, "gwei");
           return b;
         });
       }
@@ -41,4 +34,4 @@ export class WalletService {
   }
 }
 
-export default new WalletService(web3);
+export default new WalletService();

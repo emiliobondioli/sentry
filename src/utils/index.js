@@ -1,18 +1,16 @@
-import web3 from "@/services/common/web3";
 import Web3 from "web3";
-import Web3Modal from "web3modal";
 
 export function intersection(arr1, arr2) {
   return arr1.filter((el) => arr2.includes(el));
 }
 
 export function convertValue(value) {
-  return parseFloat(web3.utils.fromWei(value));
+  return parseFloat(Web3.utils.fromWei(value));
 }
 
 export function parseAddress(address) {
   if (!address) return null;
-  return web3.utils.toChecksumAddress(address);
+  return Web3.utils.toChecksumAddress(address);
 }
 
 export function isSameAddress(address0, address1) {

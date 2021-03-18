@@ -32,7 +32,7 @@ export class FarmService {
    *  Init farm pools and contract
    */
   async init() {
-    await Promise.all([this.createPools(), this.initContract()]);
+    await Promise.all([this.web3.init(), this.createPools(), this.initContract()]);
     return (this.initialized = true);
   }
 
@@ -54,7 +54,7 @@ export class FarmService {
       throw new Error("Contract ABI not readable");
     }
     if (abi) {
-      this.contract = new this.web3.eth.Contract(abi, contractAddress);
+      this.contract = new this.web3.provider.provider.eth.Contract(abi, contractAddress);
       return this.contract;
     }
   }
@@ -149,7 +149,7 @@ export class FarmService {
    * @param {address} userAddress
    */
   getUserStats(pools, userAddress) {
-    const request = new this.web3.BatchRequest();
+    const request = new this.web3.provider.BatchRequest();
     const promises = [];
     pools.forEach((p) => {
       const batch = this.getUserStatsForPool(p, userAddress);

@@ -29,7 +29,7 @@ export class LPService {
    *  Init farm pools and contract
    */
   async init() {
-    await Promise.all([this.initContract()]);
+    await Promise.all([this.web3.init(), this.initContract()]);
     return (this.initialized = true);
   }
 
@@ -51,7 +51,7 @@ export class LPService {
       throw new Error("Contract ABI not readable");
     }
     if (abi) {
-      this.contract = new this.web3.eth.Contract(abi, contractAddress);
+      this.contract = new this.web3.provider.eth.Contract(abi, contractAddress);
       return this.contract;
     }
   }
@@ -61,7 +61,7 @@ export class LPService {
    */
   async getTokenStats(deposits) {
     if (!this.initialized) await this.init();
-    const request = new this.web3.BatchRequest();
+    const request = new this.web3.provider.BatchRequest();
     const batch = new BatchRequest();
 
     /** Token reserves */
