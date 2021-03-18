@@ -54,7 +54,7 @@ export class FarmService {
       throw new Error("Contract ABI not readable");
     }
     if (abi) {
-      this.contract = new this.web3.provider.provider.eth.Contract(abi, contractAddress);
+      this.contract = new this.web3.provider.eth.Contract(abi, contractAddress);
       return this.contract;
     }
   }
