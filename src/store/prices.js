@@ -116,8 +116,8 @@ export default {
       const p = getters.address(address);
       if (!p) return 0;
       let priceOnly = false
-      if(amount === 0) {
-        amount = 1000
+      if(!amount) {
+        amount = 1
         priceOnly = true
       }
       const amt = new TokenAmount(
