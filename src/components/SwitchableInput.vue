@@ -1,16 +1,17 @@
 <template>
-  <span v-if="!editing || !modelValue" @click="edit">{{ modelValue }}</span>
   <input
-    v-else
+    v-if="editing || !modelValue"
     :value="modelValue"
     @input="update"
     @keydown.enter="editing = false"
     @blur="editing = false"
+    @click="edit"
     :placeholder="placeholder"
     ref="input"
     class="p-1 text-md border bg-gray-light border-gray rounded-sm dark:bg-gray-darkest dark:border-gray-darkest"
     :class="editClass"
   />
+  <span v-else @click="edit">{{ modelValue }}</span>
 </template>
 
 <script>
