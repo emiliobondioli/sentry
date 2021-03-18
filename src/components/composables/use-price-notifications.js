@@ -30,12 +30,12 @@ export default function usePriceNotifications({ props, store, conversion }) {
   }
 
   function setWatchRange(value) {
-    watchRange[0] = value - value * 0.1;
-    watchRange[1] = value + value * 0.1;
+    watchRange[0] = value - value * 0.05;
+    watchRange[1] = value + value * 0.05;
   }
 
   watch(conversion, () => {
-    if (!watchRange.length) setWatchRange(parseFloat(conversion.value.eur));
+    if (!watchRange.length) setWatchRange(parseFloat(conversion.value.price));
   });
 
   return {
