@@ -26,9 +26,8 @@
 </template>
 
 <script>
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { useStore } from "vuex";
-import useWallet from "@/components/composables/use-wallet";
 import { truncate } from "@/utils";
 
 export default {
@@ -38,11 +37,8 @@ export default {
   },
   setup(props, { emit }) {
     const store = useStore();
-    const wallet = useWallet();
-    const connectedAddress = wallet.address;
-
-    const address = ref(wallet.address.value);
-    address.value = store.state.preferences.address || "";
+    const connectedAddress = computed(() => store.state.preferences.address);
+    const address = ref('');
 
     function useConnectedAddress() {
       address.value = connectedAddress.value;

@@ -5,7 +5,7 @@
     @input="update"
     @keydown.enter="editing = false"
     @blur="editing = false"
-    @click="edit"
+    @focus="edit"
     :placeholder="placeholder"
     ref="input"
     class="p-1 text-md border bg-gray-light border-gray rounded-sm dark:bg-gray-darkest dark:border-gray-darkest"

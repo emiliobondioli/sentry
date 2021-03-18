@@ -56,6 +56,7 @@ export default {
 
       Promise.all(prices).then((prices) => {
         context.commit("list", prices);
+        if(!context.rootState.preferences.address) return
         context.dispatch(
           "balances/get",
           {
@@ -74,6 +75,7 @@ export default {
         });
     },
     add(context, address) {
+      console.log(address)
       const tokens = [
         ...context.rootGetters["preferences/watchedTokens"],
         {
@@ -113,6 +115,11 @@ export default {
     convert: (state, getters) => (amount, address) => {
       const p = getters.address(address);
       if (!p) return 0;
+      let priceOnly = false
+      if(amount === 0) {
+        amount = 1000
+        priceOnly = true
+      }
       const amt = new TokenAmount(
         p.token,
         Math.pow(10, p.token.decimals) * amount
@@ -124,8 +131,8 @@ export default {
       );
 
       return {
-        bnb: trade.outputAmount.toSignificant(5),
-        eur: trade.outputAmount.multiply(parseInt(state.bnb)).toSignificant(5),
+        bnb: priceOnly ? 0 : trade.outputAmount.toSignificant(5),
+        eur: priceOnly ? 0 : trade.outputAmount.multiply(parseInt(state.bnb)).toSignificant(5),
         price: trade.executionPrice.toSignificant(5),
       };
     },

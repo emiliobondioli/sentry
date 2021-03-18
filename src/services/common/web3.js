@@ -21,7 +21,6 @@ class Web3Provider {
   constructor() {
     this.endpoint = "";
     this.initialized = false;
-    this.connectedAddress = ref("");
   }
 
   checkEndpoints(endpoints) {
@@ -34,7 +33,6 @@ class Web3Provider {
 
   setProvider(provider) {
     this.provider = provider;
-    this.connectedAddress.value = provider.givenProvider.selectedAddress;
   }
 
   async init() {

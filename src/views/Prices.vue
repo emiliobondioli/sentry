@@ -4,7 +4,7 @@
       <input
         type="text"
         class="p-2 text-lg border bg-gray-light border-gray rounded-sm flex-1 dark:bg-gray-darkest dark:border-gray-darkest"
-        v-model="query"
+        v-model="address"
         placeholder="Token address"
       />
       <button
@@ -34,7 +34,7 @@ export default {
   setup() {
     const { currency } = useFormats(store);
     const store = useStore();
-    const query = ref("");
+    const address = ref("");
     function update() {
       store.dispatch("prices/get");
     }
@@ -45,7 +45,9 @@ export default {
     const bnb = computed(() => store.state.prices.bnb);
 
     function add() {
-      store.dispatch("prices/add", query.value);
+      store.dispatch("prices/add", address.value).then(() => {
+        address.value = "";
+      });
     }
 
     function convert(token) {
@@ -54,7 +56,7 @@ export default {
 
     return {
       add,
-      query,
+      address,
       tokens,
       convert,
       currency,

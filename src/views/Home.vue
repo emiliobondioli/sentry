@@ -50,7 +50,6 @@ import { ref, computed } from "vue";
 import { useStore } from "vuex";
 import useFormats from "@/components/composables/use-formats";
 import Loader from "@/components/Loader.vue";
-import useWallet from "@/components/composables/use-wallet";
 import { truncate } from "@/utils";
 import UserAddressInput from '@/components/UserAddressInput'
 
@@ -63,8 +62,6 @@ export default {
   },
   setup() {
     const store = useStore();
-    const wallet = useWallet();
-    const connectedAddress = wallet.address;
     const address = computed(() => store.state.preferences.address);
 
     const loading = ref(false);
@@ -108,7 +105,6 @@ export default {
       setFiat,
       selectedPlatforms,
       togglePlatform,
-      connectedAddress,
       truncate,
     };
   },
