@@ -141,7 +141,6 @@ export default {
 
     const amount = ref(balance.value);
     const conversion = computed(() => {
-      if (!amount.value) return 0;
       return store.getters["prices/convert"](amount.value, props.token.address);
     });
 

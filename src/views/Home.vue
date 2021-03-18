@@ -11,7 +11,7 @@
         class="font-bold rounded-md px-2 py-2 ext-xl cursor-pointer"
         :class="{
           'text-black bg-gray-light': selectedPlatforms.includes(platform.id),
-          'text-gray bg-gray-dark': !selectedPlatforms.includes(platform.id),
+          'text-black bg-gray-dark': !selectedPlatforms.includes(platform.id),
         }"
         @click="togglePlatform(platform.id)"
       >
