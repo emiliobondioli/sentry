@@ -1,5 +1,6 @@
 import Web3 from "web3";
 import axios from "axios";
+import { ref } from "vue";
 
 export const endpoints = [
   "https://bsc-dataseed1.binance.org/",
@@ -20,6 +21,7 @@ class Web3Provider {
   constructor() {
     this.endpoint = "";
     this.initialized = false;
+    this.connectedAddress = ref("");
   }
 
   checkEndpoints(endpoints) {
@@ -32,6 +34,7 @@ class Web3Provider {
 
   setProvider(provider) {
     this.provider = provider;
+    this.connectedAddress.value = provider.givenProvider.selectedAddress;
   }
 
   async init() {
@@ -40,7 +43,7 @@ class Web3Provider {
     this.status = this.checkEndpoints(endpoints).then((endpoint) => {
       this.endpoint = endpoint;
       this.initialized = true;
-      this.provider = new Web3(new Web3.providers.HttpProvider(endpoint));
+      this.setProvider(new Web3(new Web3.providers.HttpProvider(endpoint)));
     });
     return this.status;
   }

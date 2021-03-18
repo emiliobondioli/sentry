@@ -4,7 +4,7 @@ import web3 from "@/services/common/web3";
 export default function useWallet() {
   const address = computed(() => {
     if(!web3.initialized) return ''
-    return web3.givenProvider.selectedAddress || '';
+    return web3.connectedAddress || '';
   });
   return {
     address,

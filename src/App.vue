@@ -39,7 +39,7 @@ import { defineComponent } from "vue";
 import { useStore } from "vuex";
 import useWallet from "@/components/composables/use-wallet";
 import { computed } from "vue";
-import { setProvider } from "@/services/common/web3";
+import web3 from "@/services/common/web3";
 import Web3Modal from "web3modal";
 import { truncate } from "@/utils";
 
@@ -60,7 +60,7 @@ export default defineComponent({
         cacheProvider: true,
       });
       const provider = await web3Modal.connect();
-      setProvider(provider);
+      web3.setProvider(provider);
       store.dispatch("preferences/set", { address: connectedAddress.value });
     }
 
