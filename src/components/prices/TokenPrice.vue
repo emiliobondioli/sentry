@@ -2,14 +2,22 @@
   <div class="token-price">
     <div class="flex p-1 mb-2 mt-4">
       <div class="flex-1 text-xl flex items-center">
-        <span>{{ token.name }}</span>
-        <div
-          class="ml-2 w-4 h-4 inline-flex justify-center items-center rounded-full cursor-pointer"
-          :class="priceNotifications ? 'text-gray-light' : 'text-gray-dark'"
-          @click="toggleNotifications"
-        >
+        <span v-if="token.name && !editing" @click="editing = true">{{
+          token.name
+        }}</span>
+        <input
+          v-else
+          class="p-1 text-md border bg-gray-light border-gray rounded-sm dark:bg-gray-darkest dark:border-gray-darkest"
+          v-model="edit.name"
+          @keydown.enter="update"
+          @blur="editing = false"
+        />
+        <IconToggle class="ml-2 w-4 h-4" :active="priceNotifications" @click="toggleNotifications">
           <img src="@/assets/icons/bell.svg" svg-inline class="fill-current" />
-        </div>
+        </IconToggle>
+        <IconToggle class="ml-2 w-4 h-4" @click="remove">
+          <img src="@/assets/icons/delete.svg" svg-inline class="fill-current" />
+        </IconToggle>
       </div>
       <div class="text-right">{{ currency(conversion.price, 14) }}BNB</div>
     </div>
@@ -50,7 +58,19 @@
           <p class="text-sm">{{ currency(conversion.eur, 2) }}€</p>
         </div>
       </div>
-      <PriceChart :data="history" v-if="history.length > 2" />
+      <div class="bg-black" v-if="false">
+        <IconToggle class="ml-2 w-6 h-6" @click="graphType = 'blocks'" :active="graphType === 'blocks'">
+          <img src="@/assets/icons/blocks.svg" svg-inline class="fill-current" />
+        </IconToggle>
+        <IconToggle class="ml-2 w-6 h-6" @click="graphType = 'candlesticks'" :active="graphType === 'candlesticks'">
+          <img src="@/assets/icons/candles.svg" svg-inline class="fill-current" />
+        </IconToggle>
+      </div>
+      <CandlesticksChart
+        :data="graphData"
+        v-if="history.length > 2 && graphType === 'candlesticks'"
+      />
+      <BlockChart :data="graphData" v-else-if="graphType === 'blocks'" />
     </div>
   </div>
 </template>
@@ -60,11 +80,13 @@ import { useStore } from "vuex";
 import { computed, ref, watch } from "vue";
 import useFormats from "@/components/composables/use-formats";
 import usePriceNotifications from "@/components/composables/use-price-notifications";
-import PriceChart from "./PriceChart.vue";
-import { DateTime } from "luxon"; 
+import CandlesticksChart from "./CandlesticksChart.vue";
+import BlockChart from "./BlockChart.vue";
+import IconToggle from "@/components/IconToggle.vue";
+import { DateTime } from "luxon";
 
 export default {
-  components: { PriceChart },
+  components: { CandlesticksChart, BlockChart, IconToggle },
   name: "TokenPrice",
   props: {
     token: {
@@ -77,8 +99,16 @@ export default {
     const { currency } = useFormats(store);
     let init = false;
 
+    const edit = ref({ ...props.token });
     const candle = ref(null);
+    const editing = ref(false);
+    const graphType = ref("blocks");
     const history = ref([]);
+    const graphData = computed(() => {
+      if (!candle.value) return [];
+      return [...history.value, candle.value];
+    });
+
     const sample = ref(128);
     const range = computed(() => history.value.slice(-sample.value));
     const dirty = ref(false);
@@ -163,6 +193,8 @@ export default {
       range,
       priceNotifications,
       toggleNotifications,
+      graphType,
+      graphData,
     };
   },
 };
