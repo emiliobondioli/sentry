@@ -50,7 +50,8 @@ export default defineComponent({
   setup() {
     const store = useStore();
     const address = computed(() => store.state.preferences.address);
-    const { walletAddress } = useWallet();
+    const wallet = useWallet();
+    const connectedAddress = wallet.address;
     const dark = computed(() => store.state.preferences.darkMode);
     store.dispatch("preferences/load");
 
@@ -60,7 +61,7 @@ export default defineComponent({
       });
       const provider = await web3Modal.connect();
       setProvider(provider);
-      store.dispatch("preferences/set", { address: walletAddress.value });
+      store.dispatch("preferences/set", { address: connectedAddress.value });
     }
 
     return {
