@@ -1,7 +1,7 @@
 <template>
   <div class="block-chart flex h-16 py-1 items-end justify-end w-full">
     <div
-      v-for="block in range"
+      v-for="block in data"
       :key="block.time"
       class="history-block bg-gray w-2"
       :style="blockStyle(block)"
@@ -26,26 +26,18 @@ export default {
       type: Array,
       required: true,
     },
-    current: {
-      type: String,
-      default: "0.0",
-    },
   },
   setup(props) {
     const store = useStore();
     const { currency } = useFormats(store);
 
     const max = computed(() => {
-      const values = [...props.data, { value: parseFloat(props.current) }].map(
-        (h) => h.value
-      );
+      const values = props.data.map((h) => h.close);
       return Math.max(...values);
     });
 
     const min = computed(() => {
-      const values = [...props.data, { value: parseFloat(props.current) }].map(
-        (h) => h.value
-      );
+      const values = props.data.map((h) => h.close);
       return Math.min(...values);
     });
 
@@ -54,18 +46,18 @@ export default {
     }
 
     function blockStyle(block) {
-      const h = height(block.value);
+      const h = height(block.close);
       return { height: h + "%" };
     }
 
     const currentBlockStyle = computed(() => {
-      const price = props.current || 0;
-      const h = height(price);
+      const price = props.data[props.data.length - 1];
+      if (!price) return null;
+      const h = height(price.close);
       return { height: h + "%" };
     });
 
     return {
-      conversion,
       currency,
       blockStyle,
       currentBlockStyle,
