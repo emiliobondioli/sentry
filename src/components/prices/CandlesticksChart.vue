@@ -37,7 +37,7 @@ export default {
           ],
         },
       });
-      console.log(chart);
+      // console.log(chart);
       chart.update();
     }
 

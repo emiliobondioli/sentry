@@ -58,7 +58,6 @@ export default {
       return state.priceNotifications[address] || false;
     },
     watchedTokens: (state)  => {
-      console.log(state)
       return state.watchedTokens;
     },
   },

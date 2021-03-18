@@ -5,7 +5,6 @@ import {merge, valueOrDefault} from './helpers';
 import FinancialElement from './element.financial';
 
 const globalOpts = defaults;
-console.log(globalOpts)
 
 class CandlestickElement extends FinancialElement {
 	draw(ctx) {
