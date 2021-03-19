@@ -1,35 +1,64 @@
 <template>
   <div class="token-price">
-    <div class="flex p-1 mb-2 mt-4">
-      <div class="flex-1 text-xl flex items-center">
-        <SwitchableInput v-model="edit.symbol" @update:modelValue="update" placeholder="Symbol" class="token-symbol font-bold" editClass="w-20" />
-        <SwitchableInput v-model="edit.name" @update:modelValue="update" placeholder="Token name" />
+    <div class="flex p-1 mt-4">
+      <div class="flex-1 flex items-center group">
         <IconToggle
-          class="ml-2 w-4 h-4"
+          class="mr-2 align-middle w-5"
           :active="priceNotifications"
           @click="toggleNotifications"
         >
           <img src="@/assets/icons/bell.svg" svg-inline class="fill-current" />
         </IconToggle>
-        <IconToggle class="ml-2 w-4 h-4" @click="remove">
+        <SwitchableInput
+          v-model="edit.symbol"
+          @update:modelValue="update"
+          placeholder="Symbol"
+          class="token-symbol font-bold text-lg text-gray-dark"
+          editClass="w-20"
+        />
+        <SwitchableInput
+          v-model="edit.name"
+          @update:modelValue="update"
+          class="text-lg"
+          placeholder="Token name"
+        />
+        <IconToggle
+          class="ml-2 w-4 h-4 opacity-0 group-hover:opacity-100"
+          @click="remove"
+        >
           <img
             src="@/assets/icons/delete.svg"
             svg-inline
             class="fill-current"
           />
         </IconToggle>
-            <a :href="bscScanLink" target="_blank">
-              <img
-                src="@/assets/icons/external.svg"
-                svg-inline
-                class="fill-current inline w-4 cursor-pointer ml-2 align-text-top"
-              />
-            </a>
+        <img
+          src="@/assets/icons/copy.svg"
+          svg-inline
+          @click="copyTokenAddress"
+          class="fill-current inline w-4 cursor-pointer ml-2 align-text-top opacity-0 group-hover:opacity-100"
+        />
       </div>
       <div class="text-right">{{ currency(conversion.price, 14) }}BNB</div>
     </div>
+    <div class="flex p-1">
+      <a :href="bscScanLink" target="_blank" class="mr-2 h-4">
+        <img
+          src="@/assets/icons/external.svg"
+          svg-inline
+          class="fill-current inline w-4 cursor-pointer align-text-top"
+        />
+      </a>
+      <a :href="unidexLink" target="_blank" class="h-4">
+        <img
+          src="@/assets/icons/candles.svg"
+          svg-inline
+          class="fill-current inline w-4 cursor-pointer align-text-top"
+        />
+      </a>
+    </div>
     <div class="p-1">
-      <div class="flex p-1 mb-2">
+      <div class="flex mb-2">
         <div class="flex-1">
           <div class="flex justify-between">
             <span>Amount</span
@@ -108,6 +137,7 @@ import BlockChart from "./BlockChart.vue";
 import IconToggle from "@/components/IconToggle.vue";
 import SwitchableInput from "@/components/SwitchableInput.vue";
 import { DateTime } from "luxon";
+import { copyToClipboard } from "@/utils";
 
 export default {
   components: { CandlesticksChart, BlockChart, IconToggle, SwitchableInput },
@@ -124,7 +154,7 @@ export default {
     let init = false;
 
     const edit = ref({ ...props.token });
-    
+
     const sample = ref(128);
     const candle = ref(null);
     const graphType = ref("blocks");
@@ -138,7 +168,14 @@ export default {
     const bscScanLink = computed(
       () => `https://bscscan.com/token/${props.token.address}`
     );
+    const unidexLink = computed(
+      () => `https://unidexbeta.app/bscCharting?token=${props.token.address}`
+    );
     const dirty = ref(false);
+
+    function copyTokenAddress() {
+      copyToClipboard(props.token.address);
+    }
 
     const balance = computed(() => {
       const price = store.getters["balances/address"](props.token.address);
@@ -201,10 +238,10 @@ export default {
 
     let debounceUpdate = null;
     function update() {
-      if(debounceUpdate) clearTimeout(debounceUpdate)
+      if (debounceUpdate) clearTimeout(debounceUpdate);
       debounceUpdate = setTimeout(() => {
         store.dispatch("prices/update", edit.value);
-      }, 200)
+      }, 200);
     }
 
     function remove() {
@@ -235,7 +272,9 @@ export default {
       toggleNotifications,
       graphType,
       graphData,
-      bscScanLink
+      bscScanLink,
+      unidexLink,
+      copyTokenAddress,
     };
   },
 };
@@ -243,6 +282,6 @@ export default {
 
 <style>
 .token-symbol {
-  margin-right: .5rem;
+  margin-right: 0.5rem;
 }
 </style>

@@ -11,7 +11,7 @@
     class="p-1 text-md border bg-gray-light border-gray rounded-sm dark:bg-gray-darkest dark:border-gray-darkest"
     :class="editClass"
   />
-  <span v-else @click="edit">{{ modelValue }}</span>
+  <span v-else @click="edit" class="cursor-pointer">{{ modelValue }}</span>
 </template>
 
 <script>
