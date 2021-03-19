@@ -18,6 +18,13 @@
             class="fill-current"
           />
         </IconToggle>
+            <a :href="bscScanLink" target="_blank">
+              <img
+                src="@/assets/icons/external.svg"
+                svg-inline
+                class="fill-current inline w-4 cursor-pointer ml-2 align-text-top"
+              />
+            </a>
       </div>
       <div class="text-right">{{ currency(conversion.price, 14) }}BNB</div>
     </div>
@@ -117,16 +124,20 @@ export default {
     let init = false;
 
     const edit = ref({ ...props.token });
+    
+    const sample = ref(128);
     const candle = ref(null);
     const graphType = ref("blocks");
     const history = ref([]);
+    const range = computed(() => history.value.slice(-sample.value));
     const graphData = computed(() => {
       if (!candle.value) return [];
-      return [...history.value, candle.value];
+      return [...range.value, candle.value];
     });
 
-    const sample = ref(128);
-    const range = computed(() => history.value.slice(-sample.value));
+    const bscScanLink = computed(
+      () => `https://bscscan.com/token/${props.token.address}`
+    );
     const dirty = ref(false);
 
     const balance = computed(() => {
@@ -224,6 +235,7 @@ export default {
       toggleNotifications,
       graphType,
       graphData,
+      bscScanLink
     };
   },
 };
