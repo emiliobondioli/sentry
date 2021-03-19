@@ -13,7 +13,7 @@
             src="@/assets/logo.svg"
             svg-inline
             class="w-10 h-10 md:w-12 md:h-12 mr-2"
-          />sentry.farm
+          />defi<span class="text-gray">.</span>sentinel
         </h1>
         <nav class="hidden md:block">
           <router-link to="/">Home</router-link> |
