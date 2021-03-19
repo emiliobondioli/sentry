@@ -18,7 +18,7 @@
       <img src="@/assets/tokens/bnb-logo.png" class="w-6 h-6 inline mr-2" />
       {{ currency(bnb, 2) }}€
     </div>
-    <TokenPrice v-for="token in tokens" :key="token.name" :token="token" />
+    <TokenPrice v-for="token in tokens" :key="token.address" :token="token" />
   </div>
 </template>
 
