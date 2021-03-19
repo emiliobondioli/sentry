@@ -15,7 +15,7 @@
             class="w-10 h-10 md:w-12 md:h-12 mr-2"
           />sentry.farm
         </h1>
-        <nav class="hidden md:visible">
+        <nav class="hidden md:block">
           <router-link to="/">Home</router-link> |
           <router-link to="/prices">Prices</router-link>
         </nav>

@@ -76,7 +76,7 @@
             <span>Amount</span>
             <p>
               Balance: <span>{{ currency(balance, 2) }}&nbsp;</span>
-              <span class="text-gray hidden md:visible">{{ token.symbol }}</span>
+              <span class="text-gray hidden md:inline">{{ token.symbol }}</span>
             </p>
           </div>
           <div class="relative">
