@@ -1,6 +1,6 @@
 <template>
-  <div class="w-full md:w-4/5 p-2">
-    <div class="w-full flex p-2">
+  <div class="w-full md:w-4/5 p-2 flex flex-col items-center">
+    <div class="w-full flex md:w-4/5">
       <input
         type="text"
         class="p-2 text-lg border bg-gray-light border-gray rounded-sm flex-1 dark:bg-gray-darkest dark:border-gray-darkest"
@@ -8,13 +8,13 @@
         placeholder="Token address"
       />
       <button
-        class="disabled:opacity-50 disabled:cursor-auto bg-gray-light rounded-md p-2 mx-2 ext-xl text-black font-bold"
+        class="disabled:opacity-50 disabled:cursor-auto bg-gray-light rounded-md p-2 ml-2 ext-xl text-black font-bold"
         @click="add"
       >
         Add
       </button>
     </div>
-    <div class="p-2 text-lg flex items-center justify-center">
+    <div class="p-2 mt-2 text-lg flex items-center justify-center">
       <img src="@/assets/tokens/bnb-logo.png" class="w-6 h-6 inline mr-2" />
       {{ currency(bnb, 2) }}€
     </div>

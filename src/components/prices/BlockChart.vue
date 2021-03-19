@@ -1,13 +1,13 @@
 <template>
-  <div class="block-chart flex h-16 py-1 items-end justify-end w-full overflow-x-auto flex-nowrap" >
+  <div class="block-chart flex h-12 py-1 items-end justify-end w-full overflow-x-auto flex-nowrap" >
     <div
       v-for="block in data"
       :key="block.time"
-      class="history-block bg-gray w-2"
+      class="history-block bg-gray w-1.5"
       :style="blockStyle(block)"
     ></div>
     <div
-      class="history-block bg-gray-light w-2"
+      class="history-block bg-gray-light w-1.5"
       :style="currentBlockStyle"
     ></div>
   </div>

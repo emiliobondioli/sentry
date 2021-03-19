@@ -4,7 +4,7 @@
   </div>
   <template v-if="!farms.length">
     <h4 class="text-center font-bold mt-2">Platforms</h4>
-    <ul class="p-2 w-full flex justify-center mb-2 md:mb-8">
+    <ul class="w-full flex justify-center mb-2 md:mb-8">
       <li
         v-for="platform in platforms"
         :key="platform.id"

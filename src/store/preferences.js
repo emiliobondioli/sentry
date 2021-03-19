@@ -44,6 +44,9 @@ export default {
       state.darkMode = data;
     },
     priceNotifications(state, data) {
+      state.priceNotifications = data
+    },
+    priceNotification(state, data) {
       if(!data.address) return
       const o = { ...state.priceNotifications };
       o[data.address] = data.value;
@@ -61,14 +64,17 @@ export default {
       const preferences = localStorage.getItem(
         config.localStoragePrefix + "preferences"
       );
-      if (preferences) context.dispatch("set", JSON.parse(preferences));
+      if (preferences) {
+        const p = JSON.parse(preferences)
+        context.dispatch("set", p);
+      }
     },
     set(context, data) {
       Object.keys(data).forEach((k) => context.commit(k, data[k]));
       context.dispatch("save");
     },
     priceNotifications(context, data) {
-      context.commit("priceNotifications", data);
+      context.commit("priceNotification", data);
       context.dispatch("save");
     },
   },

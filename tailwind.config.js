@@ -33,6 +33,7 @@ module.exports = {
       },
       black: {
         DEFAULT: "#212529",
+        dark: '#1B1F22'
       },
     },
   },

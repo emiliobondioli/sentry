@@ -3,21 +3,23 @@
     <div
       class="container p-2 md:p-4 py-8 bg-white dark:bg-black text-gray-darkest dark:text-white flex items-center flex-col lg:max-w-screen-lg md:max-w-none md:w-full mx-auto min-h-screen"
     >
-      <header class="flex justify-between w-full md:w-4/5 items-center mb-8">
+      <header
+        class="flex w-full md:w-4/5 md:items-center mb-4 md:mb-6 flex-col md:flex-row justify-between"
+      >
         <h1
-          class="text-center text-2xl font-bold flex items-center justify-center"
+          class="text-center text-xl md:text-2xl font-bold flex items-center justify-center"
         >
           <img
             src="@/assets/logo.svg"
             svg-inline
-            class="w-12 h-12 mr-2"
+            class="w-10 h-10 md:w-12 md:h-12 mr-2"
           />sentry.farm
         </h1>
-        <nav>
+        <nav class="hidden md:visible">
           <router-link to="/">Home</router-link> |
           <router-link to="/prices">Prices</router-link>
         </nav>
-        <div>
+        <div class="flex justify-between items-center mt-2 md:mt-0">
           <button
             @click="connect"
             class="disabled:opacity-50 disabled:cursor-auto bg-gray-light rounded-md p-2 mx-2 ext-xl text-black font-bold"
@@ -25,25 +27,31 @@
           >
             Connect
           </button>
-          <span class="text-sm" v-else>
-            {{ shortAddress }}
+          <template v-else>
+            <span class="text-sm">
+              {{ shortAddress }}
+            </span>
             <img
               src="@/assets/icons/remove.svg"
               svg-inline
               class="fill-current inline w-4 cursor-pointer mx-1 align-bottom"
               @click="remove"
             />
-            <a :href="bscScanLink" target="_blank">
+            <a :href="bscScanLink" class="inline w-4 cursor-pointer mx-1 align-bottom" target="_blank">
               <img
                 src="@/assets/icons/external.svg"
                 svg-inline
-                class="fill-current inline w-4 cursor-pointer mx-1 align-bottom"
+                class="fill-current "
               />
             </a>
-          </span>
+          </template>
+          <dark-mode-switch class="ml-4" />
         </div>
-        <dark-mode-switch />
       </header>
+      <nav class="md:hidden">
+        <router-link to="/">Home</router-link> |
+        <router-link to="/prices">Prices</router-link>
+      </nav>
       <router-view />
     </div>
   </main>
@@ -76,7 +84,7 @@ export default defineComponent({
     }
 
     function remove() {
-      store.dispatch("preferences/set", { address: '' });
+      store.dispatch("preferences/set", { address: "" });
     }
 
     const bscScanLink = computed(
@@ -89,7 +97,7 @@ export default defineComponent({
       remove,
       bscScanLink,
       address,
-      shortAddress
+      shortAddress,
     };
   },
 });

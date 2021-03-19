@@ -1,71 +1,83 @@
 <template>
-  <div class="token-price">
-    <div class="flex p-1 mt-4">
-      <div class="flex-1 flex items-center group">
+  <div class="token-price w-full bg-black-dark rounded-sm p-1 mb-2">
+    <div class="flex p-1">
+      <div class="flex-1 flex items-center group justify-between">
+        <div>
+          <SwitchableInput
+            v-model="edit.symbol"
+            @update:modelValue="update"
+            placeholder="Symbol"
+            class="token-symbol font-bold text-lg text-gray-dark"
+            editClass="w-20"
+          />
+          <SwitchableInput
+            v-model="edit.name"
+            @update:modelValue="update"
+            class="text-lg"
+            placeholder="Token name"
+          />
+          <IconToggle
+            class="ml-2 w-4 h-4 opacity-0 group-hover:opacity-100"
+            @click="remove"
+          >
+            <img
+              src="@/assets/icons/delete.svg"
+              svg-inline
+              class="fill-current"
+            />
+          </IconToggle>
+          <img
+            src="@/assets/icons/copy.svg"
+            svg-inline
+            @click="copyTokenAddress"
+            class="fill-current inline w-4 cursor-pointer ml-2 align-text-top opacity-0 group-hover:opacity-100"
+          />
+        </div>
         <IconToggle
-          class="mr-2 align-middle w-5"
+          class="align-middle w-5"
           :active="priceNotifications"
           @click="toggleNotifications"
         >
           <img src="@/assets/icons/bell.svg" svg-inline class="fill-current" />
         </IconToggle>
-        <SwitchableInput
-          v-model="edit.symbol"
-          @update:modelValue="update"
-          placeholder="Symbol"
-          class="token-symbol font-bold text-lg text-gray-dark"
-          editClass="w-20"
-        />
-        <SwitchableInput
-          v-model="edit.name"
-          @update:modelValue="update"
-          class="text-lg"
-          placeholder="Token name"
-        />
-        <IconToggle
-          class="ml-2 w-4 h-4 opacity-0 group-hover:opacity-100"
-          @click="remove"
-        >
-          <img
-            src="@/assets/icons/delete.svg"
-            svg-inline
-            class="fill-current"
-          />
-        </IconToggle>
-        <img
-          src="@/assets/icons/copy.svg"
-          svg-inline
-          @click="copyTokenAddress"
-          class="fill-current inline w-4 cursor-pointer ml-2 align-text-top opacity-0 group-hover:opacity-100"
-        />
       </div>
-      <div class="text-right">{{ currency(conversion.price, 14) }}BNB</div>
     </div>
-    <div class="flex p-1">
-      <a :href="bscScanLink" target="_blank" class="mr-2 h-4">
-        <img
-          src="@/assets/icons/external.svg"
-          svg-inline
-          class="fill-current inline w-4 cursor-pointer align-text-top"
-        />
-      </a>
-      <a :href="unidexLink" target="_blank" class="h-4">
-        <img
-          src="@/assets/icons/candles.svg"
-          svg-inline
-          class="fill-current inline w-4 cursor-pointer align-text-top"
-        />
-      </a>
+    <div class="flex p-1 justify-between">
+      <div>
+        <a :href="bscScanLink" target="_blank" class="mr-2 h-4">
+          <img
+            src="@/assets/icons/external.svg"
+            svg-inline
+            class="fill-current inline w-4 cursor-pointer align-text-top"
+          />
+        </a>
+        <a :href="unidexLink" target="_blank" class="h-4">
+          <img
+            src="@/assets/icons/candles.svg"
+            svg-inline
+            class="fill-current inline w-4 cursor-pointer align-text-top"
+          />
+        </a>
+      </div>
+      <div>
+        <div class="text-right">
+          {{ currency(conversion.price, 14) }}
+          <img
+            src="@/assets/tokens/bnb-logo.png"
+            class="w-4 h-4 inline ml-0.5 align-baseline"
+          />
+        </div>
+      </div>
     </div>
     <div class="p-1">
       <div class="flex mb-2">
         <div class="flex-1">
-          <div class="flex justify-between">
-            <span>Amount</span
-            ><span
-              >Balance: {{ currency(balance, 2) }}
-              <span class="text-gray">{{ token.symbol }}</span></span
-            >
+          <div class="flex flex-col-reverse md:flex-row md:justify-between">
+            <span>Amount</span>
+            <p>
+              Balance: <span>{{ currency(balance, 2) }}&nbsp;</span>
+              <span class="text-gray hidden md:visible">{{ token.symbol }}</span>
+            </p>
           </div>
           <div class="relative">
             <input
@@ -83,12 +95,12 @@
             </button>
           </div>
         </div>
-        <div class="w-32 text-lg p-1 text-right flex flex-col justify-end">
+        <div class="w-32 text-lg text-right flex flex-col justify-end">
           <div>
             <span>{{ conversion.bnb }}</span>
             <img
               src="@/assets/tokens/bnb-logo.png"
-              class="w-4 h-4 inline ml-0.5 align-baseline"
+              class="w-4 h-4 inline ml-1 align-baseline"
             />
           </div>
           <p class="text-sm">{{ currency(conversion.eur, 2) }}€</p>
@@ -155,7 +167,7 @@ export default {
 
     const edit = ref({ ...props.token });
 
-    const sample = ref(128);
+    const sample = ref(80);
     const candle = ref(null);
     const graphType = ref("blocks");
     const history = ref([]);
