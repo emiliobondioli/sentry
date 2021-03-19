@@ -124,7 +124,7 @@ export default {
       }
       const amt = new TokenAmount(
         p.token,
-        Math.pow(10, p.token.decimals) * amount
+        Math.pow(10, p.token.decimals) * parseInt(amount)
       );
       const trade = new Trade(
         new Route([p.pair], p.token),
