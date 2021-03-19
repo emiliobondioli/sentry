@@ -22,7 +22,7 @@ export default {
     platforms: [],
     priceNotifications: {},
     watchedTokens: [],
-    tokens: []
+    tokens: [],
   }),
   mutations: {
     address(state, data) {
@@ -44,7 +44,10 @@ export default {
       state.darkMode = data;
     },
     priceNotifications(state, data) {
-      state.priceNotifications[data.address] = data.value;
+      if(!data.address) return
+      const o = { ...state.priceNotifications };
+      o[data.address] = data.value;
+      state.priceNotifications = o;
     },
   },
   actions: {

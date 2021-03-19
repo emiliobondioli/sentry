@@ -75,7 +75,6 @@ export default {
         });
     },
     add(context, address) {
-      console.log(address)
       const tokens = [
         ...context.rootGetters["preferences/watchedTokens"],
         {
@@ -102,7 +101,10 @@ export default {
       context.dispatch("updateWatchedTokens", tokens);
     },
     updateWatchedTokens(context, tokens) {
-      return context.dispatch("preferences/set", { tokens }, { root: true });
+      tokens = tokens.map(t => {
+        return {address: t.address, name: t.name, symbol: t.symbol}
+      })
+      return context.dispatch("preferences/set", { watchedTokens: tokens }, { root: true });
     },
   },
   getters: {

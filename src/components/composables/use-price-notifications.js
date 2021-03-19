@@ -4,9 +4,9 @@ import { notify } from "@/utils";
 export default function usePriceNotifications({ props, store, conversion }) {
   const watchRange = [];
 
-  const priceNotifications = computed(() =>
-    store.getters["preferences/priceNotifications"](props.token.address)
-  );
+  const priceNotifications = computed(() => {
+    return store.state.preferences.priceNotifications[props.token.address] || false
+  });
 
   function toggleNotifications() {
     store.dispatch("preferences/priceNotifications", {
