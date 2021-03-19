@@ -15,7 +15,7 @@ export class WalletService {
       if (contract.methods.balanceOf) {
         batch.add(contract.methods.balanceOf(address), (r) => {
           const b = {};
-          b[t.address] = web3.provider.utils.fromWei(r, "gwei");
+          b[t.address] = r/Math.pow(10, t.token.decimals);
           return b;
         });
       }
