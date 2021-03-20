@@ -167,7 +167,7 @@ export default {
 
     const edit = ref({ ...props.token });
 
-    const sample = ref(120);
+    const sample = ref(128);
     const candle = ref(null);
     const graphType = ref("blocks");
     const history = ref([]);
