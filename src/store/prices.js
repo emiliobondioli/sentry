@@ -39,8 +39,7 @@ export default {
       await context.dispatch("bnbPrice");
       const tokens = context.rootGetters["preferences/watchedTokens"];
       const prices = tokens.map(async (t) => {
-        const init = web3.init();
-        await init;
+        await web3.init();
         const token = await Fetcher.fetchTokenData(
           ChainId.MAINNET,
           parseAddress(t.address),
@@ -56,7 +55,7 @@ export default {
 
       Promise.all(prices).then((prices) => {
         context.commit("list", prices);
-        if(!context.rootState.preferences.address) return
+        if (!context.rootState.preferences.address) return;
         context.dispatch(
           "balances/get",
           {
@@ -101,10 +100,14 @@ export default {
       context.dispatch("updateWatchedTokens", tokens);
     },
     updateWatchedTokens(context, tokens) {
-      tokens = tokens.map(t => {
-        return {address: t.address, name: t.name, symbol: t.symbol}
-      })
-      return context.dispatch("preferences/set", { watchedTokens: tokens }, { root: true });
+      tokens = tokens.map((t) => {
+        return { address: t.address, name: t.name, symbol: t.symbol };
+      });
+      return context.dispatch(
+        "preferences/set",
+        { watchedTokens: tokens },
+        { root: true }
+      );
     },
   },
   getters: {
@@ -117,15 +120,25 @@ export default {
     convert: (state, getters) => (amount, address) => {
       const p = getters.address(address);
       if (!p) return 0;
-      let priceOnly = false
-      if(!amount) {
-        amount = 1
-        priceOnly = true
+      let priceOnly = false;
+      if (!amount) {
+        amount = 1;
+        priceOnly = true;
       }
-      const amt = new TokenAmount(
-        p.token,
-        parseInt(amount*Math.pow(10, p.token.decimals))
-      );
+      let amt;
+      try {
+        amt = new TokenAmount(
+          p.token,
+          amount * Math.pow(10, p.token.decimals)
+        );
+      } catch (e) {
+        console.log(e)
+        priceOnly = true;
+        amt = new TokenAmount(
+          p.token,
+          1 * Math.pow(10, p.token.decimals)
+        );
+      }
       const trade = new Trade(
         new Route([p.pair], p.token),
         amt,
@@ -134,7 +147,9 @@ export default {
 
       return {
         bnb: priceOnly ? 0 : trade.outputAmount.toSignificant(5),
-        eur: priceOnly ? 0 : trade.outputAmount.multiply(parseInt(state.bnb)).toSignificant(5),
+        eur: priceOnly
+          ? 0
+          : trade.outputAmount.multiply(parseInt(state.bnb)).toSignificant(5),
         price: trade.executionPrice.toSignificant(5),
       };
     },
