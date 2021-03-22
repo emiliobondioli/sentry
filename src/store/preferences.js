@@ -1,18 +1,5 @@
 import config from "@/config/env";
 
-const tokens = [
-  {
-    name: "SafeMoon",
-    symbol: "SAFEMOON",
-    address: "0x8076c74c5e3f5852037f31ff0093eeb8c8add8d3",
-  },
-  {
-    name: "Tedesis",
-    symbol: "TDI",
-    address: "0x57FB0eA298De58b2a2a442B66aFFebF9565695Eb",
-  },
-];
-
 export default {
   namespaced: true,
   state: () => ({
@@ -20,7 +7,7 @@ export default {
     darkMode: true,
     address: null,
     platforms: [],
-    priceNotifications: {},
+    tokenNotifications: [],
     watchedTokens: [],
     tokens: [],
   }),
@@ -43,14 +30,26 @@ export default {
     darkMode(state, data) {
       state.darkMode = data;
     },
-    priceNotifications(state, data) {
-      state.priceNotifications = data
+    tokenNotifications(state, data) {
+      if (!Array.isArray(data)) {
+        data = Object.keys(data).map((k) => {
+          return {
+            address: k,
+            enable: data[k],
+            range: null,
+          };
+        });
+      }
+      state.tokenNotifications = data;
     },
-    priceNotification(state, data) {
-      if(!data.address) return
-      const o = { ...state.priceNotifications };
-      o[data.address] = data.value;
-      state.priceNotifications = o;
+    tokenNotification(state, data) {
+      if (!data.address) return;
+      const i = state.tokenNotifications.findIndex((n) => n.address === data.address);
+      if (i >= 0) {
+        state.tokenNotifications[i] = data;
+      } else {
+        state.tokenNotifications = [...state.tokenNotifications, data];
+      }
     },
   },
   actions: {
@@ -65,7 +64,7 @@ export default {
         config.localStoragePrefix + "preferences"
       );
       if (preferences) {
-        const p = JSON.parse(preferences)
+        const p = JSON.parse(preferences);
         context.dispatch("set", p);
       }
     },
@@ -73,14 +72,16 @@ export default {
       Object.keys(data).forEach((k) => context.commit(k, data[k]));
       context.dispatch("save");
     },
-    priceNotifications(context, data) {
-      context.commit("priceNotification", data);
+    tokenNotifications(context, data) {
+      context.commit("tokenNotification", data);
       context.dispatch("save");
     },
   },
   getters: {
-    priceNotifications: (state) => (address) => {
-      return state.priceNotifications[address] || false;
+    tokenNotifications: (state) => (address) => {
+      return (
+        state.tokenNotifications.find((n) => n.address === address) || false
+      );
     },
     watchedTokens: (state) => {
       return state.watchedTokens;

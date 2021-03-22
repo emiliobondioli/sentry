@@ -33,13 +33,7 @@
             class="fill-current inline w-4 cursor-pointer ml-2 align-text-top opacity-0 group-hover:opacity-100"
           />
         </div>
-        <IconToggle
-          class="align-middle w-5"
-          :active="priceNotifications"
-          @click="toggleNotifications"
-        >
-          <img src="@/assets/icons/bell.svg" svg-inline class="fill-current" />
-        </IconToggle>
+        <TokenNotifications :token="token" />
       </div>
     </div>
     <div class="flex p-1 justify-between">
@@ -143,16 +137,17 @@
 import { useStore } from "vuex";
 import { computed, ref, watch } from "vue";
 import useFormats from "@/components/composables/use-formats";
-import usePriceNotifications from "@/components/composables/use-price-notifications";
+import useTokenNotifications from "@/components/composables/use-token-notifications";
 import CandlesticksChart from "./CandlesticksChart.vue";
 import BlockChart from "./BlockChart.vue";
 import IconToggle from "@/components/IconToggle.vue";
+import TokenNotifications from "@/components/prices/TokenNotifications.vue";
 import SwitchableInput from "@/components/SwitchableInput.vue";
 import { DateTime } from "luxon";
 import { copyToClipboard } from "@/utils";
 
 export default {
-  components: { CandlesticksChart, BlockChart, IconToggle, SwitchableInput },
+  components: { CandlesticksChart, BlockChart, IconToggle, SwitchableInput, TokenNotifications },
   name: "TokenPrice",
   props: {
     token: {
@@ -206,9 +201,7 @@ export default {
 
     const {
       checkNotify,
-      priceNotifications,
-      toggleNotifications,
-    } = usePriceNotifications({
+    } = useTokenNotifications({
       props,
       store,
       conversion,
@@ -280,8 +273,6 @@ export default {
       balance,
       amount,
       range,
-      priceNotifications,
-      toggleNotifications,
       graphType,
       graphData,
       bscScanLink,
