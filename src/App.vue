@@ -16,7 +16,7 @@
           />defi<span class="text-gray">.</span>sentinel
         </h1>
         <nav class="hidden md:block">
-          <router-link to="/">Home</router-link> |
+          <router-link to="/">Farms</router-link> |
           <router-link to="/prices">Prices</router-link>
         </nav>
         <div class="flex justify-between items-center mt-2 md:mt-0">
@@ -37,11 +37,15 @@
               class="fill-current inline w-4 cursor-pointer mx-1 align-bottom"
               @click="remove"
             />
-            <a :href="bscScanLink" class="inline w-4 cursor-pointer mx-1 align-bottom" target="_blank">
+            <a
+              :href="bscScanLink"
+              class="inline w-4 cursor-pointer mx-1 align-bottom"
+              target="_blank"
+            >
               <img
                 src="@/assets/icons/external.svg"
                 svg-inline
-                class="fill-current "
+                class="fill-current"
               />
             </a>
           </template>
@@ -49,7 +53,7 @@
         </div>
       </header>
       <nav class="md:hidden">
-        <router-link to="/">Home</router-link> |
+        <router-link to="/">Farms</router-link> |
         <router-link to="/prices">Prices</router-link>
       </nav>
       <router-view />
