@@ -25,7 +25,7 @@
             :key="notification.date"
           />
         </template>
-        <span v-else clas="text-sm p-2">No notifications to show.</span>
+        <span v-else class="text-sm">No notifications.</span>
       </div>
     </div>
   </div>
