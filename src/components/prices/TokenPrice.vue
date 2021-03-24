@@ -150,8 +150,8 @@ export default {
     });
 
     const price = computed(() => {
-      const symbol = store.getters["prices/address"](props.token.address);
-      return symbol ? symbol.price : 0;
+      const token = store.getters["prices/address"](props.token.address);
+      return token ? token.price : 0;
     });
 
     const amount = ref(balance.value);
