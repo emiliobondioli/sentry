@@ -163,7 +163,6 @@ export default {
     const { checkNotify } = useTokenNotifications({
       props,
       store,
-      conversion,
     });
 
     function setMaxBalance() {
