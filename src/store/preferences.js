@@ -18,6 +18,16 @@ export default {
     watchedTokens(state, data) {
       state.watchedTokens = data;
     },
+    watchedToken(state, data) {
+      if (!data.address) return;
+      state.watchedTokens = data;
+      const i = state.watchedTokens.findIndex(
+        (n) => n.address === data.address
+      );
+      if (i >= 0) {
+        state.watchedTokens[i] = data;
+      }
+    },
     tokens(state, data) {
       state.tokens = data;
     },
@@ -44,7 +54,9 @@ export default {
     },
     tokenNotification(state, data) {
       if (!data.address) return;
-      const i = state.tokenNotifications.findIndex((n) => n.address === data.address);
+      const i = state.tokenNotifications.findIndex(
+        (n) => n.address === data.address
+      );
       if (i >= 0) {
         state.tokenNotifications[i] = data;
       } else {
@@ -85,6 +97,9 @@ export default {
     },
     watchedTokens: (state) => {
       return state.watchedTokens;
+    },
+    watchedToken: (state) => address => {
+      return state.watchedTokens.find((t) => t.address === address);
     },
     address: (state) => state.address,
   },

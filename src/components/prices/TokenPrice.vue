@@ -45,7 +45,7 @@
               class="p-2 text-lg border w-full bg-gray-light border-gray rounded-sm dark:bg-gray-darkest dark:border-gray-darkest"
               type="number"
               v-model="amount"
-              @input="dirty = true"
+              @input="update"
             />
             <button
               v-if="amount !== balance"
@@ -154,8 +154,7 @@ export default {
       return token ? token.price : 0;
     });
 
-    const amount = ref(balance.value);
-
+    const amount = ref(balance.value || props.token.amount);
     const conversion = computed(() => {
       return store.getters["prices/convert"](amount.value, props.token.address);
     });
@@ -164,6 +163,18 @@ export default {
       props,
       store,
     });
+
+    let debounceUpdate = null;
+    function update() {
+      dirty.value = true;
+      if (debounceUpdate) clearTimeout(debounceUpdate);
+      debounceUpdate = setTimeout(() => {
+        store.dispatch("prices/updateAmount", {
+          address: props.token.address,
+          amount: amount.value,
+        });
+      }, 200);
+    }
 
     function setMaxBalance() {
       dirty.value = false;
@@ -204,7 +215,12 @@ export default {
     setInterval(addHistoryBlock, 3000);
 
     watch(balance, () => {
-      if (!dirty.value || amount.value === 0) amount.value = balance.value;
+      if (
+        !dirty.value ||
+        amount.value === 0 ||
+        amount.value !== props.token.amount
+      )
+        amount.value = balance.value;
     });
 
     return {
@@ -221,6 +237,7 @@ export default {
       range,
       graphType,
       graphData,
+      update,
     };
   },
 };

@@ -109,6 +109,15 @@ export default {
       tokens[i] = token;
       context.dispatch("updateWatchedTokens", tokens);
     },
+    updateAmount(context, data) {
+      const token = context.rootGetters["preferences/watchedToken"](
+        data.address
+      );
+      if (token) {
+        token.amount = data.amount;
+      }
+      context.dispatch("update", token);
+    },
     remove(context, token) {
       const tokens = context.rootGetters["preferences/watchedTokens"];
       const i = tokens.findIndex((t) => t.address === token.address);
@@ -117,7 +126,12 @@ export default {
     },
     updateWatchedTokens(context, tokens) {
       tokens = tokens.map((t) => {
-        return { address: t.address, name: t.name, symbol: t.symbol };
+        return {
+          address: t.address,
+          name: t.name,
+          symbol: t.symbol,
+          amount: t.amount,
+        };
       });
       return context.dispatch(
         "preferences/set",
