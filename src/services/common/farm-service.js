@@ -1,17 +1,19 @@
 import axios from "axios";
 import { parseAddress, convertValue, isSameAddress } from "@/utils";
 import { LPService } from "./lp-service";
+import { BSCService } from "./bsc-service";
 
 const API_BASE = "https://api.bscscan.com/api";
 const API_TOKEN = "";
 
-export class FarmService {
+export class FarmService extends BSCService {
   /**
    *
    * @param {object} config
    * @param {web3} web3
    */
   constructor(config, web3) {
+    super(config, web3);
     this.config = config;
     this.pools = [];
     this.userAddress = "";
@@ -80,16 +82,11 @@ export class FarmService {
    * @param {address} userAddress
    */
   async scan(userAddress) {
-    if (!userAddress && !this.userAddress)
-      throw new Error("userAddress is required");
-    if (!this.initialized) await this.init();
     this.userAddress = parseAddress(userAddress);
     const transactions = await this.getTransactions(this.userAddress);
-    console.log(transactions);
     const rewardTransactions = transactions.filter((t) => {
       return isSameAddress(t.contractAddress, this.config.address);
     });
-    console.log(rewardTransactions);
 
     const userPools = [];
     this.pools.forEach((p) => {
@@ -121,18 +118,6 @@ export class FarmService {
   }
 
   /**
-   *
-   * @param {transaction} t
-   */
-  prepareTransaction(t) {
-    return {
-      ...t,
-      date: new Date(t.timeStamp * 1000),
-      value: convertValue(t.value),
-    };
-  }
-
-  /**
    * Abstract function call the farm's contract methods and get the current user stats
    * @param {pool} pool
    * @param {address} userAddress
@@ -148,7 +133,8 @@ export class FarmService {
    * @param {array} poos
    * @param {address} userAddress
    */
-  getUserStats(pools, userAddress) {
+  async getUserStats(pools, userAddress) {
+    await this.init()
     const request = new this.web3.provider.BatchRequest();
     const promises = [];
     pools.forEach((p) => {
@@ -178,23 +164,6 @@ export class FarmService {
     let p = { ...pool };
     stats.forEach((s) => (p = { ...p, ...s }));
     return p;
-  }
-
-  /**
-   *
-   * @param {address} address
-   * @param {address} contractAddress
-   */
-  async getTransactions(address, contractAddress = null) {
-    const params = {
-      address,
-      module: "account",
-      action: "tokentx",
-      apikey: API_TOKEN,
-    };
-    if (contractAddress) params.contractaddress = parseAddress(contractAddress);
-    const r = await this.get(API_BASE, params);
-    return r.data.result;
   }
 
   /**
@@ -233,14 +202,5 @@ export class FarmService {
       pool.wantAddress
     );
     return isPoolAddress && isPoolToken;
-  }
-
-  /**
-   *
-   * @param {string} url
-   * @param {object} params
-   */
-  get(url, params) {
-    return axios.get(url, { params });
   }
 }
