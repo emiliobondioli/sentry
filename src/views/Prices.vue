@@ -41,7 +41,7 @@ export default {
     update();
     setInterval(update, 5000);
 
-    const tokens = computed(() => store.state.prices.list);
+    const tokens = computed(() => store.state.preferences.watchedTokens);
     const bnb = computed(() => store.state.prices.bnb);
 
     function add() {
