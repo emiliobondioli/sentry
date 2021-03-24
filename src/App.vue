@@ -27,19 +27,13 @@
           >
             Connect
           </button>
-          <template v-else>
+          <div class="flex bg-black-dark p-1 rounded-sm items-center mr-2" v-else>
             <span class="text-sm">
               {{ shortAddress }}
             </span>
-            <img
-              src="@/assets/icons/remove.svg"
-              svg-inline
-              class="fill-current inline w-4 cursor-pointer mx-1 align-bottom"
-              @click="remove"
-            />
             <a
               :href="bscScanLink"
-              class="inline w-4 cursor-pointer mx-1 align-bottom"
+              class="inline w-4 cursor-pointer mx-2 align-bottom"
               target="_blank"
             >
               <img
@@ -48,8 +42,15 @@
                 class="fill-current"
               />
             </a>
-          </template>
-          <dark-mode-switch class="ml-4" />
+            <img
+              src="@/assets/icons/remove.svg"
+              svg-inline
+              class="fill-current inline w-4 ml-1 cursor-pointer align-bottom"
+              @click="remove"
+            />
+          </div>
+          <notification-list />
+          <dark-mode-switch class="ml-2" />
         </div>
       </header>
       <nav class="md:hidden">
@@ -69,9 +70,10 @@ import Web3Modal from "web3modal";
 import { truncate } from "@/utils";
 
 import DarkModeSwitch from "@/components/DarkModeSwitch.vue";
+import NotificationList from '@/components/notifications/NotificationList.vue'
 
 export default defineComponent({
-  components: { DarkModeSwitch },
+  components: { DarkModeSwitch, NotificationList },
   setup() {
     const store = useStore();
     const address = computed(() => store.state.preferences.address);

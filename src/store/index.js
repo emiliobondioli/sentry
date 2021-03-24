@@ -7,9 +7,10 @@ import tokenService from "@/services/common/token-service";
 import prices from "./prices";
 import balances from "./balances";
 import preferences from "./preferences";
+import notifications from "./notifications";
 
 export const store = createStore({
-  modules: { prices, balances, preferences },
+  modules: { prices, balances, preferences, notifications },
   state() {
     return {
       platforms,

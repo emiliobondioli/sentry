@@ -1,4 +1,4 @@
-import { computed, watch } from "vue";
+import { computed } from "vue";
 import { notify } from "@/utils";
 
 export default function useTokenNotifications({ props, store }) {
@@ -48,18 +48,30 @@ export default function useTokenNotifications({ props, store }) {
   }
 
   function checkNotify(conversion) {
-    if(!conversion) return
+    if (!conversion) return;
     const value = parseFloat(conversion.price);
     if (!watchRange.length) setWatchRange(parseFloat(conversion.price));
     if (!tokenNotifications.value.enable) return;
     if (value < watchRange[0]) {
-      if (notificationsRange.value.down.enable)
-        notify(`${props.token.symbol} DOWN - ${conversion.eur}€`);
+      if (notificationsRange.value.down.enable) {
+        const text = `${props.token.symbol} DOWN - ${conversion.eur}€`;
+        notify(text);
+        store.dispatch("notifications/create", {
+          text,
+          type: 'down'
+        });
+      }
       setWatchRange(value);
     }
     if (value > watchRange[1]) {
-      if (notificationsRange.value.up.enable)
-        notify(`${props.token.symbol} UP - ${conversion.eur}€`);
+      if (notificationsRange.value.up.enable) {
+        const text = `${props.token.symbol} UP - ${conversion.eur}€`;
+        notify(text);
+        store.dispatch("notifications/create", {
+          text,
+          type: 'up'
+        });
+      }
       setWatchRange(value);
     }
   }
