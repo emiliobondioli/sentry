@@ -19,10 +19,14 @@ export default {
     pairs: [],
     bnb: 220,
     history: {},
+    errors: [],
   }),
   mutations: {
     list(state, data) {
       state.list = data;
+    },
+    errors(state, data) {
+      state.errors = data;
     },
     bnb(state, data) {
       state.bnb = data;
@@ -40,27 +44,39 @@ export default {
       const tokens = context.rootGetters["preferences/watchedTokens"];
       const prices = tokens.map(async (t) => {
         await web3.init();
-        const token = await Fetcher.fetchTokenData(
-          ChainId.MAINNET,
-          parseAddress(t.address),
-          getDefaultProvider(web3.endpoint)
-        );
-        const pair = await Fetcher.fetchPairData(
-          WETH[ChainId.MAINNET],
-          token,
-          getDefaultProvider(web3.endpoint)
-        );
-        return { ...t, pair, token };
+        let token, pair, error;
+        try {
+          token = await Fetcher.fetchTokenData(
+            ChainId.MAINNET,
+            parseAddress(t.address),
+            getDefaultProvider(web3.endpoint)
+          );
+          pair = await Fetcher.fetchPairData(
+            WETH[ChainId.MAINNET],
+            token,
+            getDefaultProvider(web3.endpoint)
+          );
+        } catch (e) {
+          console.error(`Error getting token info for ${t.address}`, e.message);
+          token = null;
+          pair = null;
+          error = true;
+        }
+        return { ...t, pair, token, error };
       });
 
       Promise.all(prices).then((prices) => {
-        context.commit("list", prices);
+        context.commit("errors", []);
+        const validPrices = prices.filter((t) => t.pair);
+        const errored = prices.filter((t) => t.error);
+        context.commit("list", validPrices);
+        context.commit("errors", errored);
         if (!context.rootState.preferences.address) return;
         context.dispatch(
           "balances/get",
           {
             address: context.rootState.preferences.address,
-            tokens: prices,
+            tokens: validPrices,
           },
           { root: true }
         );
@@ -114,6 +130,9 @@ export default {
     address: (state) => (address) => {
       return state.list.find((p) => p.address === address);
     },
+    error: (state) => (address) => {
+      return state.errors.find((e) => e.address === address);
+    },
     price: (state) => (address) => {
       return state.list.find((p) => p.address === address);
     },
@@ -127,17 +146,11 @@ export default {
       }
       let amt;
       try {
-        amt = new TokenAmount(
-          p.token,
-          amount * Math.pow(10, p.token.decimals)
-        );
+        amt = new TokenAmount(p.token, amount * Math.pow(10, p.token.decimals));
       } catch (e) {
-        console.log(e)
+        console.error(`Error setting token amount for ${address}`, e);
         priceOnly = true;
-        amt = new TokenAmount(
-          p.token,
-          1 * Math.pow(10, p.token.decimals)
-        );
+        amt = new TokenAmount(p.token, 1 * Math.pow(10, p.token.decimals));
       }
       const trade = new Trade(
         new Route([p.pair], p.token),
