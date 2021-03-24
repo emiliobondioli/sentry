@@ -1,40 +1,7 @@
 <template>
   <div class="token-price w-full bg-black-dark rounded-sm p-1 mb-2">
     <div class="flex p-1">
-      <div class="flex-1 flex items-center group justify-between">
-        <div>
-          <SwitchableInput
-            v-model="edit.symbol"
-            @update:modelValue="update"
-            placeholder="Symbol"
-            class="token-symbol font-bold text-lg text-gray-dark"
-            editClass="w-20"
-          />
-          <SwitchableInput
-            v-model="edit.name"
-            @update:modelValue="update"
-            class="text-lg"
-            placeholder="Token name"
-          />
-          <IconToggle
-            class="ml-2 w-4 h-4 opacity-0 group-hover:opacity-100"
-            @click="remove"
-          >
-            <img
-              src="@/assets/icons/delete.svg"
-              svg-inline
-              class="fill-current"
-            />
-          </IconToggle>
-          <img
-            src="@/assets/icons/copy.svg"
-            svg-inline
-            @click="copyTokenAddress"
-            class="fill-current inline w-4 cursor-pointer ml-2 align-text-top opacity-0 group-hover:opacity-100"
-          />
-        </div>
-        <TokenNotifications :token="token" />
-      </div>
+      <TokenPriceHeader :token="token" />
     </div>
     <div class="flex p-1 justify-between">
       <div>
@@ -141,13 +108,11 @@ import useTokenNotifications from "@/components/composables/use-token-notificati
 import CandlesticksChart from "./CandlesticksChart.vue";
 import BlockChart from "./BlockChart.vue";
 import IconToggle from "@/components/IconToggle.vue";
-import TokenNotifications from "@/components/prices/TokenNotifications.vue";
-import SwitchableInput from "@/components/SwitchableInput.vue";
+import TokenPriceHeader from "@/components/prices/TokenPriceHeader.vue";
 import { DateTime } from "luxon";
-import { copyToClipboard } from "@/utils";
 
 export default {
-  components: { CandlesticksChart, BlockChart, IconToggle, SwitchableInput, TokenNotifications },
+  components: { CandlesticksChart, BlockChart, IconToggle, TokenPriceHeader },
   name: "TokenPrice",
   props: {
     token: {
@@ -160,7 +125,12 @@ export default {
     const { currency } = useFormats(store);
     let init = false;
 
-    const edit = ref({ ...props.token });
+    const bscScanLink = computed(
+      () => `https://bscscan.com/token/${props.token.address}`
+    );
+    const unidexLink = computed(
+      () => `https://unidexbeta.app/bscCharting?token=${props.token.address}`
+    );
 
     const sample = ref(128);
     const candle = ref(null);
@@ -172,17 +142,7 @@ export default {
       return [...range.value, candle.value];
     });
 
-    const bscScanLink = computed(
-      () => `https://bscscan.com/token/${props.token.address}`
-    );
-    const unidexLink = computed(
-      () => `https://unidexbeta.app/bscCharting?token=${props.token.address}`
-    );
     const dirty = ref(false);
-
-    function copyTokenAddress() {
-      copyToClipboard(props.token.address);
-    }
 
     const balance = computed(() => {
       const price = store.getters["balances/address"](props.token.address);
@@ -195,13 +155,12 @@ export default {
     });
 
     const amount = ref(balance.value);
+
     const conversion = computed(() => {
       return store.getters["prices/convert"](amount.value, props.token.address);
     });
 
-    const {
-      checkNotify,
-    } = useTokenNotifications({
+    const { checkNotify } = useTokenNotifications({
       props,
       store,
       conversion,
@@ -217,7 +176,7 @@ export default {
       history.value.push({
         ...candle.value,
       });
-      checkNotify(parseFloat(conversion.value.price));
+      checkNotify(conversion.value);
       store.commit("prices/history", { address: props.token.address, history });
     }
 
@@ -231,6 +190,7 @@ export default {
 
     function initCandle() {
       const v = conversion.value.eur;
+      checkNotify(conversion.value.price);
       init = true;
       return {
         t: DateTime.now().valueOf(),
@@ -239,18 +199,6 @@ export default {
         l: v,
         c: v,
       };
-    }
-
-    let debounceUpdate = null;
-    function update() {
-      if (debounceUpdate) clearTimeout(debounceUpdate);
-      debounceUpdate = setTimeout(() => {
-        store.dispatch("prices/update", edit.value);
-      }, 200);
-    }
-
-    function remove() {
-      store.dispatch("prices/remove", props.token);
     }
 
     setInterval(updateCandle, 1000);
@@ -262,9 +210,8 @@ export default {
 
     return {
       conversion,
-      edit,
-      update,
-      remove,
+      bscScanLink,
+      unidexLink,
       currency,
       price,
       history,
@@ -275,9 +222,6 @@ export default {
       range,
       graphType,
       graphData,
-      bscScanLink,
-      unidexLink,
-      copyTokenAddress,
     };
   },
 };
