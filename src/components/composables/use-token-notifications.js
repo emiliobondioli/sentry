@@ -1,7 +1,7 @@
 import { computed, watch } from "vue";
 import { notify } from "@/utils";
 
-export default function useTokenNotifications({ props, store, conversion }) {
+export default function useTokenNotifications({ props, store }) {
   const watchRange = [];
 
   const tokenNotifications = computed(() => {
@@ -47,27 +47,26 @@ export default function useTokenNotifications({ props, store, conversion }) {
     });
   }
 
-  function checkNotify(value) {
-    if (!watchRange.length || !tokenNotifications.value.enable) return;
+  function checkNotify(conversion) {
+    if(!conversion) return
+    const value = parseFloat(conversion.price);
+    if (!watchRange.length) setWatchRange(parseFloat(conversion.price));
+    if (!tokenNotifications.value.enable) return;
     if (value < watchRange[0]) {
-      if(notificationsRange.value.down.enable) notify(`${props.token.symbol} DOWN - ${conversion.value.eur}€`);
+      if (notificationsRange.value.down.enable)
+        notify(`${props.token.symbol} DOWN - ${conversion.eur}€`);
       setWatchRange(value);
     }
     if (value > watchRange[1]) {
-      if(notificationsRange.value.up.enable) notify(`${props.token.symbol} UP - ${conversion.value.eur}€`);
+      if (notificationsRange.value.up.enable)
+        notify(`${props.token.symbol} UP - ${conversion.eur}€`);
       setWatchRange(value);
     }
   }
 
   function setWatchRange(value) {
-    watchRange[0] = value - value * notificationsRange.value.down.value / 100;
-    watchRange[1] = value + value * notificationsRange.value.up.value / 100;
-  }
-
-  if (conversion) {
-    watch(conversion, () => {
-      if (!watchRange.length) setWatchRange(parseFloat(conversion.value.price));
-    });
+    watchRange[0] = value - (value * notificationsRange.value.down.value) / 100;
+    watchRange[1] = value + (value * notificationsRange.value.up.value) / 100;
   }
 
   return {
