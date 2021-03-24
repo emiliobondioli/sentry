@@ -6,6 +6,7 @@
         class="p-2 text-lg border bg-gray-light border-gray rounded-sm flex-1 dark:bg-gray-darkest dark:border-gray-darkest"
         v-model="address"
         placeholder="Token address"
+        @keydown.enter="add"
       />
       <button
         class="disabled:opacity-50 disabled:cursor-auto bg-gray-light rounded-md p-2 ml-2 ext-xl text-black font-bold"

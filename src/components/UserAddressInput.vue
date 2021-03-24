@@ -6,6 +6,7 @@
         class="p-2 text-lg border bg-gray-light border-gray rounded-sm w-full dark:bg-gray-darkest dark:border-gray-darkest"
         v-model="address"
         placeholder="Insert your wallett address"
+        @keydown.enter="save"
       />
       <button
         v-if="address !== connectedAddress"
@@ -38,7 +39,7 @@ export default {
   setup(props, { emit }) {
     const store = useStore();
     const connectedAddress = computed(() => store.state.preferences.address);
-    const address = ref('');
+    const address = ref("");
 
     function useConnectedAddress() {
       address.value = connectedAddress.value;
