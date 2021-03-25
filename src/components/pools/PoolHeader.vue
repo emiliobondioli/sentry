@@ -1,7 +1,10 @@
 <template>
   <header class="mb-2 flex items-start">
     <h4 class="text-lg text-black dark:text-white font-bold flex-1">
-      <TokenImage :token="token" v-if="token && !loading" />
+      <template v-if="token && !loading">
+        <PairImage :token="token" v-if="token.lp" />
+        <TokenImage :token="token" v-else />
+      </template>
       <SmallLoader v-else-if="loading" class="w-4 h-4" />
       {{ pool.name }}
     </h4>
@@ -23,6 +26,7 @@
 import { toK } from "@/components/composables/use-formats";
 import Label from "@/components/Label.vue";
 import TokenImage from "@/components/TokenImage.vue";
+import PairImage from "@/components/PairImage.vue";
 import SmallLoader from "@/components/SmallLoader.vue";
 import { useStore } from "vuex";
 
@@ -32,6 +36,7 @@ export default {
   components: {
     Label,
     TokenImage,
+    PairImage,
     SmallLoader,
   },
   props: {

@@ -1,18 +1,12 @@
 <template>
   <div class="flex-1 flex items-center group justify-between">
     <div>
+      <token-image :token="token" class="inline mr-2 w-6 h-6"/>
       <SwitchableInput
         v-model="edit.symbol"
         @update:modelValue="update"
         placeholder="Symbol"
-        class="token-symbol font-bold text-lg text-gray-dark"
-        editClass="w-20"
-      />
-      <SwitchableInput
-        v-model="edit.name"
-        @update:modelValue="update"
-        class="text-lg"
-        placeholder="Token name"
+        class="token-symbol font-bold text-lg"
       />
       <IconToggle
         class="ml-2 w-4 h-4 opacity-0 group-hover:opacity-100"
@@ -48,9 +42,10 @@ import TokenNotifications from "@/components/prices/TokenNotifications.vue";
 import IconToggle from "@/components/IconToggle.vue";
 import SwitchableInput from "@/components/SwitchableInput.vue";
 import { copyToClipboard } from "@/utils";
+import TokenImage from "@/components/TokenImage.vue";
 
 export default {
-  components: { SwitchableInput, TokenNotifications, IconToggle },
+  components: { SwitchableInput, TokenNotifications, IconToggle, TokenImage },
   name: "TokenPrice",
   props: {
     token: {

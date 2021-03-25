@@ -1,14 +1,21 @@
 <template>
-  <div class="flex">
-    <img :src="tokenImg[0]" class="rounded-full w-8 h-8" />
-    <img v-if="tokenImg[1]" :src="tokenImg[1]" class="rounded-full w-8 h-8 transform -translate-x-2" />
-  </div>
+  <img
+    v-if="!missing"
+    :src="src"
+    @error="missing = true"
+    class="rounded-full w-8 h-8"
+  />
+  <img v-else src="@/assets/tokens/missing.svg" class="rounded-full w-8 h-8" />
 </template>
 
 <script>
-import { computed } from "vue";
+import { ref, computed } from "vue";
+import { parseAddress } from "@/utils";
+const IMG_BASE =
+  "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/smartchain/assets/";
+
 export default {
-  name: "TokenImage",
+  name: "PairImage",
   props: {
     token: {
       type: Object,
@@ -16,12 +23,13 @@ export default {
     },
   },
   setup(props) {
-    const tokenImg = computed(() => {
-      if (props.token.lp) return [props.token.token0.image, props.token.token1.image];
-      return [props.token.image];
-    });
+    const missing = ref(false);
+    const src = computed(
+      () => IMG_BASE + parseAddress(props.token.address || props.token.id) + "/logo.png"
+    );
     return {
-      tokenImg,
+      missing,
+      src,
     };
   },
 };

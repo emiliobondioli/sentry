@@ -1,11 +1,8 @@
 import axios from "axios";
-import { parseAddress, isSameAddress } from "@/utils";
+import { isSameAddress } from "@/utils";
 
 const API_BASE =
   "https://api.bscgraph.org/subgraphs/id/QmUDNRjYZ7XbgTvfVnXHj6LcTNacDD9GPXHWLjdTKi6om6";
-
-const IMG_BASE =
-  "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/smartchain/assets/";
 
 class TokenService {
   constructor() {
@@ -151,12 +148,7 @@ function getUSDPrice(token, ethPrice) {
 
 function prepareToken(token, ethPrice) {
   token = getUSDPrice(token, ethPrice);
-  token.image = getTokenImageUrl(token);
   return token;
-}
-
-function getTokenImageUrl(token) {
-  return IMG_BASE + parseAddress(token.id) + "/logo.png";
 }
 
 export default new TokenService();
