@@ -6,7 +6,7 @@
         v-model="edit.symbol"
         @update:modelValue="update"
         placeholder="Symbol"
-        class="token-symbol font-bold text-lg"
+        class="token-symbol text-md"
         @click.stop
       />
       <IconToggle
