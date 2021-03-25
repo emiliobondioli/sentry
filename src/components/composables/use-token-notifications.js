@@ -54,7 +54,7 @@ export default function useTokenNotifications({ props, store }) {
     if (!tokenNotifications.value.enable) return;
     if (value < watchRange[0]) {
       if (notificationsRange.value.down.enable) {
-        const text = `${props.token.symbol} DOWN - ${conversion.eur}€`;
+        const text = `${props.token.symbol} DOWN - ${conversion.fiat}€`;
         notify(text);
         store.dispatch("notifications/create", {
           text,
@@ -65,7 +65,7 @@ export default function useTokenNotifications({ props, store }) {
     }
     if (value > watchRange[1]) {
       if (notificationsRange.value.up.enable) {
-        const text = `${props.token.symbol} UP - ${conversion.eur}€`;
+        const text = `${props.token.symbol} UP - ${conversion.fiat}€`;
         notify(text);
         store.dispatch("notifications/create", {
           text,

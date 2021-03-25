@@ -72,7 +72,7 @@
                 class="w-4 h-4 inline ml-1 align-baseline"
               />
             </div>
-            <p class="text-sm">{{ currency(conversion.eur, 2) }}€</p>
+            <p class="text-sm">{{ fiat(conversion.fiat, 2) }}</p>
           </div>
         </div>
         <div class="bg-black" v-if="false">
@@ -132,7 +132,7 @@ export default {
   },
   setup(props) {
     const store = useStore();
-    const { currency } = useFormats(store);
+    const { currency, fiat } = useFormats(store);
     let init = false;
 
     const bscScanLink = computed(
@@ -202,7 +202,7 @@ export default {
     }
 
     function initCandle() {
-      const v = conversion.value.eur;
+      const v = conversion.value.fiat;
       checkNotify(conversion.value.price);
       init = true;
       return {
@@ -249,6 +249,7 @@ export default {
       graphData,
       update,
       open,
+      fiat,
       data
     };
   },

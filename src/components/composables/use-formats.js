@@ -11,7 +11,7 @@ const symbols = {
 
 export default function useFormats(store) {
   const currencies = computed(() => store.state.currencies);
-  const currentFiat = computed(() => "USD");
+  const currentFiat = computed(() => store.state.preferences.fiat);
 
   const lpPair = (pair) => {
     return `${currency(pair.token0Amount, 5)} ${
@@ -20,12 +20,9 @@ export default function useFormats(store) {
   };
 
   const fiat = (value, n = 2, sign = false) => {
-    let e = 1;
     let prefix = "";
     if (sign && value >= 0) prefix = "+";
-    if (currencies.value && currentFiat.value)
-      e = currencies.value[currentFiat.value] || 1;
-    return prefix + currency(value / e, n) + symbols[currentFiat.value];
+    return prefix + currency(value, n) + symbols[currentFiat.value];
   };
 
   const setFiat = (name) => {

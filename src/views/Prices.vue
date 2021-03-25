@@ -15,9 +15,19 @@
         Add
       </button>
     </div>
-    <div class="p-2 mt-2 text-lg flex items-center justify-center">
+    <div class="p-2 mt-2 text-lg flex items-center">
+      <div>
+        <select
+          v-model="currentFiat"
+          @change="updateFiat"
+          class="bg-black-dark mr-4 text-sm p-1"
+        >
+          <option value="EUR">EUR</option>
+          <option value="USD">USD</option>
+        </select>
+      </div>
       <img src="@/assets/tokens/bnb-logo.png" class="w-6 h-6 inline mr-2" />
-      {{ currency(bnb, 2) }}€
+      {{ fiat(bnb, 2) }}
     </div>
     <TokenPrice v-for="token in tokens" :key="token.address" :token="token" />
   </div>
@@ -33,8 +43,8 @@ export default {
   name: "Prices",
   components: { TokenPrice },
   setup() {
-    const { currency } = useFormats(store);
     const store = useStore();
+    const { fiat } = useFormats(store);
     const address = ref("");
     function update() {
       store.dispatch("prices/get");
@@ -44,6 +54,13 @@ export default {
 
     const tokens = computed(() => store.state.preferences.watchedTokens);
     const bnb = computed(() => store.state.prices.bnb);
+
+    const currentFiat = ref(store.getters["preferences/fiat"]);
+
+    function updateFiat() {
+      store.dispatch("preferences/set", { fiat: currentFiat.value });
+      update();
+    }
 
     function add() {
       store.dispatch("prices/add", address.value).then(() => {
@@ -60,8 +77,10 @@ export default {
       address,
       tokens,
       convert,
-      currency,
+      fiat,
       bnb,
+      updateFiat,
+      currentFiat,
     };
   },
 };

@@ -14,7 +14,7 @@ export const store = createStore({
   state() {
     return {
       platforms,
-      currencies: null,
+      currencies: ['EUR', 'USD'],
       farms: [],
       history: [],
       tokens: {

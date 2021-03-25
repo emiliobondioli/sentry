@@ -82,11 +82,13 @@ export default {
         );
       });
     },
-    async bnbPrice({ commit }) {
+    async bnbPrice(context) {
+      let fiat = context.rootGetters['preferences/fiat']
+      if(fiat === 'USD') fiat = 'USDT'
       return axios
-        .get("https://api.binance.com/api/v3/ticker/price?symbol=BNBEUR")
+        .get("https://api.binance.com/api/v3/ticker/price?symbol=BNB"+fiat)
         .then((r) => {
-          commit("bnb", parseFloat(r.data.price));
+          context.commit("bnb", parseFloat(r.data.price));
         });
     },
     add(context, address) {
@@ -174,7 +176,7 @@ export default {
 
       return {
         bnb: priceOnly ? 0 : trade.outputAmount.toSignificant(5),
-        eur: priceOnly
+        fiat: priceOnly
           ? 0
           : trade.outputAmount.multiply(parseInt(state.bnb)).toSignificant(5),
         price: trade.executionPrice.toSignificant(5),

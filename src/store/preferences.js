@@ -98,9 +98,12 @@ export default {
     watchedTokens: (state) => {
       return state.watchedTokens;
     },
-    watchedToken: (state) => address => {
+    watchedToken: (state) => (address) => {
       return state.watchedTokens.find((t) => t.address === address);
     },
     address: (state) => state.address,
+    fiat: (state) => {
+      return state.fiat;
+    }
   },
 };

@@ -9,8 +9,7 @@
         />
       </div>
       <div class="text-right mr-4">
-        {{ currency(conversion.eur, 10) }}
-        €
+        {{ fiat(conversion.fiat, 10) }}
       </div>
       <BlockChart :data="graphData" class="h-8 w-32 bg-black mr-2" />
     </div>
@@ -34,8 +33,8 @@ export default {
   },
   setup(props) {
     const store = useStore();
-    const { currency } = useFormats(store);
-    
+    const { currency, fiat } = useFormats(store);
+
     const sample = ref(12);
     const range = computed(() => props.data.history.value.slice(-sample.value));
     const graphData = computed(() => {
@@ -48,7 +47,8 @@ export default {
     return {
       graphData,
       currency,
-      conversion
+      conversion,
+      fiat
     };
   },
 };
