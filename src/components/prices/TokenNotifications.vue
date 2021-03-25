@@ -1,7 +1,7 @@
 <template>
   <div class="flex relative">
     <img
-      @click="openSettings = true"
+      @click.stop="openSettings = true"
       src="@/assets/icons/settings.svg"
       svg-inline
       class="fill-current align-middle w-5 cursor-pointer"
@@ -13,14 +13,14 @@
       <img
         src="@/assets/icons/remove.svg"
         svg-inline
-        @click="openSettings = false"
+        @click.stop="openSettings = false"
         class="fill-current absolute w-4 top-0.5 right-0.5 cursor-pointer"
       />
       <div class="text-sm ml-2">
         <IconToggle
           class="align-middle w-5 mr-1"
           :active="enableNotifications"
-          @click="toggleNotifications"
+          @click.stop="toggleNotifications"
         >
           <img src="@/assets/icons/bell.svg" svg-inline class="fill-current align-middle" /> 
         </IconToggle>
@@ -30,7 +30,7 @@
             src="@/assets/icons/arrow-up.svg"
             svg-inline
             class="inline w-4 cursor-pointer fill-current"
-            @click="toggleRange('up')"
+            @click.stop="toggleRange('up')"
           />
           <input
             type="number"

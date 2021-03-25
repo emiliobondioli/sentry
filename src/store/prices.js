@@ -178,6 +178,7 @@ export default {
           ? 0
           : trade.outputAmount.multiply(parseInt(state.bnb)).toSignificant(5),
         price: trade.executionPrice.toSignificant(5),
+        priceFiat: trade.executionPrice.toSignificant(5) * state.bnb,
       };
     },
   },

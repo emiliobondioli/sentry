@@ -1,26 +1,28 @@
 <template>
-  <div class="flex-1 flex items-center group justify-between">
+  <div class="flex-1 flex items-center group justify-between cursor-pointer">
     <div>
-      <token-image :token="token" class="inline mr-2 w-6 h-6"/>
+      <token-image :token="token" class="inline mr-2 w-6 h-6" />
       <SwitchableInput
         v-model="edit.symbol"
         @update:modelValue="update"
         placeholder="Symbol"
         class="token-symbol font-bold text-lg"
+        @click.stop
       />
       <IconToggle
         class="ml-2 w-4 h-4 opacity-0 group-hover:opacity-100"
-        @click="remove"
+        @click.stop="remove"
       >
         <img src="@/assets/icons/delete.svg" svg-inline class="fill-current" />
       </IconToggle>
       <img
         src="@/assets/icons/copy.svg"
         svg-inline
-        @click="copyTokenAddress"
-        class="fill-current inline w-4 cursor-pointer ml-2 align-text-top opacity-0 group-hover:opacity-100"
+        @click.stop="copyTokenAddress"
+        class="fill-current inline w-4 cursor-pointer ml-2 align-text-top opacity-0 group-hover:opacity-100 "
       />
     </div>
+    <TokenPricePreview v-if="preview" :data="data" />
     <div class="flex">
       <img
         v-if="error"
@@ -43,12 +45,27 @@ import IconToggle from "@/components/IconToggle.vue";
 import SwitchableInput from "@/components/SwitchableInput.vue";
 import { copyToClipboard } from "@/utils";
 import TokenImage from "@/components/TokenImage.vue";
+import TokenPricePreview from "@/components/prices/TokenPricePreview.vue";
 
 export default {
-  components: { SwitchableInput, TokenNotifications, IconToggle, TokenImage },
-  name: "TokenPrice",
+  components: {
+    SwitchableInput,
+    TokenNotifications,
+    IconToggle,
+    TokenImage,
+    TokenPricePreview,
+  },
+  name: "TokenPriceHeader",
   props: {
     token: {
+      type: Object,
+      required: true,
+    },
+    preview: {
+      type: Boolean,
+      default: false,
+    },
+    data: {
       type: Object,
       required: true,
     },
