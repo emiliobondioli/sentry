@@ -15,7 +15,7 @@
         src="@/assets/icons/remove.svg"
         svg-inline
         @click="open = false"
-        class="fill-current absolute w-4 top-0.5 right-0.5 cursor-pointer"
+        class="fill-current absolute w-4 top-0.5 right-0.5 cursor-pointer z-10"
       />
       <div class="w-full max-h-64 overflow-auto">
         <template v-if="notifications.length">
