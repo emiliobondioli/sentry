@@ -26,7 +26,7 @@ export default function useFormats(store) {
   };
 
   const setFiat = (name) => {
-    store.dispatch("preferences", { fiat: name });
+    store.dispatch("preferences/set", { fiat: name });
   };
 
   const symbol = (address) => store.getters.symbol(address);

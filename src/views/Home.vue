@@ -19,17 +19,17 @@
       </li>
     </ul>
   </template>
-  <template v-else>
+  <template v-else-if="false">
     <h4 class="text-center font-bold mt-2">Currency</h4>
     <ul class="p-2 w-full md:w-64 flex justify-between mb-2 md:mb-8">
       <li
-        v-for="(currency, name) in currencies"
-        :key="name"
+        v-for="(currency) in currencies"
+        :key="currency"
         class="cursor-pointer"
-        :class="{ 'text-gray-light font-bold': name === currentFiat }"
-        @click="setFiat(name)"
+        :class="{ 'text-gray-light font-bold': currency === currentFiat }"
+        @click="setFiat(currency)"
       >
-        {{ name }}
+        {{ currency }}
       </li>
     </ul>
   </template>
