@@ -25,6 +25,12 @@ export default function useFormats(store) {
     return prefix + currency(value, n) + symbols[currentFiat.value];
   };
 
+  const sign = (value, n = 2) => {
+    let prefix = "";
+    if (value >= 0) prefix = "+";
+    return prefix + currency(value, n);
+  };
+
   const setFiat = (name) => {
     store.dispatch("preferences/set", { fiat: name });
   };
@@ -34,6 +40,7 @@ export default function useFormats(store) {
   return {
     currencies,
     currentFiat,
+    sign,
     currency,
     fiat,
     lpPair,
