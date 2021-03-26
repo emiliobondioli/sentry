@@ -29,7 +29,11 @@
       <img src="@/assets/tokens/bnb-logo.png" class="w-6 h-6 inline mr-2" />
       {{ fiat(bnb, 2) }}
     </div>
-    <TokenPrice v-for="token in tokens" :key="token.address" :token="token" />
+    <draggable v-model="tokens" group="prices" item-key="address" class="w-full">
+      <template #item="{ element }">
+        <TokenPrice :token="element" />
+      </template>
+    </draggable>
   </div>
 </template>
 
@@ -38,10 +42,11 @@ import { ref, computed } from "vue";
 import { useStore } from "vuex";
 import TokenPrice from "@/components/prices/TokenPrice";
 import useFormats from "@/components/composables/use-formats";
+import draggable from "vuedraggable";
 
 export default {
   name: "Prices",
-  components: { TokenPrice },
+  components: { TokenPrice, draggable },
   setup() {
     const store = useStore();
     const { fiat } = useFormats(store);
@@ -52,7 +57,15 @@ export default {
     update();
     setInterval(update, 5000);
 
-    const tokens = computed(() => store.state.preferences.watchedTokens);
+    const tokens = computed({
+      get() {
+        return store.state.preferences.watchedTokens;
+      },
+      set(value) {
+        console.log(value)
+        store.dispatch("prices/updateWatchedTokens", value);
+      },
+    });
     const bnb = computed(() => store.state.prices.bnb);
 
     const currentFiat = ref(store.getters["preferences/fiat"]);
