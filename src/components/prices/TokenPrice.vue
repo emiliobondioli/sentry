@@ -103,7 +103,11 @@
           :data="graphData"
           v-if="history.length > 2 && graphType === 'candlesticks'"
         />
-        <BlockChart :data="graphData" v-else-if="graphType === 'blocks'" class="w-full h-12" />
+        <BlockChart
+          :data="graphData"
+          v-else-if="graphType === 'blocks'"
+          class="w-full h-12"
+        />
       </div>
     </template>
   </div>
@@ -161,6 +165,7 @@ export default {
     });
 
     const { conversion, amount, price } = useTokenPrice({ props, store });
+    if (balance.value) amount.value = balance.value;
 
     const { checkNotify } = useTokenNotifications({
       props,
@@ -189,7 +194,7 @@ export default {
       history.value.push({
         ...candle.value,
       });
-      if(history.value.length > sample.value * 2) history.value.unshift()
+      if (history.value.length > sample.value * 2) history.value.unshift();
       checkNotify(conversion.value);
       store.commit("prices/history", { address: props.token.address, history });
     }
@@ -234,7 +239,7 @@ export default {
       token: props.token,
       history,
       candle,
-      amount
+      amount,
     }));
 
     return {
@@ -254,7 +259,7 @@ export default {
       update,
       open,
       fiat,
-      data
+      data,
     };
   },
 };
