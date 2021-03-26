@@ -1,6 +1,6 @@
 <template>
   <div class="flex-1 flex items-center group justify-between cursor-pointer">
-    <div>
+    <div class="w-2/5">
       <token-image :token="token" class="inline mr-2 w-6 h-6" />
       <SwitchableInput
         v-model="edit.symbol"

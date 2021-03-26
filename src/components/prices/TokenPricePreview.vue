@@ -1,14 +1,14 @@
 <template>
   <div class="token-price-preview flex-1">
     <div class="flex justify-end text-sm items-center">
-      <div class="text-right mr-4">
+      <div class="text-right mr-4 w-1/5">
         {{ currency(conversion.bnb, 10) }}
         <img
           src="@/assets/tokens/bnb-logo.png"
           class="w-4 h-4 inline ml-0.5 align-baseline"
         />
       </div>
-      <div class="text-right mr-4">
+      <div class="text-right mr-4 w-1/5">
         {{ fiat(conversion.fiat, 10) }}
       </div>
       <BlockChart :data="graphData" class="h-8 w-32 bg-black mr-2" />
