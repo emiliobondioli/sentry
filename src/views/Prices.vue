@@ -1,6 +1,23 @@
 <template>
   <div class="w-full md:w-4/5 p-2 flex flex-col items-center">
-    <div class="w-full flex md:w-4/5">
+    <div class="p-2 mb-2 text-lg flex items-center justify-center w-full">
+      <div class="flex">
+        <div>
+          <select
+            v-model="currentFiat"
+            @change="updateFiat"
+            class="bg-black-dark mr-4 text-sm p-1"
+          >
+            <option value="EUR">EUR</option>
+            <option value="USD">USD</option>
+          </select>
+        </div>
+        <img src="@/assets/tokens/bnb-logo.png" class="w-6 h-6 inline mr-2" />
+        <span @click="showConvert = !showConvert" class="cursor-pointer">{{ fiat(bnb, 2) }}</span>
+      </div>
+      <QuickConvert class="ml-4" v-if="showConvert" />
+    </div>
+    <div class="w-full mb-4 flex">
       <input
         type="text"
         class="p-2 text-lg border bg-gray-light border-gray rounded-sm flex-1 dark:bg-gray-darkest dark:border-gray-darkest"
@@ -15,21 +32,12 @@
         Add
       </button>
     </div>
-    <div class="p-2 mt-2 text-lg flex items-center">
-      <div>
-        <select
-          v-model="currentFiat"
-          @change="updateFiat"
-          class="bg-black-dark mr-4 text-sm p-1"
-        >
-          <option value="EUR">EUR</option>
-          <option value="USD">USD</option>
-        </select>
-      </div>
-      <img src="@/assets/tokens/bnb-logo.png" class="w-6 h-6 inline mr-2" />
-      {{ fiat(bnb, 2) }}
-    </div>
-    <draggable v-model="tokens" group="prices" item-key="address" class="w-full">
+    <draggable
+      v-model="tokens"
+      group="prices"
+      item-key="address"
+      class="w-full"
+    >
       <template #item="{ element }">
         <TokenPrice :token="element" />
       </template>
@@ -41,16 +49,18 @@
 import { ref, computed } from "vue";
 import { useStore } from "vuex";
 import TokenPrice from "@/components/prices/TokenPrice";
+import QuickConvert from "@/components/QuickConvert";
 import useFormats from "@/components/composables/use-formats";
 import draggable from "vuedraggable";
 
 export default {
   name: "Prices",
-  components: { TokenPrice, draggable },
+  components: { TokenPrice, draggable, QuickConvert },
   setup() {
     const store = useStore();
     const { fiat } = useFormats(store);
     const address = ref("");
+    const showConvert = ref(false);
     function update() {
       store.dispatch("prices/get");
     }
@@ -62,7 +72,6 @@ export default {
         return store.state.preferences.watchedTokens;
       },
       set(value) {
-        console.log(value)
         store.dispatch("prices/updateWatchedTokens", value);
       },
     });
@@ -94,6 +103,7 @@ export default {
       bnb,
       updateFiat,
       currentFiat,
+      showConvert
     };
   },
 };

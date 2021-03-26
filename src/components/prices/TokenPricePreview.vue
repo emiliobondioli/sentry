@@ -19,7 +19,7 @@
       </div>
       <BlockChart
         :data="graphData"
-        class="h-8 w-32 bg-black mr-2 hidden md:flex"
+        class="h-8 w-36 bg-black mr-2 hidden md:flex"
       />
     </div>
   </div>
@@ -49,7 +49,7 @@ export default {
     const store = useStore();
     const { currency, fiat, sign } = useFormats(store);
 
-    const sample = ref(24);
+    const sample = ref(20);
     const range = computed(() => props.data.history.value.slice(-sample.value));
     const graphData = computed(() => {
       if (!props.data.candle.value) return [];

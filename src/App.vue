@@ -4,7 +4,7 @@
       class="container p-2 md:p-4 py-8 bg-white dark:bg-black text-gray-darkest dark:text-white flex items-center flex-col lg:max-w-screen-lg md:max-w-none md:w-full mx-auto min-h-screen"
     >
       <header
-        class="flex w-full md:w-4/5 md:items-center mb-4 md:mb-6 flex-col md:flex-row justify-between"
+        class="flex w-full md:w-4/5 md:items-center mb-4 flex-col md:flex-row justify-between"
       >
         <h1
           class="text-center text-xl md:text-2xl font-bold flex items-center justify-center"
