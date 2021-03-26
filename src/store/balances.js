@@ -49,7 +49,6 @@ export default {
         );
         const tokenAmount = new TokenAmount(token.token, transaction.value);
         const price = bnbAmount.divide(tokenAmount);
-        console.log(token.symbol, tokenAmount.toSignificant(5), price.toSignificant(5))
         const weight = price.multiply(tokenAmount);
         return { weight, price: parseFloat(price.toSignificant(5)), amount: tokenAmount };
       });

@@ -4,6 +4,7 @@ import { isSameAddress } from "@/utils";
 import { BSCService } from "./bsc-service";
 import { BatchRequest } from "./utils";
 import web3 from "./web3";
+import AsyncQueue from "@/utils/async-queue";
 
 export class WalletService extends BSCService {
   constructor(config) {
@@ -54,16 +55,20 @@ export class WalletService extends BSCService {
   }
 
   async getUserSwaps(address, tokens) {
-    const transactions = await this.getTransactions(address);
-    const tokenTxs = await this.getUserTokenTransactions(address, tokens, transactions);
+    this.queue = new AsyncQueue()
+    const tokenTxs = await this.getUserTokenTransactions(address, tokens);
     const swaps = tokenTxs.map(async (t) => {
-      const swaps = await this.getTokenSwaps(t, address);
+      const swaps = await this.getTokenSwaps(t, address).then(events => {
+        return events.flat()
+      });
       return { ...t, swaps };
     });
+    await this.queue.process()
     return Promise.all(swaps);
   }
 
-  async getUserTokenTransactions(address, tokens, transactions) {
+  async getUserTokenTransactions(address, tokens) {
+    const transactions = await this.getTransactions(address);
     const tokenTxs = tokens
       .map((token) => {
         const tokenTx = transactions.filter((t) =>
@@ -79,13 +84,13 @@ export class WalletService extends BSCService {
   }
 
   async getTokenSwaps(token, address) {
-    const swaps = token.transactions.map(async (t) => {
+    const swaps = token.transactions.map((t) => {
       const tc = this.tokens.find((c) =>
         isSameAddress(c.address, token.address)
       );
       if (!tc) return null;
       const blockNumber = parseInt(t.blockNumber);
-      return await this.getContractEvents({
+      const item = this.queue.add(this.getContractEvents, {
         type: "Swap",
         contract: tc.swapContract,
         options: {
@@ -93,9 +98,10 @@ export class WalletService extends BSCService {
           toBlock: blockNumber,
           filter: { to: address },
         },
-      });
-    });
-    return Promise.all(swaps).then(events => events.flat());
+      })
+      return item;
+    }).filter(s => s);
+    return Promise.all(swaps);
   }
 }
 
