@@ -1,12 +1,13 @@
 <template>
   <div class="flex-1 flex items-center group justify-between cursor-pointer">
-    <div class="w-44">
+    <div class="w-48">
       <token-image :token="token" class="inline mr-2 w-6 h-6" />
       <SwitchableInput
         v-model="edit.symbol"
         @update:modelValue="update"
         placeholder="Symbol"
         class="token-symbol text-md"
+        editClass="w-24"
         @click.stop
       />
       <IconToggle
@@ -19,10 +20,10 @@
         src="@/assets/icons/copy.svg"
         svg-inline
         @click.stop="copyTokenAddress"
-        class="fill-current inline w-4 cursor-pointer ml-2 align-text-top opacity-0 group-hover:opacity-100 "
+        class="fill-current inline w-4 cursor-pointer ml-2 align-text-top opacity-0 group-hover:opacity-100"
       />
     </div>
-    <TokenPricePreview v-if="preview" :data="data" />
+    <TokenPricePreview v-if="preview" :data="data" :token="token" />
     <div class="flex">
       <img
         v-if="error"
