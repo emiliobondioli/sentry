@@ -189,6 +189,7 @@ export default {
       history.value.push({
         ...candle.value,
       });
+      if(history.value.length > sample.value * 2) history.value.unshift()
       checkNotify(conversion.value);
       store.commit("prices/history", { address: props.token.address, history });
     }

@@ -14,7 +14,7 @@
       <div class="text-right mr-2 w-full md:w-1/6">
         {{ fiat(conversion.fiat, 2) }}
       </div>
-      <BlockChart :data="graphData" class="h-8 w-2/6 bg-black mr-2 hidden md:flex" />
+      <BlockChart :data="graphData" class="h-8 w-36 bg-black mr-2 hidden md:flex" />
     </div>
   </div>
 </template>
@@ -38,7 +38,7 @@ export default {
     const store = useStore();
     const { currency, fiat } = useFormats(store);
 
-    const sample = ref(19);
+    const sample = ref(24);
     const range = computed(() => props.data.history.value.slice(-sample.value));
     const graphData = computed(() => {
       if (!props.data.candle.value) return [];
