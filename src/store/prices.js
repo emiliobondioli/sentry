@@ -83,10 +83,10 @@ export default {
       });
     },
     async bnbPrice(context) {
-      let fiat = context.rootGetters['preferences/fiat']
-      if(fiat === 'USD') fiat = 'USDT'
+      let fiat = context.rootGetters["preferences/fiat"];
+      if (fiat === "USD") fiat = "USDT";
       return axios
-        .get("https://api.binance.com/api/v3/ticker/price?symbol=BNB"+fiat)
+        .get("https://api.binance.com/api/v3/ticker/price?symbol=BNB" + fiat)
         .then((r) => {
           context.commit("bnb", parseFloat(r.data.price));
         });
