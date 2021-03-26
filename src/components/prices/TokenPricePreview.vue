@@ -35,7 +35,7 @@ export default {
     const store = useStore();
     const { currency, fiat } = useFormats(store);
 
-    const sample = ref(12);
+    const sample = ref(19);
     const range = computed(() => props.data.history.value.slice(-sample.value));
     const graphData = computed(() => {
       if (!props.data.candle.value) return [];
