@@ -200,6 +200,8 @@ export default {
       if (v > candle.value.high) candle.value.high = v;
       if (v < candle.value.low) candle.value.low = v;
       candle.value.close = v;
+      candle.value.fiat = conversion.value.fiat;
+      candle.value.bnb = conversion.value.bnb;
     }
 
     function initCandle() {
