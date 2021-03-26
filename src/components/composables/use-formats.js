@@ -48,7 +48,7 @@ export function currency(value, n = 5) {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     });
-  return value.toLocaleString(undefined, {
+  return parseFloat(value).toLocaleString(undefined, {
     minimumFractionDigits: n,
     maximumFractionDigits: n,
   });

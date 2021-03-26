@@ -231,6 +231,7 @@ export default {
       token: props.token,
       history,
       candle,
+      amount
     }));
 
     return {

@@ -1,17 +1,20 @@
 <template>
   <div class="token-price-preview flex-1">
-    <div class="flex justify-end text-sm items-center">
-      <div class="text-right mr-4 w-1/5">
-        {{ currency(conversion.bnb, 10) }}
+    <div class="flex flex-col md:flex-row md:justify-end text-sm md:items-center mr-4 md:mr-0">
+      <div class="text-right mr-2 w-full md:w-2/6">
+        {{ currency(amount, 2) }}
+      </div>
+      <div class="text-right mr-2 w-full md:w-1/6">
+        {{ currency(conversion.bnb, 4) }}
         <img
           src="@/assets/tokens/bnb-logo.png"
-          class="w-4 h-4 inline ml-0.5 align-baseline"
+          class="w-3 h-3 md:w-4 md:h-4 inline ml-0.5 align-baseline"
         />
       </div>
-      <div class="text-right mr-4 w-1/5">
-        {{ fiat(conversion.fiat, 10) }}
+      <div class="text-right mr-2 w-full md:w-1/6">
+        {{ fiat(conversion.fiat, 2) }}
       </div>
-      <BlockChart :data="graphData" class="h-8 w-32 bg-black mr-2" />
+      <BlockChart :data="graphData" class="h-8 w-2/6 bg-black mr-2 hidden md:flex" />
     </div>
   </div>
 </template>
@@ -42,13 +45,17 @@ export default {
       return [...range.value, props.data.candle.value];
     });
 
-    const conversion = computed(()=>props.data.conversion.value);
+    const conversion = computed(() => props.data.conversion.value);
+    const amount = computed(() => props.data.amount.value);
+    const token = computed(() => props.data.token.value);
 
     return {
       graphData,
       currency,
       conversion,
-      fiat
+      amount,
+      token,
+      fiat,
     };
   },
 };

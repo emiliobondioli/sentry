@@ -1,6 +1,6 @@
 <template>
   <div class="flex-1 flex items-center group justify-between cursor-pointer">
-    <div class="w-2/5">
+    <div class="w-44">
       <token-image :token="token" class="inline mr-2 w-6 h-6" />
       <SwitchableInput
         v-model="edit.symbol"
@@ -10,7 +10,7 @@
         @click.stop
       />
       <IconToggle
-        class="ml-2 w-4 h-4 opacity-0 group-hover:opacity-100"
+        class="w-4 h-4 opacity-0 group-hover:opacity-100"
         @click.stop="remove"
       >
         <img src="@/assets/icons/delete.svg" svg-inline class="fill-current" />
