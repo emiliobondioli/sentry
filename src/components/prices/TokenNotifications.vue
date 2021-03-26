@@ -7,7 +7,7 @@
       class="fill-current align-middle w-5 cursor-pointer"
     />
     <div
-      class="notification-options absolute top-0 right-0 w-32 h-24 bg-gray-darkest rounded-sm p-1 shadow"
+      class="notification-options absolute top-0 right-0 w-32 h-24 bg-gray-darkest rounded-sm p-1 shadow z-20"
       v-if="openSettings"
     >
       <img
