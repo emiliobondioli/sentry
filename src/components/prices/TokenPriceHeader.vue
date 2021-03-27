@@ -1,5 +1,5 @@
 <template>
-  <div class="flex-1 flex items-center group justify-between cursor-pointer">
+  <div class="relative flex-1 flex flex-col md:flex-row items-start md:items-center group justify-between cursor-pointer">
     <div class="w-48">
       <token-image :token="token" class="inline mr-2 w-6 h-6" />
       <SwitchableInput
@@ -9,6 +9,7 @@
         class="token-symbol text-md"
         editClass="w-24"
         @click.stop
+        @drag.stop
       />
       <IconToggle
         class="w-4 h-4 opacity-0 group-hover:opacity-100"
@@ -24,7 +25,7 @@
       />
     </div>
     <TokenPricePreview v-if="preview" :data="data" :token="token" />
-    <div class="flex">
+    <div class="flex absolute right-0.5 top-0.5 md:static">
       <img
         v-if="error"
         src="@/assets/icons/warning.svg"
