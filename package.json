@@ -53,6 +53,7 @@
       "parser": "babel-eslint"
     },
     "rules": {
+      "no-unreachable": ["warn"],
       "no-unused-vars": [
         "warn",
         {

@@ -1,6 +1,7 @@
 import WalletService from "@/services/common/wallet-service";
 import Web3 from "web3";
-import { TokenAmount, ChainId, WETH } from "@pancakeswap-libs/sdk";
+import { TokenAmount, ChainId, WETH, Fraction } from "@pancakeswap-libs/sdk";
+import { percentageChangeBN, percentageChange } from "@/utils";
 
 export default {
   namespaced: true,
@@ -40,28 +41,32 @@ export default {
       const token = getters.token(address);
       if (!token || !getters.address(address)) return 0;
       const swapPrices = token.swaps.map((s) => {
-        const bnbAmount = new TokenAmount(
-          WETH[ChainId.MAINNET],
-          s.returnValues.amount1In
-        );
+        const amt = parseInt(s.returnValues.amount0Out)
+          ? s.returnValues.amount1In
+          : s.returnValues.amount0In;
+        const bnbAmount = new TokenAmount(WETH[ChainId.MAINNET], amt);
         const transaction = token.transactions.find(
           (t) => t.hash === s.transactionHash
         );
         const tokenAmount = new TokenAmount(token.token, transaction.value);
         const price = bnbAmount.divide(tokenAmount);
+
         const weight = price.multiply(tokenAmount);
-        return { weight, price: parseFloat(price.toSignificant(5)), amount: tokenAmount };
+        return { weight, amount: tokenAmount };
       });
 
-      const weightedTotals = swapPrices.reduce(
-        (a, b) => {
-          return {
-            weight: a.weight.add(b.weight),
-            amount: a.amount.add(b.amount),
-          };
-        }
-      );
-      return weightedTotals.weight.divide(weightedTotals.amount).toSignificant(5);
+      const weightedTotals = swapPrices.reduce((a, b) => {
+        return {
+          weight: a.weight.add(b.weight),
+          amount: a.amount.add(b.amount),
+        };
+      });
+      return weightedTotals.weight.divide(weightedTotals.amount).toFixed(18);
+    },
+    tokenPercentageChange: (state, getters) => (address, current) => {
+      const price = getters.tokenAveragePrice(address);
+      if (!price) return 0;
+      return percentageChange(price, current);
     },
   },
 };

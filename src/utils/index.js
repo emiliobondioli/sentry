@@ -50,16 +50,17 @@ export function merge(array, data) {
 }
 
 export function percentageChange(a, b) {
+  if (a === 0) return 0;
   let percent;
-  if(b !== 0) {
-      if(a !== 0) {
-          percent = (b - a) / a * 100;
-      } else {
-          percent = b * 100;
-      }
+  if (b !== 0) {
+    if (a !== 0) {
+      percent = ((b - a) / a) * 100;
+    } else {
+      percent = b * 100;
+    }
   } else {
-      percent = - a * 100;            
-  }       
+    percent = -a * 100;
+  }
   return Math.floor(percent);
 }
 

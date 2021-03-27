@@ -6,7 +6,12 @@
       <div class="text-right mr-2 w-full md:w-2/6">
         {{ currency(amount, 2) }}
       </div>
-      <div class="text-right mr-2 w-full md:w-2/6" :class="change >= 0 ? 'text-green':'text-red'">{{ sign(change, 1) }}%</div>
+      <div
+        class="text-right mr-2 w-full md:w-2/6"
+        :class="change >= 0 ? 'text-green' : 'text-red'"
+      >
+        {{ sign(change, 1) }}%
+      </div>
       <div class="text-right mr-2 w-full md:w-1/6">
         {{ currency(conversion.bnb, 4) }}
         <img
@@ -30,7 +35,6 @@ import { useStore } from "vuex";
 import { computed, ref } from "vue";
 import useFormats from "@/components/composables/use-formats";
 import BlockChart from "./BlockChart.vue";
-import { percentageChange } from "@/utils";
 
 export default {
   components: { BlockChart },
@@ -49,7 +53,7 @@ export default {
     const store = useStore();
     const { currency, fiat, sign } = useFormats(store);
 
-    const sample = ref(20);
+    const sample = ref(15);
     const range = computed(() => props.data.history.value.slice(-sample.value));
     const graphData = computed(() => {
       if (!props.data.candle.value) return [];
@@ -59,11 +63,13 @@ export default {
     const averagePrice = computed(() =>
       store.getters["balances/tokenAveragePrice"](props.token.address)
     );
+
     const change = computed(() => {
-      return percentageChange(
-        averagePrice.value,
-        parseFloat(props.data.conversion.value.price)
+      const change = store.getters["balances/tokenPercentageChange"](
+        props.token.address,
+        props.data.conversion.value.priceBN
       );
+      return change || 0;
     });
 
     const conversion = computed(() => props.data.conversion.value);
@@ -77,7 +83,7 @@ export default {
       fiat,
       averagePrice,
       change,
-      sign
+      sign,
     };
   },
 };
