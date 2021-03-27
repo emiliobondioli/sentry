@@ -54,9 +54,9 @@ export class WalletService extends BSCService {
     return contract.getPastEvents(type, options);
   }
 
-  async getUserSwaps(address, tokens) {
+  async getUserSwaps({address, tokens, transactions}) {
     this.queue = new AsyncQueue()
-    const tokenTxs = await this.getUserTokenTransactions(address, tokens);
+    const tokenTxs = await this.getUserTokenTransactions({tokens, transactions});
     const swaps = tokenTxs.map(async (t) => {
       const swaps = await this.getTokenSwaps(t, address).then(events => {
         return events.flat()
@@ -67,8 +67,7 @@ export class WalletService extends BSCService {
     return Promise.all(swaps);
   }
 
-  async getUserTokenTransactions(address, tokens) {
-    const transactions = await this.getTransactions(address);
+  async getUserTokenTransactions({tokens, transactions}) {
     const tokenTxs = tokens
       .map((token) => {
         const tokenTx = transactions.filter((t) =>

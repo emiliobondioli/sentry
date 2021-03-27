@@ -13,7 +13,9 @@
           </select>
         </div>
         <img src="@/assets/tokens/bnb-logo.png" class="w-6 h-6 inline mr-2" />
-        <span @click="showConvert = !showConvert" class="cursor-pointer">{{ fiat(bnb, 2) }}</span>
+        <span @click="showConvert = !showConvert" class="cursor-pointer">{{
+          fiat(bnb, 2)
+        }}</span>
       </div>
       <QuickConvert class="ml-4" v-if="showConvert" />
     </div>
@@ -42,6 +44,7 @@
         <TokenPrice :token="element" />
       </template>
     </draggable>
+    <SuggestTokens class="mt-2" />
   </div>
 </template>
 
@@ -50,12 +53,13 @@ import { ref, computed } from "vue";
 import { useStore } from "vuex";
 import TokenPrice from "@/components/prices/TokenPrice";
 import QuickConvert from "@/components/QuickConvert";
+import SuggestTokens from "@/components/SuggestTokens";
 import useFormats from "@/components/composables/use-formats";
 import draggable from "vuedraggable";
 
 export default {
   name: "Prices",
-  components: { TokenPrice, draggable, QuickConvert },
+  components: { TokenPrice, draggable, QuickConvert, SuggestTokens },
   setup() {
     const store = useStore();
     const { fiat } = useFormats(store);
@@ -85,7 +89,7 @@ export default {
     }
 
     function add() {
-      store.dispatch("prices/add", address.value).then(() => {
+      store.dispatch("prices/add", { address: address.value }).then(() => {
         address.value = "";
       });
     }
@@ -103,7 +107,7 @@ export default {
       bnb,
       updateFiat,
       currentFiat,
-      showConvert
+      showConvert,
     };
   },
 };

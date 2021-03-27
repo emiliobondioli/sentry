@@ -91,12 +91,10 @@ export default {
           context.commit("bnb", parseFloat(r.data.price));
         });
     },
-    add(context, address) {
+    add(context, token) {
       const tokens = [
         ...context.rootGetters["preferences/watchedTokens"],
-        {
-          address,
-        },
+        token,
       ];
       context.dispatch(
         "preferences/set",
