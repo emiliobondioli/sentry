@@ -10,6 +10,8 @@ export default {
     tokenNotifications: [],
     watchedTokens: [],
     tokens: [],
+    browserNotifications: false,
+    soundNotifications: true
   }),
   mutations: {
     address(state, data) {
@@ -39,6 +41,12 @@ export default {
     },
     darkMode(state, data) {
       state.darkMode = data;
+    },
+    browserNotifications(state, data) {
+      state.browserNotifications = data;
+    },
+    soundNotifications(state, data) {
+      state.soundNotifications = data;
     },
     tokenNotifications(state, data) {
       if (!Array.isArray(data)) {

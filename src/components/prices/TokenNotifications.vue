@@ -1,19 +1,19 @@
 <template>
   <div class="flex relative">
     <img
-      @click.stop="openSettings = true"
+      @click.stop="openSettings"
       src="@/assets/icons/settings.svg"
       svg-inline
       class="fill-current align-middle w-5 cursor-pointer"
     />
     <div
       class="notification-options absolute top-0 right-0 w-32 h-24 bg-gray-darkest rounded-sm p-1 shadow z-20"
-      v-if="openSettings"
+      v-if="showSettings"
     >
       <img
         src="@/assets/icons/remove.svg"
         svg-inline
-        @click.stop="openSettings = false"
+        @click.stop="showSettings = false"
         class="fill-current absolute w-4 top-0.5 right-0.5 cursor-pointer"
       />
       <div class="text-sm ml-2">
@@ -22,10 +22,21 @@
           :active="enableNotifications"
           @click.stop="toggleNotifications"
         >
-          <img src="@/assets/icons/bell.svg" svg-inline class="fill-current align-middle" /> 
+          <img
+            src="@/assets/icons/bell.svg"
+            svg-inline
+            class="fill-current align-middle"
+          />
         </IconToggle>
-        <span :class="enableNotifications ? 'text-white' : 'text-gray'">Enable</span>
-        <div class="mt-2" :class="range.up.enable && enableNotifications ? 'text-white' : 'text-gray'">
+        <span :class="enableNotifications ? 'text-white' : 'text-gray'"
+          >Enable</span
+        >
+        <div
+          class="mt-2"
+          :class="
+            range.up.enable && enableNotifications ? 'text-white' : 'text-gray'
+          "
+        >
           <img
             src="@/assets/icons/arrow-up.svg"
             svg-inline
@@ -40,7 +51,13 @@
           />
           %
         </div>
-        <div :class="range.down.enable && enableNotifications ? 'text-white' : 'text-gray'">
+        <div
+          :class="
+            range.down.enable && enableNotifications
+              ? 'text-white'
+              : 'text-gray'
+          "
+        >
           <img
             src="@/assets/icons/arrow-down.svg"
             svg-inline
@@ -91,11 +108,16 @@ export default {
       tokenNotifications.value ? tokenNotifications.value.enable : false
     );
     const range = ref(notificationsRange.value);
-    const openSettings = ref(false);
+    const showSettings = ref(false);
 
     function toggleRange(r) {
       range.value[r].enable = !range.value[r].enable;
       update();
+    }
+
+    function openSettings() {
+      showSettings.value = true;
+
     }
 
     function update() {
@@ -109,6 +131,7 @@ export default {
       toggleNotifications,
       enableNotifications,
       openSettings,
+      showSettings,
       toggleRange,
     };
   },

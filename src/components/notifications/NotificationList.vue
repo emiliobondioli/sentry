@@ -3,7 +3,7 @@
     <img
       src="@/assets/icons/bell.svg"
       class="fill-current w-5 h-5 mx-2 cursor-pointer"
-      :class="!notifications.length ? 'text-gray-darkest':'text-white'"
+      :class="!notifications.length ? 'text-gray-darkest' : 'text-white'"
       @click="open = true"
       svg-inline
     />
@@ -11,6 +11,10 @@
       class="absolute top-2 right-2 w-80 bg-black-dark rounded-sm p-1 pt-3 shadow"
       v-if="open"
     >
+      <div>
+        <input type="checkbox" v-model="browserNotifications" /> Browser
+        <input type="checkbox" v-model="soundNotifications" /> Sound
+      </div>
       <img
         src="@/assets/icons/remove.svg"
         svg-inline
@@ -42,9 +46,32 @@ export default {
   setup() {
     const store = useStore();
     const open = ref(false);
-    const notifications = computed(() => store.state.notifications.list.slice().sort((a, b) => b.date - a.date));
+
+    const browserNotifications = computed({
+      get() {
+        return store.state.preferences.browserNotifications;
+      },
+      set(value) {
+        store.dispatch("preferences/set", { browserNotifications: value });
+      },
+    });
+
+    const soundNotifications = computed({
+      get() {
+        return store.state.preferences.soundNotifications;
+      },
+      set(value) {
+        store.dispatch("preferences/set", { soundNotifications: value });
+      },
+    });
+
+    const notifications = computed(() =>
+      store.state.notifications.list.slice().sort((a, b) => b.date - a.date)
+    );
 
     return {
+      browserNotifications,
+      soundNotifications,
       notifications,
       open,
     };

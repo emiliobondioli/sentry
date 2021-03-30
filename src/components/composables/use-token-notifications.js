@@ -1,5 +1,6 @@
 import { computed } from "vue";
-import { notify } from "@/utils";
+import { browserNotification } from "@/utils";
+import { playSound } from "@/utils";
 
 export default function useTokenNotifications({ props, store }) {
   const watchRange = [];
@@ -55,24 +56,36 @@ export default function useTokenNotifications({ props, store }) {
     if (value < watchRange[0]) {
       if (notificationsRange.value.down.enable) {
         const text = `${props.token.symbol} DOWN - ${conversion.fiat}€`;
-        notify(text);
-        store.dispatch("notifications/create", {
+        const notification = {
           text,
-          type: 'down'
-        });
+          type: "down",
+        };
+        notify(notification);
+        store.dispatch("notifications/create", notification);
       }
       setWatchRange(value);
     }
     if (value > watchRange[1]) {
       if (notificationsRange.value.up.enable) {
         const text = `${props.token.symbol} UP - ${conversion.fiat}€`;
-        notify(text);
-        store.dispatch("notifications/create", {
+        const notification = {
           text,
-          type: 'up'
-        });
+          type: "up",
+        };
+        notify(notification);
+        store.dispatch("notifications/create", notification);
       }
       setWatchRange(value);
+    }
+  }
+
+  function notify(notification) {
+    if (store.state.preferences.browserNotifications)
+      browserNotification(notification.text);
+    if (store.state.preferences.soundNotifications) {
+      if (notification.type === "up")
+        playSound(require("@/assets/sounds/up.mp3"));
+      else playSound(require("@/assets/sounds/down.mp3"));
     }
   }
 
@@ -87,5 +100,6 @@ export default function useTokenNotifications({ props, store }) {
     updateNotificationsRange,
     toggleNotifications,
     checkNotify,
+    notify,
   };
 }
