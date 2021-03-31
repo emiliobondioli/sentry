@@ -61,7 +61,7 @@ export default {
     },
     tokenAveragePrice: (state, getters) => (address) => {
       const token = getters.token(address);
-      if (!token || !getters.address(address)) return 0;
+      if (!token) return 0;
       const swapPrices = token.swaps.map((s) => {
         const amt = parseInt(s.returnValues.amount0Out)
           ? s.returnValues.amount1In
