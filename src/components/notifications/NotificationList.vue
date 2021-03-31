@@ -4,23 +4,29 @@
       src="@/assets/icons/bell.svg"
       class="fill-current w-5 h-5 mx-2 cursor-pointer"
       :class="!notifications.length ? 'text-gray-darkest' : 'text-white'"
-      @click="open = true"
+      @click.stop="open"
       svg-inline
     />
     <div
-      class="absolute top-2 right-2 w-80 bg-black-dark rounded-sm p-1 pt-3 shadow"
-      v-if="open"
+      class="absolute top-2 right-2 w-80 bg-black-dark rounded-sm p-1 pt-3 shadow-md z-20"
+      v-if="show"
+      @click.stop
     >
-      <div>
-        <input type="checkbox" v-model="browserNotifications" /> Browser
-        <input type="checkbox" v-model="soundNotifications" /> Sound
-      </div>
       <img
         src="@/assets/icons/remove.svg"
         svg-inline
-        @click="open = false"
+        @click.stop="close"
         class="fill-current absolute w-4 top-0.5 right-0.5 cursor-pointer z-10"
       />
+      <div class="text-sm flex mb-1">
+        <span class="mr-2"
+          ><input type="checkbox" v-model="browserNotifications" />
+          Browser</span
+        >
+        <span
+          ><input type="checkbox" v-model="soundNotifications" /> Sound</span
+        >
+      </div>
       <div class="w-full max-h-64 overflow-auto">
         <template v-if="notifications.length">
           <notification-item
@@ -37,15 +43,24 @@
 
 <script>
 import { useStore } from "vuex";
-import { computed, ref } from "vue";
+import { computed } from "vue";
 import NotificationItem from "@/components/notifications/NotificationItem.vue";
+import useTooltip from "@/components/composables/use-tooltip";
+import useTokenNotifications from "@/components/composables/use-token-notifications";
 
 export default {
   components: { NotificationItem },
   name: "NotificationList",
   setup() {
     const store = useStore();
-    const open = ref(false);
+    const { show, open, close } = useTooltip();
+    const { notify } = useTokenNotifications({ store });
+    function test() {
+      notify({
+        text: "test",
+        type: "up",
+      });
+    }
 
     const browserNotifications = computed({
       get() {
@@ -73,7 +88,10 @@ export default {
       browserNotifications,
       soundNotifications,
       notifications,
+      show,
       open,
+      close,
+      test,
     };
   },
 };

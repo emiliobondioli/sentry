@@ -1,19 +1,19 @@
 <template>
   <div class="flex relative">
     <img
-      @click.stop="openSettings"
+      @click.stop="open"
       src="@/assets/icons/settings.svg"
       svg-inline
       class="fill-current align-middle w-5 cursor-pointer"
     />
     <div
       class="notification-options absolute top-0 right-0 w-32 h-24 bg-gray-darkest rounded-sm p-1 shadow z-20"
-      v-if="showSettings"
+      v-if="show"
     >
       <img
         src="@/assets/icons/remove.svg"
         svg-inline
-        @click.stop="showSettings = false"
+        @click.stop="close"
         class="fill-current absolute w-4 top-0.5 right-0.5 cursor-pointer"
       />
       <div class="text-sm ml-2">
@@ -82,6 +82,7 @@ import { useStore } from "vuex";
 import { computed, ref } from "vue";
 import useTokenNotifications from "@/components/composables/use-token-notifications";
 import IconToggle from "@/components/IconToggle.vue";
+import useTooltip from "@/components/composables/use-tooltip";
 
 export default {
   components: { IconToggle },
@@ -94,6 +95,7 @@ export default {
   },
   setup(props) {
     const store = useStore();
+    const { show, open, close } = useTooltip();
 
     const {
       tokenNotifications,
@@ -108,16 +110,10 @@ export default {
       tokenNotifications.value ? tokenNotifications.value.enable : false
     );
     const range = ref(notificationsRange.value);
-    const showSettings = ref(false);
 
     function toggleRange(r) {
       range.value[r].enable = !range.value[r].enable;
       update();
-    }
-
-    function openSettings() {
-      showSettings.value = true;
-
     }
 
     function update() {
@@ -130,9 +126,10 @@ export default {
       tokenNotifications,
       toggleNotifications,
       enableNotifications,
-      openSettings,
-      showSettings,
       toggleRange,
+      show,
+      open,
+      close,
     };
   },
 };

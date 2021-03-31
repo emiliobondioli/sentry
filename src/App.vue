@@ -58,6 +58,7 @@
         <router-link to="/prices">Prices</router-link>
       </nav>
       <router-view />
+      <vue-notification-list class="fixed bottom-4 right-8"></vue-notification-list>
     </div>
   </main>
 </template>

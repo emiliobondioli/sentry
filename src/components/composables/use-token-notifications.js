@@ -1,9 +1,11 @@
 import { computed } from "vue";
 import { browserNotification } from "@/utils";
 import { playSound } from "@/utils";
+import { useNotificationStore } from "@dafcoe/vue-notification";
 
 export default function useTokenNotifications({ props, store }) {
   const watchRange = [];
+  const { setNotification } = useNotificationStore();
 
   const tokenNotifications = computed(() => {
     const existing = store.getters["preferences/tokenNotifications"](
@@ -61,7 +63,6 @@ export default function useTokenNotifications({ props, store }) {
           type: "down",
         };
         notify(notification);
-        store.dispatch("notifications/create", notification);
       }
       setWatchRange(value);
     }
@@ -73,7 +74,6 @@ export default function useTokenNotifications({ props, store }) {
           type: "up",
         };
         notify(notification);
-        store.dispatch("notifications/create", notification);
       }
       setWatchRange(value);
     }
@@ -87,6 +87,14 @@ export default function useTokenNotifications({ props, store }) {
         playSound(require("@/assets/sounds/up.mp3"));
       else playSound(require("@/assets/sounds/down.mp3"));
     }
+    setNotification({
+      message: notification.text,
+      type: "info",
+      showIcon: false,
+      duration: 5000,
+      appearance: "dark",
+    });
+    store.dispatch("notifications/create", notification);
   }
 
   function setWatchRange(value) {

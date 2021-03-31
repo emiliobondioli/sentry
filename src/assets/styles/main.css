@@ -18,3 +18,7 @@ input[type="number"] {
 .router-link-active {
   @apply font-bold;
 }
+
+.notification-list-item {
+  @apply p-2 rounded-sm bg-gray-dark shadow-md cursor-pointer mt-2;
+}
