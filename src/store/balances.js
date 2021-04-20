@@ -29,7 +29,7 @@ export default {
       });
     },
     async getSwaps(context, { address, tokens }) {
-      WalletService.getUserSwaps({
+      return WalletService.getUserSwaps({
         address,
         tokens,
         transactions: context.state.transactions,
@@ -38,7 +38,7 @@ export default {
       });
     },
     async getTransactions(context, address) {
-      WalletService.getTransactions(address).then((transactions) => {
+      return WalletService.getTransactions(address).then((transactions) => {
         context.commit("transactions", transactions);
       });
     },
