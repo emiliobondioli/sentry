@@ -39,6 +39,7 @@ export default {
     },
     async getTransactions(context, address) {
       return WalletService.getTransactions(address).then((transactions) => {
+        if (!Array.isArray(transactions)) transactions = [];
         context.commit("transactions", transactions);
       });
     },
