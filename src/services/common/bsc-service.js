@@ -3,7 +3,7 @@ import { parseAddress, convertValue, isSameAddress } from "@/utils";
 import web3 from "./web3";
 
 const API_BASE = "https://api.bscscan.com/api";
-const API_TOKEN = "";
+const API_TOKEN = "HA3WN9FN5JAEY2SW4REEWY8AZVJFPGQK4Y";
 
 export class BSCService {
   /**
@@ -30,9 +30,7 @@ export class BSCService {
    *  Init farm pools and contract
    */
   async init() {
-    await Promise.all([
-      this.web3.init(),
-    ]);
+    await Promise.all([this.web3.init()]);
     return (this.initialized = true);
   }
 
@@ -62,9 +60,10 @@ export class BSCService {
     };
     if (contractAddress) params.contractaddress = parseAddress(contractAddress);
     const r = await this.get(API_BASE, params);
-    return r.data.result;
+    if (r.data.status === "0") throw new Error(r.data.result);
+    if (Array.isArray(r.data.result)) return r.data.result;
+    return [];
   }
-
 
   /**
    *
