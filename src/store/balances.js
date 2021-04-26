@@ -76,7 +76,7 @@ export default {
         const weight = price.multiply(tokenAmount);
         return { weight, amount: tokenAmount };
       });
-
+      if(!swapPrices.length) return 0
       const weightedTotals = swapPrices.reduce((a, b) => {
         return {
           weight: a.weight.add(b.weight),
