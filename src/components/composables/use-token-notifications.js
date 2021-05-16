@@ -91,7 +91,7 @@ export default function useTokenNotifications({ props, store }) {
       message: notification.text,
       type: "info",
       showIcon: false,
-      duration: 5000,
+      duration: 10000,
       appearance: "dark",
     });
     store.dispatch("notifications/create", notification);
