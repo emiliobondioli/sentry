@@ -99,13 +99,8 @@
             />
           </IconToggle>
         </div>
-        <CandlesticksChart
-          :data="graphData"
-          v-if="history.length > 2 && graphType === 'candlesticks'"
-        />
         <BlockChart
           :data="graphData"
-          v-else-if="graphType === 'blocks'"
           class="w-full h-12"
         />
       </div>
@@ -119,14 +114,12 @@ import { computed, ref, watch } from "vue";
 import useFormats from "@/components/composables/use-formats";
 import useTokenNotifications from "@/components/composables/use-token-notifications";
 import useTokenPrice from "@/components/composables/use-token-price";
-import CandlesticksChart from "./CandlesticksChart.vue";
 import BlockChart from "./BlockChart.vue";
 import IconToggle from "@/components/IconToggle.vue";
 import TokenPriceHeader from "@/components/prices/TokenPriceHeader.vue";
-import { DateTime } from "luxon";
 
 export default {
-  components: { CandlesticksChart, BlockChart, IconToggle, TokenPriceHeader },
+  components: { BlockChart, IconToggle, TokenPriceHeader },
   name: "TokenPrice",
   props: {
     token: {
@@ -214,7 +207,7 @@ export default {
       checkNotify(conversion.value.price);
       init = true;
       return {
-        t: DateTime.now().valueOf(),
+        t: new Date().valueOf(),
         o: v,
         h: v,
         l: v,
