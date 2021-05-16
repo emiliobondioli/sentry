@@ -42,19 +42,29 @@ export default {
   },
   actions: {
     async get(context) {
-      const { Fetcher, ChainId, WETH } = context.getters.sdk;
+      const { ChainId, WETH } = context.getters.sdk;
       await context.dispatch("bnbPrice");
       const tokens = context.rootGetters["preferences/watchedTokens"];
       const prices = tokens.map(async (t) => {
         await web3.init();
-        let token, pair, error;
+        let token, tokenv2, pair, pairv2, error;
         try {
-          token = await Fetcher.fetchTokenData(
+          token = await PCSSDK.Fetcher.fetchTokenData(
             ChainId.MAINNET,
             parseAddress(t.address),
             getDefaultProvider(web3.endpoint)
           );
-          pair = await Fetcher.fetchPairData(
+          tokenv2 = await PCSSDKV2.Fetcher.fetchTokenData(
+            ChainId.MAINNET,
+            parseAddress(t.address),
+            getDefaultProvider(web3.endpoint)
+          );
+          pair = await PCSSDK.Fetcher.fetchPairData(
+            WETH[ChainId.MAINNET],
+            token,
+            getDefaultProvider(web3.endpoint)
+          );
+          pairv2 = await PCSSDKV2.Fetcher.fetchPairData(
             WETH[ChainId.MAINNET],
             token,
             getDefaultProvider(web3.endpoint)
@@ -65,7 +75,7 @@ export default {
           pair = null;
           error = true;
         }
-        return { ...t, pair, token, error };
+        return { ...t, pair, pairv2, token, tokenv2, error };
       });
 
       Promise.all(prices).then((prices) => {
@@ -171,15 +181,17 @@ export default {
         priceOnly = true;
       }
       let amt;
+      const token = state.sdk && p.tokenv2 ? p.tokenv2 : p.token;
+      const pair = state.sdk && p.pairv2 ? p.pairv2 : p.pair;
       try {
-        amt = new TokenAmount(p.token, amount * Math.pow(10, p.token.decimals));
+        amt = new TokenAmount(token, amount * Math.pow(10, token.decimals));
       } catch (e) {
         console.error(`Error setting token amount for ${address}`, e);
         priceOnly = true;
-        amt = new TokenAmount(p.token, 1 * Math.pow(10, p.token.decimals));
+        amt = new TokenAmount(token, 1 * Math.pow(10, token.decimals));
       }
       const trade = new Trade(
-        new Route([p.pair], p.token),
+        new Route([pair], token),
         amt,
         TradeType.EXACT_INPUT
       );
