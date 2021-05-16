@@ -1,13 +1,6 @@
 import { getDefaultProvider } from "@ethersproject/providers";
-import {
-  ChainId,
-  Route,
-  TokenAmount,
-  Trade,
-  TradeType,
-  WETH,
-  Fetcher,
-} from "@pancakeswap-libs/sdk";
+import * as PCSSDK from "@pancakeswap-libs/sdk";
+import * as PCSSDKV2 from "@pancakeswap-libs/sdk-v2";
 import axios from "axios";
 import web3 from "@/services/common/web3";
 import { parseAddress } from "@/utils";
@@ -20,6 +13,7 @@ export default {
     bnb: 220,
     history: {},
     errors: [],
+    sdk: 0,
   }),
   mutations: {
     list(state, data) {
@@ -37,9 +31,18 @@ export default {
     historySingle(state, data) {
       state.history[data.address] = data.history;
     },
+    sdk(state, data) {
+      state.sdk = data;
+    },
+    reset(state) {
+      state.list = [];
+      state.errors = [];
+      state.history = [];
+    },
   },
   actions: {
     async get(context) {
+      const { Fetcher, ChainId, WETH } = context.getters.sdk;
       await context.dispatch("bnbPrice");
       const tokens = context.rootGetters["preferences/watchedTokens"];
       const prices = tokens.map(async (t) => {
@@ -139,8 +142,16 @@ export default {
         { root: true }
       );
     },
+    updateSDK(context, value) {
+      context.commit("reset");
+      context.commit("sdk", value);
+      context.dispatch("get");
+    },
   },
   getters: {
+    sdk: (state) => (version = null) => {
+      return state.sdk === 0 ? PCSSDK : PCSSDKV2;
+    },
     address: (state) => (address) => {
       return state.list.find((p) => p.address === address);
     },
@@ -153,6 +164,7 @@ export default {
     convert: (state, getters) => (amount, address) => {
       const p = getters.address(address);
       if (!p) return 0;
+      const { Route, TokenAmount, Trade, TradeType } = getters.sdk;
       let priceOnly = false;
       if (!amount) {
         amount = 1;

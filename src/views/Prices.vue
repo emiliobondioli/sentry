@@ -4,6 +4,14 @@
       <div class="flex">
         <div>
           <select
+            v-model="currentSDK"
+            @change="updateSDK"
+            class="bg-black-dark mr-4 text-sm p-1"
+          >
+            <option :value="0">PCS v1</option>
+            <option :value="1">PCS v2</option>
+          </select>
+          <select
             v-model="currentFiat"
             @change="updateFiat"
             class="bg-black-dark mr-4 text-sm p-1"
@@ -80,12 +88,16 @@ export default {
       },
     });
     const bnb = computed(() => store.state.prices.bnb);
-
     const currentFiat = ref(store.getters["preferences/fiat"]);
+    const currentSDK = ref(store.state.prices.sdk);
 
     function updateFiat() {
       store.dispatch("preferences/set", { fiat: currentFiat.value });
       update();
+    }
+
+    function updateSDK(e) {
+      store.dispatch("prices/updateSDK", parseInt(e.target.value));
     }
 
     function add() {
@@ -107,6 +119,8 @@ export default {
       bnb,
       updateFiat,
       currentFiat,
+      currentSDK,
+      updateSDK,
       showConvert,
     };
   },
