@@ -1,6 +1,8 @@
 <template>
-  <div class="relative flex-1 flex flex-col md:flex-row items-start md:items-center group justify-between cursor-pointer">
-    <div class="w-48">
+  <div
+    class="relative flex-1 flex flex-col md:flex-row items-start md:items-center group justify-between cursor-pointer"
+  >
+    <div class="w-48 relative">
       <token-image :token="token" class="inline mr-2 w-6 h-6" />
       <SwitchableInput
         v-model="edit.symbol"
@@ -26,15 +28,15 @@
     </div>
     <TokenPricePreview v-if="preview" :data="data" :token="token" />
     <div class="flex absolute right-0.5 top-0.5 md:static">
+      <TokenNotifications :token="token" />
       <img
-        v-if="error"
         src="@/assets/icons/warning.svg"
+        v-if="error"
         svg-inline
-        class="w-5 fill-current mr-1"
+        class="w-5 color-dark fill-current absolute -top-4 -right-4 animate-pulse	"
         title="Error getting token info - too early?"
         alt="Error getting token info"
       />
-      <TokenNotifications :token="token" />
     </div>
   </div>
 </template>
@@ -76,8 +78,8 @@ export default {
     const store = useStore();
 
     const edit = ref({ ...props.token });
-    const error = computed(() =>
-      store.getters["prices/error"](props.token.address)
+    const error = computed(
+      () => store.getters["prices/error"](props.token.address)
     );
 
     function copyTokenAddress() {

@@ -1,7 +1,7 @@
 <template>
   <main :class="{ dark, 'bg-white': !dark, 'bg-black': dark }">
     <div
-      class="container p-2 md:p-4 py-8 bg-white dark:bg-black text-gray-darkest dark:text-white flex items-center flex-col lg:max-w-screen-lg md:max-w-none md:w-full mx-auto min-h-screen"
+      class="container p-2 md:p-4 py-8 bg-white dark:bg-black text-gray-darkest dark:text-white flex items-center flex-col lg:max-w-screen-xl md:max-w-none md:w-full mx-auto min-h-screen"
     >
       <header
         class="flex w-full md:w-4/5 md:items-center mb-4 flex-col md:flex-row justify-between"
@@ -16,7 +16,7 @@
           />defi<span class="text-gray">.</span>sentinel
         </h1>
         <nav class="hidden md:block">
-          <router-link to="/">Farms</router-link> |
+          <router-link to="/" class="pointer-none opacity-10">Farms</router-link> |
           <router-link to="/prices">Prices</router-link>
         </nav>
         <div class="flex justify-between items-center mt-2 md:mt-0">

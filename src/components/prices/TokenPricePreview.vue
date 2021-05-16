@@ -1,7 +1,7 @@
 <template>
   <div class="token-price-preview flex-1 w-full">
     <div
-      class="flex flex-row justify-between md:justify-end text-sm md:items-center md:mr-4 md:mr-0"
+      class="flex flex-row justify-between md:justify-end text-sm md:items-center"
     >
       <div class="text-right mr-2 md:w-2/6">
         {{ currency(amount, 2) }}
@@ -13,7 +13,7 @@
         <template v-if="change">{{ sign(change, 1) }}%</template>
         <span v-else class="text-white">-</span>
       </div>
-      <div class="text-right mr-2 md:w-1/6">
+      <div class="text-right mr-2 md:w-2/6">
         {{ currency(conversion.bnb, 4) }}
         <img
           src="@/assets/tokens/bnb-logo.png"
