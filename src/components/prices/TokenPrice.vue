@@ -99,10 +99,7 @@
             />
           </IconToggle>
         </div>
-        <BlockChart
-          :data="graphData"
-          class="w-full h-12"
-        />
+        <BlockChart :data="graphData" class="w-full h-12" />
       </div>
     </template>
   </div>
@@ -217,6 +214,11 @@ export default {
 
     setInterval(updateCandle, 1000);
     setInterval(addHistoryBlock, 3000);
+
+    const sdk = computed(() => store.state.prices.sdk);
+    watch(sdk, () => {
+      history.value = [];
+    });
 
     watch(balance, () => {
       if (
