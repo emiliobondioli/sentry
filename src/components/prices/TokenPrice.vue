@@ -136,7 +136,7 @@ export default {
       () => `https://bscscan.com/token/${props.token.address}`
     );
     const unidexLink = computed(
-      () => `https://unidexbeta.app/bscCharting?token=${props.token.address}`
+      () => `https://charts.bogged.finance/?token=${props.token.address}`
     );
     const open = ref(false);
 
