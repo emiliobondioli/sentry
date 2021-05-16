@@ -13,7 +13,7 @@ export default {
     bnb: 220,
     history: {},
     errors: [],
-    sdk: 0,
+    sdk: 1,
   }),
   mutations: {
     list(state, data) {
@@ -149,7 +149,7 @@ export default {
     },
   },
   getters: {
-    sdk: (state) => (version = null) => {
+    sdk: (state) => {
       return state.sdk === 0 ? PCSSDK : PCSSDKV2;
     },
     address: (state) => (address) => {
