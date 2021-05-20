@@ -13,7 +13,6 @@ export default {
     bnb: 220,
     history: {},
     errors: [],
-    sdk: 1,
   }),
   mutations: {
     list(state, data) {
@@ -30,9 +29,6 @@ export default {
     },
     historySingle(state, data) {
       state.history[data.address] = data.history;
-    },
-    sdk(state, data) {
-      state.sdk = data;
     },
     reset(state) {
       state.list = [];
@@ -151,16 +147,11 @@ export default {
         { watchedTokens: tokens },
         { root: true }
       );
-    },
-    updateSDK(context, value) {
-      context.commit("reset");
-      context.commit("sdk", value);
-      context.dispatch("get");
-    },
+    }
   },
   getters: {
-    sdk: (state) => {
-      return state.sdk === 0 ? PCSSDK : PCSSDKV2;
+    sdk: (state, getters, rootState, rootGetters) => {
+      return rootGetters["preferences/sdk"] === 0 ? PCSSDK : PCSSDKV2;
     },
     address: (state) => (address) => {
       return state.list.find((p) => p.address === address);
@@ -171,7 +162,7 @@ export default {
     price: (state) => (address) => {
       return state.list.find((p) => p.address === address);
     },
-    convert: (state, getters) => (amount, address) => {
+    convert: (state, getters, rootState, rootGetters) => (amount, address) => {
       const p = getters.address(address);
       if (!p) return 0;
       const { Route, TokenAmount, Trade, TradeType } = getters.sdk;
@@ -181,8 +172,8 @@ export default {
         priceOnly = true;
       }
       let amt;
-      const token = state.sdk && p.tokenv2 ? p.tokenv2 : p.token;
-      const pair = state.sdk && p.pairv2 ? p.pairv2 : p.pair;
+      const token = rootGetters["preferences/sdk"] && p.tokenv2 ? p.tokenv2 : p.token;
+      const pair = rootGetters["preferences/sdk"] && p.pairv2 ? p.pairv2 : p.pair;
       try {
         amt = new TokenAmount(token, amount * Math.pow(10, token.decimals));
       } catch (e) {

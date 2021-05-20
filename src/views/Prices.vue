@@ -89,7 +89,7 @@ export default {
     });
     const bnb = computed(() => store.state.prices.bnb);
     const currentFiat = ref(store.getters["preferences/fiat"]);
-    const currentSDK = ref(store.state.prices.sdk);
+    const currentSDK = ref(store.state.preferences.sdk);
 
     function updateFiat() {
       store.dispatch("preferences/set", { fiat: currentFiat.value });
@@ -97,7 +97,7 @@ export default {
     }
 
     function updateSDK(e) {
-      store.dispatch("prices/updateSDK", parseInt(e.target.value));
+      store.dispatch("preferences/updateSDK", parseInt(e.target.value));
     }
 
     function add() {

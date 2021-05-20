@@ -11,11 +11,15 @@ export default {
     watchedTokens: [],
     tokens: [],
     browserNotifications: false,
-    soundNotifications: true
+    soundNotifications: true,
+    sdk: 0,
   }),
   mutations: {
     address(state, data) {
       state.address = data;
+    },
+    sdk(state, data) {
+      state.sdk = data;
     },
     watchedTokens(state, data) {
       state.watchedTokens = data;
@@ -96,6 +100,12 @@ export default {
       context.commit("tokenNotification", data);
       context.dispatch("save");
     },
+    updateSDK(context, value) {
+      context.commit("prices/reset", null, { root: true });
+      context.commit("sdk", value);
+      context.dispatch("prices/get", null, { root: true });
+      context.dispatch("save");
+    },
   },
   getters: {
     tokenNotifications: (state) => (address) => {
@@ -106,12 +116,15 @@ export default {
     watchedTokens: (state) => {
       return state.watchedTokens;
     },
+    sdk: (state) => {
+      return state.sdk;
+    },
     watchedToken: (state) => (address) => {
       return state.watchedTokens.find((t) => t.address === address);
     },
     address: (state) => state.address,
     fiat: (state) => {
       return state.fiat;
-    }
+    },
   },
 };
