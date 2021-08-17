@@ -23,7 +23,7 @@ export default {
   actions: {
     async get(context, { address, tokens }) {
       await context.dispatch("getTransactions", address);
-      WalletService.getTokenBalances(address, tokens).then((r) => {
+      WalletService.getTokenBalances(address, tokens, context.rootGetters["preferences/sdk"]).then((r) => {
         context.commit("balances", r);
         context.dispatch("getSwaps", { address, tokens });
       });

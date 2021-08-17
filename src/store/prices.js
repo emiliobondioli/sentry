@@ -3,7 +3,7 @@ import * as PCSSDK from "@pancakeswap-libs/sdk";
 import * as PCSSDKV2 from "@pancakeswap-libs/sdk-v2";
 import axios from "axios";
 import web3 from "@/services/common/web3";
-import { parseAddress } from "@/utils";
+import { parseAddress, tryOrNull } from "@/utils";
 
 export default {
   namespaced: true,
@@ -44,39 +44,41 @@ export default {
       const prices = tokens.map(async (t) => {
         await web3.init();
         let token, tokenv2, pair, pairv2, error;
-        try {
-          token = await PCSSDK.Fetcher.fetchTokenData(
+        token = await tryOrNull(() =>
+          PCSSDK.Fetcher.fetchTokenData(
             ChainId.MAINNET,
             parseAddress(t.address),
             getDefaultProvider(web3.endpoint)
-          );
-          tokenv2 = await PCSSDKV2.Fetcher.fetchTokenData(
+          ), 'Error getting token info'
+        );
+        pair = await tryOrNull(() =>
+          PCSSDK.Fetcher.fetchPairData(
+            WETH[ChainId.MAINNET],
+            token,
+            getDefaultProvider(web3.endpoint)
+          ), 'Error getting pair info'
+        );
+        tokenv2 = await tryOrNull(() =>
+          PCSSDKV2.Fetcher.fetchTokenData(
             ChainId.MAINNET,
             parseAddress(t.address),
             getDefaultProvider(web3.endpoint)
-          );
-          pair = await PCSSDK.Fetcher.fetchPairData(
+          ), 'Error getting token V2 info'
+        );
+        pairv2 = await tryOrNull(() =>
+          PCSSDKV2.Fetcher.fetchPairData(
             WETH[ChainId.MAINNET],
             token,
             getDefaultProvider(web3.endpoint)
-          );
-          pairv2 = await PCSSDKV2.Fetcher.fetchPairData(
-            WETH[ChainId.MAINNET],
-            token,
-            getDefaultProvider(web3.endpoint)
-          );
-        } catch (e) {
-          console.error(`Error getting token info for ${t.address}`, e.message);
-          token = null;
-          pair = null;
-          error = true;
-        }
+          ), 'Error getting pair V2 info'
+        );
+        error = (pair || pairv2) && (token || tokenv2)
         return { ...t, pair, pairv2, token, tokenv2, error };
       });
 
       Promise.all(prices).then((prices) => {
         context.commit("errors", []);
-        const validPrices = prices.filter((t) => t.pair);
+        const validPrices = prices.filter((t) => t.pair || t.pairv2);
         const errored = prices.filter((t) => t.error);
         context.commit("list", validPrices);
         context.commit("errors", errored);
@@ -147,7 +149,7 @@ export default {
         { watchedTokens: tokens },
         { root: true }
       );
-    }
+    },
   },
   getters: {
     sdk: (state, getters, rootState, rootGetters) => {
@@ -164,6 +166,7 @@ export default {
     },
     convert: (state, getters, rootState, rootGetters) => (amount, address) => {
       const p = getters.address(address);
+      console.log('convert', address, p)
       if (!p) return 0;
       const { Route, TokenAmount, Trade, TradeType } = getters.sdk;
       let priceOnly = false;
@@ -172,8 +175,10 @@ export default {
         priceOnly = true;
       }
       let amt;
-      const token = rootGetters["preferences/sdk"] && p.tokenv2 ? p.tokenv2 : p.token;
-      const pair = rootGetters["preferences/sdk"] && p.pairv2 ? p.pairv2 : p.pair;
+      const token =
+        rootGetters["preferences/sdk"] && p.tokenv2 ? p.tokenv2 : p.token;
+      const pair =
+        rootGetters["preferences/sdk"] && p.pairv2 ? p.pairv2 : p.pair;
       try {
         amt = new TokenAmount(token, amount * Math.pow(10, token.decimals));
       } catch (e) {
@@ -186,6 +191,8 @@ export default {
         amt,
         TradeType.EXACT_INPUT
       );
+
+      console.log(trade.executionPrice.toSignificant(5))
 
       return {
         bnb: priceOnly ? 0 : trade.outputAmount.toSignificant(5),

@@ -68,6 +68,16 @@ export function map(n, in_min, in_max, out_min, out_max) {
   return ((n - in_min) * (out_max - out_min)) / (in_max - in_min) + out_min;
 }
 
+export async function tryOrNull(action, label = 'Error trying action') {
+  let result = null
+  try {
+    result = await action()
+  } catch(e) {
+    console.error(label, e)
+  }
+  return result
+}
+
 export function browserNotification(text) {
   if (!("Notification" in window)) {
     return;

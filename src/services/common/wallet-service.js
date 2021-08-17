@@ -15,19 +15,16 @@ export class WalletService extends BSCService {
   /**
    * Gets current stats for contract tokens
    */
-  async getTokenBalances(address, tokens) {
+  async getTokenBalances(address, tokens, v2 = false) {
     await web3.init();
     const request = new web3.provider.BatchRequest();
     const batch = new BatchRequest();
     tokens.forEach((t) => {
       const swapContract = new web3.provider.eth.Contract(
         PancakePairABI,
-        t.pair.liquidityToken.address
+        t[v2 ? "pairv2" : "pair"].liquidityToken.address
       );
-      const contract = new web3.provider.eth.Contract(
-        ERC20_ABI,
-        t.address
-      );
+      const contract = new web3.provider.eth.Contract(ERC20_ABI, t.address);
       this.tokens.push({ address: t.address, contract, swapContract });
       if (contract.methods.balanceOf) {
         batch.add(contract.methods.balanceOf(address), (r) => {
@@ -54,20 +51,23 @@ export class WalletService extends BSCService {
     return contract.getPastEvents(type, options);
   }
 
-  async getUserSwaps({address, tokens, transactions}) {
-    this.queue = new AsyncQueue()
-    const tokenTxs = await this.getUserTokenTransactions({tokens, transactions});
+  async getUserSwaps({ address, tokens, transactions }) {
+    this.queue = new AsyncQueue();
+    const tokenTxs = await this.getUserTokenTransactions({
+      tokens,
+      transactions,
+    });
     const swaps = tokenTxs.map(async (t) => {
-      const swaps = await this.getTokenSwaps(t, address).then(events => {
-        return events.flat()
+      const swaps = await this.getTokenSwaps(t, address).then((events) => {
+        return events.flat();
       });
       return { ...t, swaps };
     });
-    await this.queue.process()
+    await this.queue.process();
     return Promise.all(swaps);
   }
 
-  async getUserTokenTransactions({tokens, transactions}) {
+  async getUserTokenTransactions({ tokens, transactions }) {
     const tokenTxs = tokens
       .map((token) => {
         const tokenTx = transactions.filter((t) =>
@@ -83,23 +83,25 @@ export class WalletService extends BSCService {
   }
 
   async getTokenSwaps(token, address) {
-    const swaps = token.transactions.map((t) => {
-      const tc = this.tokens.find((c) =>
-        isSameAddress(c.address, token.address)
-      );
-      if (!tc) return null;
-      const blockNumber = parseInt(t.blockNumber);
-      const item = this.queue.add(this.getContractEvents, {
-        type: "Swap",
-        contract: tc.swapContract,
-        options: {
-          fromBlock: blockNumber,
-          toBlock: blockNumber,
-          filter: { to: address },
-        },
+    const swaps = token.transactions
+      .map((t) => {
+        const tc = this.tokens.find((c) =>
+          isSameAddress(c.address, token.address)
+        );
+        if (!tc) return null;
+        const blockNumber = parseInt(t.blockNumber);
+        const item = this.queue.add(this.getContractEvents, {
+          type: "Swap",
+          contract: tc.swapContract,
+          options: {
+            fromBlock: blockNumber,
+            toBlock: blockNumber,
+            filter: { to: address },
+          },
+        });
+        return item;
       })
-      return item;
-    }).filter(s => s);
+      .filter((s) => s);
     return Promise.all(swaps);
   }
 }
