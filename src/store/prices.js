@@ -13,6 +13,7 @@ export default {
     bnb: 220,
     history: {},
     errors: [],
+    failures: {},
   }),
   mutations: {
     list(state, data) {
@@ -20,6 +21,9 @@ export default {
     },
     errors(state, data) {
       state.errors = data;
+    },
+    failures(state, data) {
+      state.failures[data.address] = data.failures;
     },
     bnb(state, data) {
       state.bnb = data;
@@ -44,35 +48,56 @@ export default {
       const prices = tokens.map(async (t) => {
         await web3.init();
         let token, tokenv2, pair, pairv2, error;
-        token = await tryOrNull(() =>
-          PCSSDK.Fetcher.fetchTokenData(
-            ChainId.MAINNET,
-            parseAddress(t.address),
-            getDefaultProvider(web3.endpoint)
-          ), 'Error getting token info'
-        );
-        pair = await tryOrNull(() =>
-          PCSSDK.Fetcher.fetchPairData(
-            WETH[ChainId.MAINNET],
-            token,
-            getDefaultProvider(web3.endpoint)
-          ), 'Error getting pair info'
-        );
-        tokenv2 = await tryOrNull(() =>
-          PCSSDKV2.Fetcher.fetchTokenData(
-            ChainId.MAINNET,
-            parseAddress(t.address),
-            getDefaultProvider(web3.endpoint)
-          ), 'Error getting token V2 info'
-        );
-        pairv2 = await tryOrNull(() =>
-          PCSSDKV2.Fetcher.fetchPairData(
-            WETH[ChainId.MAINNET],
-            token,
-            getDefaultProvider(web3.endpoint)
-          ), 'Error getting pair V2 info'
-        );
-        error = (pair || pairv2) && (token || tokenv2)
+        const address = parseAddress(t.address);
+        if (!context.getters.failed(address, 0)) {
+          token = await tryOrNull(
+            () =>
+              PCSSDK.Fetcher.fetchTokenData(
+                ChainId.MAINNET,
+                address,
+                getDefaultProvider(web3.endpoint)
+              ),
+            "Error getting token info"
+          );
+        }
+        if (!context.getters.failed(address, 1)) {
+          pair = await tryOrNull(
+            () =>
+              PCSSDK.Fetcher.fetchPairData(
+                WETH[ChainId.MAINNET],
+                token,
+                getDefaultProvider(web3.endpoint)
+              ),
+            "Error getting pair info"
+          );
+        }
+        if (!context.getters.failed(address, 2)) {
+          tokenv2 = await tryOrNull(
+            () =>
+              PCSSDKV2.Fetcher.fetchTokenData(
+                ChainId.MAINNET,
+                address,
+                getDefaultProvider(web3.endpoint)
+              ),
+            "Error getting token V2 info"
+          );
+        }
+        if (!context.getters.failed(address, 3)) {
+          pairv2 = await tryOrNull(
+            () =>
+              PCSSDKV2.Fetcher.fetchPairData(
+                WETH[ChainId.MAINNET],
+                token,
+                getDefaultProvider(web3.endpoint)
+              ),
+            "Error getting pair V2 info"
+          );
+        }
+        error = context.rootGetters['preferences/sdk'] ? (!tokenv2 || !pairv2) : (!token || !pair);
+        context.commit("failures", {
+          address,
+          failures: [!token, !pair, !tokenv2, !pairv2],
+        });
         return { ...t, pair, pairv2, token, tokenv2, error };
       });
 
@@ -164,9 +189,12 @@ export default {
     price: (state) => (address) => {
       return state.list.find((p) => p.address === address);
     },
+    failed: (state) => (address, stage) => {
+      if (!state.failures[address]) return false;
+      else return state.failures[address][stage];
+    },
     convert: (state, getters, rootState, rootGetters) => (amount, address) => {
       const p = getters.address(address);
-      console.log('convert', address, p)
       if (!p) return 0;
       const { Route, TokenAmount, Trade, TradeType } = getters.sdk;
       let priceOnly = false;
@@ -191,8 +219,6 @@ export default {
         amt,
         TradeType.EXACT_INPUT
       );
-
-      console.log(trade.executionPrice.toSignificant(5))
 
       return {
         bnb: priceOnly ? 0 : trade.outputAmount.toSignificant(5),
